@@ -46,9 +46,7 @@ button{
   background:#05070b;
 }
 
-/* =====================================================
-   MAIN MENU
-===================================================== */
+/* ================= MENU ================= */
 
 #menu{
   position:absolute;
@@ -208,9 +206,7 @@ button{
   letter-spacing:1.2px;
 }
 
-/* =====================================================
-   WORLD SCREEN
-===================================================== */
+/* ================= WORLD ================= */
 
 #world{
   position:absolute;
@@ -295,9 +291,7 @@ button{
   font-size:9px;
 }
 
-/* =====================================================
-   MATCH
-===================================================== */
+/* ================= GAME ================= */
 
 #game{
   position:absolute;
@@ -349,13 +343,8 @@ button{
   border:3px solid rgba(255,255,255,.8);
 }
 
-.penalty.left{
-  left:-1px;
-}
-
-.penalty.right{
-  right:-1px;
-}
+.penalty.left{left:-1px}
+.penalty.right{right:-1px}
 
 .goal{
   position:absolute;
@@ -365,13 +354,8 @@ button{
   border:4px solid white;
 }
 
-.goal.left{
-  left:-3%;
-}
-
-.goal.right{
-  right:-3%;
-}
+.goal.left{left:-3%}
+.goal.right{right:-3%}
 
 .player{
   position:absolute;
@@ -407,9 +391,7 @@ button{
   z-index:7;
 }
 
-/* =====================================================
-   MATCH HUD
-===================================================== */
+/* ================= MATCH HUD ================= */
 
 .matchHud{
   position:absolute;
@@ -436,6 +418,19 @@ button{
   margin-top:2px;
 }
 
+.controlIndicator{
+  position:absolute;
+  top:max(9px,env(safe-area-inset-top));
+  right:max(12px,env(safe-area-inset-right));
+  z-index:45;
+  padding:8px 10px;
+  border-radius:10px;
+  background:rgba(0,0,0,.58);
+  border:1px solid rgba(255,255,255,.18);
+  font-size:8px;
+  font-weight:900;
+}
+
 .matchMessage{
   position:absolute;
   top:17%;
@@ -455,21 +450,24 @@ button{
   opacity:1;
 }
 
-/* =====================================================
-   CONTROLS
-===================================================== */
+/* ================= TOUCH CONTROLS ================= */
 
 .controls{
   position:absolute;
   inset:0;
+  padding:
+    max(8px,env(safe-area-inset-top))
+    max(10px,env(safe-area-inset-right))
+    max(10px,env(safe-area-inset-bottom))
+    max(10px,env(safe-area-inset-left));
   z-index:40;
   pointer-events:none;
 }
 
 .joystick{
   position:absolute;
-  left:max(22px,env(safe-area-inset-left));
-  bottom:max(24px,env(safe-area-inset-bottom));
+  left:max(16px,env(safe-area-inset-left));
+  bottom:max(16px,env(safe-area-inset-bottom));
   width:118px;
   height:118px;
   border-radius:50%;
@@ -493,8 +491,8 @@ button{
 
 .actionButtons{
   position:absolute;
-  right:max(18px,env(safe-area-inset-right));
-  bottom:max(20px,env(safe-area-inset-bottom));
+  right:max(16px,env(safe-area-inset-right));
+  bottom:max(16px,env(safe-area-inset-bottom));
   width:220px;
   height:155px;
   pointer-events:none;
@@ -548,9 +546,56 @@ button{
   font-size:9px;
 }
 
-/* =====================================================
-   CONTROLLER PANEL
-===================================================== */
+.gamepad-mode .controls{
+  display:none!important;
+}
+
+/* ================= PAUSE ================= */
+
+#pauseOverlay{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(9px);
+  z-index:160;
+}
+
+.pauseCard{
+  width:min(330px,86%);
+  padding:24px;
+  border-radius:20px;
+  background:#0c1018;
+  border:1px solid rgba(255,255,255,.18);
+  text-align:center;
+}
+
+.pauseCard h2{
+  font-size:28px;
+  margin-bottom:7px;
+}
+
+.pauseCard p{
+  font-size:10px;
+  opacity:.6;
+  margin-bottom:12px;
+}
+
+.pauseCard button{
+  width:100%;
+  padding:13px;
+  margin-top:8px;
+  border-radius:11px;
+  background:#e3262e;
+}
+
+.pauseCard button.secondary{
+  background:rgba(255,255,255,.08);
+}
+
+/* ================= CONTROLLER ================= */
 
 #controllerPanel{
   position:absolute;
@@ -559,10 +604,10 @@ button{
   transform:translate(-50%,-50%);
   width:min(430px,90%);
   display:none;
-  z-index:100;
+  z-index:300;
   padding:20px;
   border-radius:18px;
-  background:rgba(5,7,11,.95);
+  background:rgba(5,7,11,.96);
   border:1px solid rgba(255,255,255,.2);
   box-shadow:0 20px 70px rgba(0,0,0,.65);
   text-align:center;
@@ -580,9 +625,7 @@ button{
   background:#e3262e;
 }
 
-/* =====================================================
-   MODALS
-===================================================== */
+/* ================= MODALS ================= */
 
 .modal{
   position:absolute;
@@ -649,18 +692,184 @@ button{
   background:#e3262e;
 }
 
-.locked{
-  opacity:.6;
+.secondary{
+  background:rgba(255,255,255,.08)!important;
+  border:1px solid rgba(255,255,255,.15);
 }
 
-.lock{
-  font-size:24px;
-  margin-bottom:8px;
+/* ================= REPLAY LIST ================= */
+
+#replayList{
+  display:grid;
+  gap:9px;
+  max-height:50vh;
+  overflow:auto;
 }
 
-/* =====================================================
-   RESPONSIVE
-===================================================== */
+.replayItem{
+  padding:13px;
+  border-radius:13px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+}
+
+.replayMeta{
+  font-size:10px;
+}
+
+.replayMeta small{
+  display:block;
+  margin-top:4px;
+  opacity:.55;
+}
+
+.replayButtons{
+  display:flex;
+  gap:6px;
+}
+
+.replayButtons button{
+  padding:9px;
+  border-radius:9px;
+  background:#e3262e;
+  font-size:8px;
+}
+
+.replayButtons .delete{
+  background:rgba(255,255,255,.1);
+}
+
+/* ================= REPLAY SCREEN ================= */
+
+#replayScreen{
+  position:absolute;
+  inset:0;
+  display:none;
+  overflow:hidden;
+  z-index:500;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #23763a 0,
+      #23763a 55px,
+      #2b8345 55px,
+      #2b8345 110px
+    );
+}
+
+.replayPitch{
+  position:absolute;
+  inset:5% 7%;
+  border:3px solid rgba(255,255,255,.88);
+}
+
+.replayPitch:before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:rgba(255,255,255,.88);
+}
+
+.replayPlayer{
+  position:absolute;
+  width:28px;
+  height:44px;
+  transform:translate(-50%,-50%);
+  z-index:5;
+}
+
+.replayHead{
+  width:14px;
+  height:14px;
+  margin:auto;
+  border-radius:50%;
+  background:#9a633f;
+}
+
+.replayBody{
+  width:21px;
+  height:27px;
+  margin:auto;
+  border-radius:5px;
+  background:#fff;
+}
+
+#replayBall{
+  position:absolute;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:#fff;
+  z-index:7;
+}
+
+.replayHud{
+  position:absolute;
+  top:max(10px,env(safe-area-inset-top));
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  min-width:250px;
+  padding:10px 14px;
+  border-radius:14px;
+  text-align:center;
+  background:rgba(0,0,0,.62);
+}
+
+.replayTitle{
+  font-weight:1000;
+  font-size:12px;
+}
+
+.replayTime{
+  font-size:9px;
+  opacity:.7;
+  margin-top:4px;
+}
+
+.replayControls{
+  position:absolute;
+  left:50%;
+  bottom:max(14px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  z-index:30;
+  width:min(560px,92%);
+  padding:12px;
+  border-radius:15px;
+  background:rgba(0,0,0,.68);
+  backdrop-filter:blur(10px);
+}
+
+.replayRange{
+  width:100%;
+}
+
+.replayControlRow{
+  display:flex;
+  gap:7px;
+  margin-top:8px;
+}
+
+.replayControlRow button{
+  flex:1;
+  padding:11px 5px;
+  border-radius:9px;
+  background:rgba(255,255,255,.1);
+  font-size:8px;
+}
+
+.replayControlRow .primary{
+  background:#e3262e;
+}
+
+/* ================= RESPONSIVE ================= */
 
 @media(max-width:600px){
 
@@ -709,15 +918,18 @@ button{
     font-size:8px;
   }
 
-  .worldMenu{
-    grid-template-columns:repeat(4,1fr);
-  }
-
   .worldAction{
     font-size:7px;
     padding:11px 3px;
   }
 
+  .replayItem{
+    grid-template-columns:1fr;
+  }
+
+  .replayButtons button{
+    flex:1;
+  }
 }
 
 @media(max-height:430px){
@@ -748,634 +960,744 @@ button{
 
 <div id="app">
 
-<!-- ===================================================
-     MAIN MENU
-=================================================== -->
+<!-- ================= MENU ================= -->
 
 <section id="menu">
 
-  <div class="menuGlow a"></div>
-  <div class="menuGlow b"></div>
+<div class="menuGlow a"></div>
+<div class="menuGlow b"></div>
 
-  <div class="brand">
-    <div class="brandSmall">OBITREND</div>
-    <div class="logo">
-      FOOTBALL WORLD <span>27</span>
-    </div>
-  </div>
+<div class="brand">
+  <div class="brandSmall">OBITREND</div>
+  <div class="logo">FOOTBALL WORLD <span>27</span></div>
+</div>
 
-  <div class="camera">
-    <div class="cameraTitle">VISUAL ENGINE</div>
-    <div class="cameraName">X-T5 INSPIRED</div>
-    <div class="cameraSub">
-      REALISTIC PHOTOGRAPHIC LOOK
-    </div>
-  </div>
+<div class="camera">
+  <div class="cameraTitle">VISUAL ENGINE</div>
+  <div class="cameraName">X-T5 INSPIRED</div>
+  <div class="cameraSub">REALISTIC PHOTOGRAPHIC LOOK</div>
+</div>
 
-  <div class="hero">
+<div class="hero">
 
-    <div class="eyebrow">
-      A NEW FOOTBALL REALITY
-    </div>
+<div class="eyebrow">A NEW FOOTBALL REALITY</div>
 
-    <h1>
-      PLAY<br>
-      <span>BEYOND</span><br>
-      THE PITCH
-    </h1>
+<h1>
+PLAY<br>
+<span>BEYOND</span><br>
+THE PITCH
+</h1>
 
-    <div class="tagline">
-      FOOTBALL • OPEN WORLD • NEXT GENERATION
-    </div>
+<div class="tagline">
+FOOTBALL • OPEN WORLD • NEXT GENERATION
+</div>
 
-    <div class="menuButtons">
+<div class="menuButtons">
 
-      <button class="menuBtn primary"
-      onclick="openRealWorld()">
-        ENTER REAL WORLD
-      </button>
+<button class="menuBtn primary"
+onclick="openRealWorld()">
+ENTER REAL WORLD
+</button>
 
-      <button class="menuBtn"
-      onclick="openStore()">
-        COINS
-      </button>
+<button class="menuBtn"
+onclick="openStore()">
+COINS
+</button>
 
-      <button class="menuBtn"
-      onclick="openController()">
-        CONTROLS
-      </button>
+<button class="menuBtn"
+onclick="openController()">
+CONTROLS
+</button>
 
-    </div>
+<button class="menuBtn"
+onclick="openReplayList()">
+🎥 REPLAYS
+</button>
 
-  </div>
+</div>
 
-  <div class="menuBottom">
-    <div class="pill">OPEN WORLD</div>
-    <div class="pill">CAREER</div>
-    <div class="pill">LEAGUES</div>
-    <div class="pill">CUPS</div>
-    <div class="pill">WORLD TOURNAMENTS</div>
-    <div class="pill">ANDROID + CONTROLLER</div>
-  </div>
+</div>
+
+<div class="menuBottom">
+<div class="pill">OPEN WORLD</div>
+<div class="pill">CAREER</div>
+<div class="pill">LEAGUES</div>
+<div class="pill">CUPS</div>
+<div class="pill">WORLD TOURNAMENTS</div>
+<div class="pill">ANDROID + CONTROLLER</div>
+</div>
 
 </section>
 
-
-<!-- ===================================================
-     OPEN WORLD
-=================================================== -->
+<!-- ================= WORLD ================= -->
 
 <section id="world">
 
-  <div class="citySky"></div>
-  <div class="city"></div>
+<div class="citySky"></div>
+<div class="city"></div>
 
-  <div class="worldHud">
+<div class="worldHud">
 
-    <button class="hudBox"
-    onclick="backToMenu()">
-      ← MENU
-    </button>
+<button class="hudBox"
+onclick="backToMenu()">
+← MENU
+</button>
 
-    <div class="hudBox">
-      🪙 <span id="coinDisplayWorld">0</span>
-    </div>
+<div class="hudBox">
+🪙 <span id="coinDisplayWorld">0</span>
+</div>
 
-  </div>
+</div>
 
-  <div class="worldMenu">
+<div class="worldMenu">
 
-    <button class="worldAction"
-    onclick="openMatch()">
-      🏟️ STADIUM
-    </button>
+<button class="worldAction"
+onclick="openMatch()">
+🏟️ STADIUM
+</button>
 
-    <button class="worldAction"
-    onclick="openTraining()">
-      🏋️ TRAINING
-    </button>
+<button class="worldAction"
+onclick="openTraining()">
+🏋️ TRAINING
+</button>
 
-    <button class="worldAction"
-    onclick="openLifestyle()">
-      🏠 LIFESTYLE
-    </button>
+<button class="worldAction"
+onclick="openLifestyle()">
+🏠 LIFESTYLE
+</button>
 
-    <button class="worldAction"
-    onclick="openCoaches()">
-      👨‍🏫 COACHES
-    </button>
+<button class="worldAction"
+onclick="openCoaches()">
+👨‍🏫 COACHES
+</button>
 
-  </div>
+</div>
 
 </section>
 
-
-<!-- ===================================================
-     GAME
-=================================================== -->
+<!-- ================= GAME ================= -->
 
 <section id="game">
 
-  <button class="backBtn"
-  onclick="backToWorld()">
-    ← WORLD
-  </button>
+<button class="backBtn"
+onclick="backToWorld()">
+← WORLD
+</button>
 
-  <div class="matchHud">
+<div class="matchHud">
 
-    <div class="score">
-      OBITREND FC&nbsp;&nbsp; <span id="scoreHome">0</span>
-      -
-      <span id="scoreAway">0</span>
-      &nbsp;&nbsp;WORLD XI
-    </div>
+<div class="score">
+OBITREND FC&nbsp;&nbsp;
+<span id="scoreHome">0</span>
+-
+<span id="scoreAway">0</span>
+&nbsp;&nbsp;WORLD XI
+</div>
 
-    <div class="clock">
-      MATCH <span id="matchMinute">1</span>'
-    </div>
+<div class="clock">
+MATCH <span id="matchMinute">1</span>'
+</div>
 
-  </div>
+</div>
 
-  <div id="matchMessage"></div>
+<div id="controlIndicator"
+class="controlIndicator">
+📱 TOUCH
+</div>
 
-  <div id="pitch">
+<div id="matchMessage"
+class="matchMessage">
+</div>
 
-    <div class="centerCircle"></div>
+<div id="pitch">
 
-    <div class="penalty left"></div>
-    <div class="penalty right"></div>
+<div class="centerCircle"></div>
 
-    <div class="goal left"></div>
-    <div class="goal right"></div>
+<div class="penalty left"></div>
+<div class="penalty right"></div>
 
-  </div>
+<div class="goal left"></div>
+<div class="goal right"></div>
 
-  <div id="player" class="player">
-    <div class="playerHead"></div>
-    <div class="playerBody"></div>
-  </div>
+</div>
 
-  <div id="ball"></div>
+<div id="player" class="player">
 
-  <div class="controls">
+<div class="playerHead"></div>
+<div class="playerBody"></div>
 
-    <div
-      id="joystick"
-      class="joystick">
+</div>
 
-      <div
-        id="joystickStick"
-        class="joystickStick">
-      </div>
+<div id="ball"></div>
 
-    </div>
+<!-- TOUCH CONTROLS -->
 
-    <div class="actionButtons">
+<div class="controls">
 
-      <button
-        id="passBtn"
-        class="actionBtn"
-        onclick="passBall()">
-        PASS
-      </button>
+<div id="joystick"
+class="joystick">
 
-      <button
-        id="shootBtn"
-        class="actionBtn"
-        onclick="shootBall()">
-        SHOOT
-      </button>
+<div id="joystickStick"
+class="joystickStick">
+</div>
 
-      <button
-        id="sprintBtn"
-        class="actionBtn"
-        onclick="sprint()">
-        SPRINT
-      </button>
+</div>
 
-      <button
-        id="switchBtn"
-        class="actionBtn"
-        onclick="switchControlMode()">
-        🎮
-      </button>
+<div class="actionButtons">
 
-    </div>
+<button id="passBtn"
+class="actionBtn"
+onclick="passBall()">
+PASS
+</button>
 
-  </div>
+<button id="shootBtn"
+class="actionBtn"
+onclick="shootBall()">
+SHOOT
+</button>
+
+<button id="sprintBtn"
+class="actionBtn"
+onclick="setSprintFromTouch()">
+SPRINT
+</button>
+
+<button id="switchBtn"
+class="actionBtn"
+onclick="switchControlMode()">
+🎮
+</button>
+
+</div>
+
+</div>
+
+<!-- PAUSE -->
+
+<div id="pauseOverlay">
+
+<div class="pauseCard">
+
+<h2>PAUSED</h2>
+
+<p>
+Press OPTIONS again or RESUME to continue.
+</p>
+
+<button onclick="togglePause()">
+RESUME
+</button>
+
+<button
+class="secondary"
+onclick="openReplayListFromPause()">
+🎥 MATCH REPLAYS
+</button>
+
+<button
+class="secondary"
+onclick="exitMatchFromPause()">
+EXIT MATCH
+</button>
+
+</div>
+
+</div>
 
 </section>
 
-
-<!-- ===================================================
-     CONTROLLER PANEL
-=================================================== -->
+<!-- ================= CONTROLLER ================= -->
 
 <div id="controllerPanel">
 
-  <div class="modalTitle">
-    CONTROLLER
-  </div>
+<div class="modalTitle">
+CONTROLLER
+</div>
 
-  <div class="modalSub">
-    Connect a compatible Bluetooth controller.
-    PS5 DualSense controllers are supported where the
-    Android browser exposes the Gamepad API.
-  </div>
+<div class="modalSub">
+Connect a compatible Bluetooth controller.
+PS5 DualSense is supported where the Android browser
+exposes the Gamepad API.
+</div>
 
-  <div id="controllerStatus">
-    Searching for controller...
-  </div>
+<div id="controllerStatus">
+Searching for controller...
+</div>
 
-  <button
-    class="controllerClose"
-    onclick="closeController()">
-    CLOSE
-  </button>
+<button
+class="controllerClose"
+onclick="closeController()">
+CLOSE
+</button>
 
 </div>
 
-
-<!-- ===================================================
-     COIN STORE
-=================================================== -->
+<!-- ================= STORE ================= -->
 
 <div id="storeModal" class="modal">
 
-  <div class="modalCard">
+<div class="modalCard">
 
-    <div class="modalTitle">
-      🪙 OBITREND COINS
-    </div>
+<div class="modalTitle">
+🪙 OBITREND COINS
+</div>
 
-    <div class="modalSub">
-      Coins unlock premium Real World content.
-      Real-money purchases require a secure Android
-      payment implementation later.
-    </div>
+<div class="modalSub">
+Prototype packages. Real-money purchases must be
+connected to secure platform billing and server
+verification before launch.
+</div>
 
-    <div class="grid">
+<div class="grid">
 
-      <div class="card">
-        <strong>100 COINS</strong>
-        <small>Starter package</small>
-        <button class="modalBtn"
-        onclick="demoPurchase(100)">
-          SELECT
-        </button>
-      </div>
+<div class="card">
+<strong>100 COINS</strong>
+<small>Starter package</small>
+<button
+class="modalBtn"
+onclick="demoPurchase(100)">
+SELECT
+</button>
+</div>
 
-      <div class="card">
-        <strong>500 COINS</strong>
-        <small>World package</small>
-        <button class="modalBtn"
-        onclick="demoPurchase(500)">
-          SELECT
-        </button>
-      </div>
+<div class="card">
+<strong>500 COINS</strong>
+<small>World package</small>
+<button
+class="modalBtn"
+onclick="demoPurchase(500)">
+SELECT
+</button>
+</div>
 
-      <div class="card">
-        <strong>1,000 COINS</strong>
-        <small>Career package</small>
-        <button class="modalBtn"
-        onclick="demoPurchase(1000)">
-          SELECT
-        </button>
-      </div>
+<div class="card">
+<strong>1,000 COINS</strong>
+<small>Career package</small>
+<button
+class="modalBtn"
+onclick="demoPurchase(1000)">
+SELECT
+</button>
+</div>
 
-      <div class="card">
-        <strong>5,000 COINS</strong>
-        <small>Premium package</small>
-        <button class="modalBtn"
-        onclick="demoPurchase(5000)">
-          SELECT
-        </button>
-      </div>
-
-    </div>
-
-    <button
-      class="modalBtn"
-      onclick="closeModal('storeModal')">
-      CLOSE
-    </button>
-
-  </div>
+<div class="card">
+<strong>5,000 COINS</strong>
+<small>Premium package</small>
+<button
+class="modalBtn"
+onclick="demoPurchase(5000)">
+SELECT
+</button>
+</div>
 
 </div>
 
+<button
+class="modalBtn secondary"
+onclick="closeModal('storeModal')">
+CLOSE
+</button>
 
-<!-- ===================================================
-     LOCK
-=================================================== -->
+</div>
+
+</div>
+
+<!-- ================= LOCK ================= -->
 
 <div id="lockModal" class="modal">
 
-  <div class="modalCard">
+<div class="modalCard">
 
-    <div class="lock">🔒</div>
+<div class="lock">🔒</div>
 
-    <div class="modalTitle">
-      REAL WORLD LOCKED
-    </div>
+<div class="modalTitle">
+REAL WORLD LOCKED
+</div>
 
-    <div class="modalSub">
-      Real World includes the open-world football city,
-      training, lifestyle, stadium access and career
-      systems.
-    </div>
+<div class="modalSub">
+Real World includes the open-world football city,
+training, lifestyle, stadium access and career systems.
+</div>
 
-    <div class="card">
+<div class="card">
 
-      <strong>
-        Required: <span id="unlockCost">100</span> coins
-      </strong>
+<strong>
+Required:
+<span id="unlockCost">100</span> coins
+</strong>
 
-      <small>
-        Current balance:
-        <span id="lockBalance">0</span>
-      </small>
-
-    </div>
-
-    <button
-      class="modalBtn"
-      onclick="unlockRealWorld()">
-      UNLOCK REAL WORLD
-    </button>
-
-    <button
-      class="modalBtn"
-      onclick="openStoreFromLock()">
-      GET COINS
-    </button>
-
-    <button
-      class="modalBtn"
-      onclick="closeModal('lockModal')">
-      CLOSE
-    </button>
-
-  </div>
+<small>
+Current balance:
+<span id="lockBalance">0</span>
+</small>
 
 </div>
 
+<button
+class="modalBtn"
+onclick="unlockRealWorld()">
+UNLOCK REAL WORLD
+</button>
 
-<!-- ===================================================
-     LIFESTYLE
-=================================================== -->
+<button
+class="modalBtn"
+onclick="openStoreFromLock()">
+GET COINS
+</button>
+
+<button
+class="modalBtn secondary"
+onclick="closeModal('lockModal')">
+CLOSE
+</button>
+
+</div>
+
+</div>
+
+<!-- ================= REPLAY LIST ================= -->
+
+<div id="replayModal" class="modal">
+
+<div class="modalCard">
+
+<div class="modalTitle">
+🎥 MATCH REPLAYS
+</div>
+
+<div class="modalSub">
+Completed matches saved on this device.
+Replays do not change your coins or match state.
+</div>
+
+<div id="replayList">
+</div>
+
+<button
+class="modalBtn secondary"
+onclick="closeModal('replayModal')">
+CLOSE
+</button>
+
+<button
+class="modalBtn secondary"
+onclick="deleteAllReplays()">
+DELETE ALL REPLAYS
+</button>
+
+</div>
+
+</div>
+
+<!-- ================= LIFESTYLE ================= -->
 
 <div id="lifestyleModal" class="modal">
 
-  <div class="modalCard">
+<div class="modalCard">
 
-    <div class="modalTitle">
-      PLAYER LIFESTYLE
-    </div>
+<div class="modalTitle">
+PLAYER LIFESTYLE
+</div>
 
-    <div class="modalSub">
-      Your football career continues outside the pitch.
-    </div>
+<div class="modalSub">
+Your football career continues outside the pitch.
+</div>
 
-    <div class="grid">
+<div class="grid">
 
-      <div class="card">
-        <strong>🏠 HOUSE</strong>
-        <small>Own and upgrade your home.</small>
-      </div>
+<div class="card">
+<strong>🏠 HOUSE</strong>
+<small>Own and upgrade your home.</small>
+</div>
 
-      <div class="card">
-        <strong>🚗 CARS</strong>
-        <small>Collect and customize vehicles.</small>
-      </div>
+<div class="card">
+<strong>🚗 CARS</strong>
+<small>Collect and customize vehicles.</small>
+</div>
 
-      <div class="card">
-        <strong>✈️ PRIVATE JET</strong>
-        <small>Premium travel feature.</small>
-      </div>
+<div class="card">
+<strong>✈️ PRIVATE JET</strong>
+<small>Premium travel feature.</small>
+</div>
 
-      <div class="card">
-        <strong>❤️ RELATIONSHIPS</strong>
-        <small>
-          Family, partner and social-life systems.
-        </small>
-      </div>
+<div class="card">
+<strong>❤️ RELATIONSHIPS</strong>
+<small>Family, partner and social-life systems.</small>
+</div>
 
-      <div class="card">
-        <strong>👶 CHILDREN</strong>
-        <small>
-          Family-life simulation system.
-        </small>
-      </div>
+<div class="card">
+<strong>👶 CHILDREN</strong>
+<small>Family-life simulation system.</small>
+</div>
 
-      <div class="card">
-        <strong>🏙️ WORLD LIFE</strong>
-        <small>
-          Travel between football cities.
-        </small>
-      </div>
-
-    </div>
-
-    <button
-      class="modalBtn"
-      onclick="closeModal('lifestyleModal')">
-      CLOSE
-    </button>
-
-  </div>
+<div class="card">
+<strong>🏙️ WORLD LIFE</strong>
+<small>Travel between football cities.</small>
+</div>
 
 </div>
 
+<button
+class="modalBtn"
+onclick="closeModal('lifestyleModal')">
+CLOSE
+</button>
 
-<!-- ===================================================
-     COACHES
-=================================================== -->
+</div>
+
+</div>
+
+<!-- ================= COACHES ================= -->
 
 <div id="coachModal" class="modal">
 
-  <div class="modalCard">
+<div class="modalCard">
 
-    <div class="modalTitle">
-      👨‍🏫 COACHING CENTRE
-    </div>
+<div class="modalTitle">
+👨‍🏫 COACHING CENTRE
+</div>
 
-    <div class="modalSub">
-      Licensed real-world coaches can be added here
-      once the necessary rights are obtained.
-    </div>
+<div class="modalSub">
+Licensed real-world coaches can be added once
+the necessary rights are obtained.
+</div>
 
-    <div class="grid">
+<div class="grid">
 
-      <div class="card">
-        <strong>TACTICAL COACH</strong>
-        <small>
-          Possession and passing philosophy.
-        </small>
-      </div>
+<div class="card">
+<strong>TACTICAL COACH</strong>
+<small>Possession and passing philosophy.</small>
+</div>
 
-      <div class="card">
-        <strong>ATTACK COACH</strong>
-        <small>
-          Finishing and attacking movement.
-        </small>
-      </div>
+<div class="card">
+<strong>ATTACK COACH</strong>
+<small>Finishing and attacking movement.</small>
+</div>
 
-      <div class="card">
-        <strong>DEFENCE COACH</strong>
-        <small>
-          Defensive shape and tackling.
-        </small>
-      </div>
+<div class="card">
+<strong>DEFENCE COACH</strong>
+<small>Defensive shape and tackling.</small>
+</div>
 
-      <div class="card">
-        <strong>FITNESS COACH</strong>
-        <small>
-          Stamina and injury prevention.
-        </small>
-      </div>
-
-    </div>
-
-    <button
-      class="modalBtn"
-      onclick="closeModal('coachModal')">
-      CLOSE
-    </button>
-
-  </div>
+<div class="card">
+<strong>FITNESS COACH</strong>
+<small>Stamina and injury prevention.</small>
+</div>
 
 </div>
 
+<button
+class="modalBtn"
+onclick="closeModal('coachModal')">
+CLOSE
+</button>
 
-<!-- ===================================================
-     TRAINING
-=================================================== -->
+</div>
+
+</div>
+
+<!-- ================= TRAINING ================= -->
 
 <div id="trainingModal" class="modal">
 
-  <div class="modalCard">
+<div class="modalCard">
 
-    <div class="modalTitle">
-      🏋️ TRAINING CENTRE
-    </div>
+<div class="modalTitle">
+🏋️ TRAINING CENTRE
+</div>
 
-    <div class="modalSub">
-      Training is part of Real World and becomes
-      available after Real World is unlocked.
-    </div>
+<div class="modalSub">
+Training is part of Real World and becomes available
+after Real World is unlocked.
+</div>
 
-    <div class="grid">
+<div class="grid">
 
-      <div class="card">
-        <strong>⚽ SHOOTING</strong>
-        <small>Improve finishing.</small>
-      </div>
+<div class="card">
+<strong>⚽ SHOOTING</strong>
+<small>Improve finishing.</small>
+</div>
 
-      <div class="card">
-        <strong>🎯 PASSING</strong>
-        <small>Improve accuracy.</small>
-      </div>
+<div class="card">
+<strong>🎯 PASSING</strong>
+<small>Improve accuracy.</small>
+</div>
 
-      <div class="card">
-        <strong>🏃 FITNESS</strong>
-        <small>Improve stamina.</small>
-      </div>
+<div class="card">
+<strong>🏃 FITNESS</strong>
+<small>Improve stamina.</small>
+</div>
 
-      <div class="card">
-        <strong>🧠 TACTICS</strong>
-        <small>Improve decision making.</small>
-      </div>
-
-    </div>
-
-    <button
-      class="modalBtn"
-      onclick="closeModal('trainingModal')">
-      CLOSE
-    </button>
-
-  </div>
+<div class="card">
+<strong>🧠 TACTICS</strong>
+<small>Improve decision making.</small>
+</div>
 
 </div>
 
+<button
+class="modalBtn"
+onclick="closeModal('trainingModal')">
+CLOSE
+</button>
 
 </div>
 
+</div>
+
+<!-- ================= REPLAY PLAYER ================= -->
+
+<section id="replayScreen">
+
+<div class="replayPitch"></div>
+
+<div id="replayPlayer"
+class="replayPlayer">
+
+<div class="replayHead"></div>
+<div class="replayBody"></div>
+
+</div>
+
+<div id="replayBall"></div>
+
+<div class="replayHud">
+
+<div class="replayTitle">
+🎥 MATCH REPLAY
+</div>
+
+<div class="replayTime">
+
+<span id="replayClock">
+0:00
+</span>
+
+/
+
+<span id="replayDuration">
+0:00
+</span>
+
+</div>
+
+</div>
+
+<button
+class="backBtn"
+onclick="exitReplay()">
+← EXIT REPLAY
+</button>
+
+<div class="replayControls">
+
+<input
+id="replayRange"
+class="replayRange"
+type="range"
+min="0"
+max="0"
+step="1"
+value="0"
+oninput="seekReplay(this.value)">
+
+<div class="replayControlRow">
+
+<button
+id="replayPlayBtn"
+class="primary"
+onclick="toggleReplayPlay()">
+▶ PLAY
+</button>
+
+<button
+onclick="restartReplay()">
+↶ RESTART
+</button>
+
+<button
+onclick="openReplayList()">
+REPLAYS
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
 
 <script>
 
 /* =====================================================
-   GAME STATE
+   STATE
 ===================================================== */
 
-const state = {
+const REPLAY_KEY="obitrend_match_replays_v1";
+const MAX_REPLAYS=12;
 
-  coins: Number(localStorage.getItem(
-    "obitrend_coins"
-  ) || 0),
+const state={
 
-  realWorldUnlocked:
-    localStorage.getItem(
-      "obitrend_real_world"
-    ) === "true",
+ coins:Number(
+   localStorage.getItem("obitrend_coins")||0
+ ),
 
-  controlMode:
-    localStorage.getItem(
-      "obitrend_control_mode"
-    ) || "touch",
+ realWorldUnlocked:
+   localStorage.getItem(
+     "obitrend_real_world"
+   )==="true",
 
-  x:50,
-  y:50,
+ controlMode:
+   localStorage.getItem(
+     "obitrend_control_mode"
+   )||"touch",
 
-  ballX:53,
-  ballY:50,
+ x:50,
+ y:50,
 
-  speed:0.55,
-  sprinting:false,
+ ballX:53,
+ ballY:50,
 
-  scoreHome:0,
-  scoreAway:0,
+ speed:.55,
+ sprinting:false,
 
-  minute:1,
+ scoreHome:0,
+ scoreAway:0,
 
-  moving:false,
+ minute:1,
 
-  gamepad:null,
+ moving:false,
 
-  commentaryLast:0
+ gamepad:null,
+
+ paused:false,
+
+ commentaryLast:0,
+
+ replay:null,
+
+ replayLastRecord:0
 
 };
-
 
 /* =====================================================
    ELEMENTS
 ===================================================== */
 
-const menu =
-  document.getElementById("menu");
+const $=id=>document.getElementById(id);
 
-const world =
-  document.getElementById("world");
+const menu=$("menu");
+const world=$("world");
+const game=$("game");
+const player=$("player");
+const ball=$("ball");
 
-const game =
-  document.getElementById("game");
+const joystick=$("joystick");
+const joystickStick=$("joystickStick");
 
-const player =
-  document.getElementById("player");
-
-const ball =
-  document.getElementById("ball");
-
-const joystick =
-  document.getElementById("joystick");
-
-const joystickStick =
-  document.getElementById("joystickStick");
-
-const matchMessage =
-  document.getElementById("matchMessage");
-
+const matchMessage=$("matchMessage");
 
 /* =====================================================
    COINS
@@ -1383,217 +1705,175 @@ const matchMessage =
 
 function saveCoins(){
 
-  localStorage.setItem(
-    "obitrend_coins",
-    String(state.coins)
-  );
+ localStorage.setItem(
+   "obitrend_coins",
+   String(state.coins)
+ );
 
-  updateCoinDisplays();
+ updateCoinDisplays();
+
 }
-
 
 function updateCoinDisplays(){
 
-  document.querySelector(
-    "#coinDisplayWorld"
-  ).textContent =
-    state.coins;
+ $("coinDisplayWorld").textContent=
+   state.coins;
 
-  document.querySelector(
-    "#lockBalance"
-  ).textContent =
-    state.coins;
+ $("lockBalance").textContent=
+   state.coins;
+
 }
-
 
 function openStore(){
 
-  document.getElementById(
-    "storeModal"
-  ).style.display="flex";
+ $("storeModal").style.display="flex";
 
 }
-
 
 function openStoreFromLock(){
 
-  closeModal("lockModal");
+ closeModal("lockModal");
 
-  openStore();
+ openStore();
 
 }
-
-
-/*
-  DEMO ONLY.
-
-  This simulates a purchase so the prototype
-  can be tested.
-
-  DO NOT treat this as a real payment system.
-*/
 
 function demoPurchase(amount){
 
-  state.coins += amount;
+ state.coins+=amount;
 
-  saveCoins();
+ saveCoins();
 
-  alert(
-    amount +
-    " demo coins added.\n\n" +
-    "Real money purchases will require " +
-    "Android/Google Play Billing and secure " +
-    "server-side verification."
-  );
+ alert(
+   amount+
+   " demo coins added.\n\n"+
+   "This is prototype currency only."
+ );
 
-  closeModal("storeModal");
+ closeModal("storeModal");
+
 }
 
-
 /* =====================================================
-   REAL WORLD LOCK
+   REAL WORLD
 ===================================================== */
 
 function openRealWorld(){
 
-  if(state.realWorldUnlocked){
+ if(state.realWorldUnlocked){
 
-    openWorld();
+   openWorld();
 
-    return;
+   return;
 
-  }
+ }
 
-  document.getElementById(
-    "lockModal"
-  ).style.display="flex";
+ $("lockModal").style.display="flex";
 
 }
-
 
 function unlockRealWorld(){
 
-  const cost=100;
+ const cost=100;
 
-  if(state.coins < cost){
+ if(state.coins<cost){
 
-    alert(
-      "You need " +
-      cost +
-      " coins to unlock Real World."
-    );
+   alert(
+     "You need "+
+     cost+
+     " coins to unlock Real World."
+   );
 
-    return;
+   return;
 
-  }
+ }
 
-  state.coins-=cost;
+ state.coins-=cost;
 
-  state.realWorldUnlocked=true;
+ state.realWorldUnlocked=true;
 
-  localStorage.setItem(
-    "obitrend_real_world",
-    "true"
-  );
+ localStorage.setItem(
+   "obitrend_real_world",
+   "true"
+ );
 
-  saveCoins();
+ saveCoins();
 
-  closeModal("lockModal");
+ closeModal("lockModal");
 
-  openWorld();
+ openWorld();
 
 }
-
 
 function openWorld(){
 
-  menu.style.display="none";
-  game.style.display="none";
-  world.style.display="block";
+ menu.style.display="none";
 
-  updateCoinDisplays();
+ game.style.display="none";
+
+ world.style.display="block";
+
+ updateCoinDisplays();
 
 }
-
 
 function backToMenu(){
 
-  world.style.display="none";
-  game.style.display="none";
-  menu.style.display="block";
+ stopReplayRecording(true);
+
+ world.style.display="none";
+
+ game.style.display="none";
+
+ menu.style.display="block";
 
 }
 
-
 /* =====================================================
-   TRAINING
+   TRAINING / LIFESTYLE / COACHES
 ===================================================== */
 
 function openTraining(){
 
-  if(!state.realWorldUnlocked){
+ if(!state.realWorldUnlocked){
 
-    document.getElementById(
-      "lockModal"
-    ).style.display="flex";
+   $("lockModal").style.display="flex";
 
-    return;
+   return;
 
-  }
+ }
 
-  document.getElementById(
-    "trainingModal"
-  ).style.display="flex";
+ $("trainingModal").style.display="flex";
 
 }
-
-
-/* =====================================================
-   LIFESTYLE
-===================================================== */
 
 function openLifestyle(){
 
-  if(!state.realWorldUnlocked){
+ if(!state.realWorldUnlocked){
 
-    document.getElementById(
-      "lockModal"
-    ).style.display="flex";
+   $("lockModal").style.display="flex";
 
-    return;
+   return;
 
-  }
+ }
 
-  document.getElementById(
-    "lifestyleModal"
-  ).style.display="flex";
+ $("lifestyleModal").style.display="flex";
 
 }
-
-
-/* =====================================================
-   COACHES
-===================================================== */
 
 function openCoaches(){
 
-  if(!state.realWorldUnlocked){
+ if(!state.realWorldUnlocked){
 
-    document.getElementById(
-      "lockModal"
-    ).style.display="flex";
+   $("lockModal").style.display="flex";
 
-    return;
+   return;
 
-  }
+ }
 
-  document.getElementById(
-    "coachModal"
-  ).style.display="flex";
+ $("coachModal").style.display="flex";
 
 }
-
 
 /* =====================================================
    MODALS
@@ -1601,12 +1881,12 @@ function openCoaches(){
 
 function closeModal(id){
 
-  document.getElementById(
-    id
-  ).style.display="none";
+ const el=$(id);
+
+ if(el)
+   el.style.display="none";
 
 }
-
 
 /* =====================================================
    MATCH
@@ -1614,93 +1894,94 @@ function closeModal(id){
 
 function openMatch(){
 
-  if(!state.realWorldUnlocked){
+ if(!state.realWorldUnlocked){
 
-    document.getElementById(
-      "lockModal"
-    ).style.display="flex";
+   $("lockModal").style.display="flex";
 
-    return;
+   return;
 
-  }
+ }
 
-  world.style.display="none";
-  game.style.display="block";
+ world.style.display="none";
 
-  resetMatch();
+ game.style.display="block";
 
-  showMessage(
-    "MATCH READY"
-  );
+ state.paused=false;
+
+ $("pauseOverlay").style.display="none";
+
+ resetMatch();
+
+ setControlMode(state.controlMode);
+
+ startReplayRecording();
+
+ showMessage("MATCH READY");
 
 }
-
 
 function resetMatch(){
 
-  state.x=50;
-  state.y=50;
+ state.x=50;
+ state.y=50;
 
-  state.ballX=53;
-  state.ballY=50;
+ state.ballX=53;
+ state.ballY=50;
 
-  state.scoreHome=0;
-  state.scoreAway=0;
+ state.scoreHome=0;
+ state.scoreAway=0;
 
-  state.minute=1;
+ state.minute=1;
 
-  document.getElementById(
-    "scoreHome"
-  ).textContent=0;
+ state.sprinting=false;
+ state.speed=.55;
 
-  document.getElementById(
-    "scoreAway"
-  ).textContent=0;
+ $("scoreHome").textContent="0";
+ $("scoreAway").textContent="0";
+ $("matchMinute").textContent="1";
 
-  document.getElementById(
-    "matchMinute"
-  ).textContent=1;
-
-  updatePlayer();
-
-  updateBall();
+ updatePlayer();
+ updateBall();
 
 }
-
 
 function backToWorld(){
 
-  game.style.display="none";
-  world.style.display="block";
+ stopReplayRecording(true);
+
+ state.paused=false;
+
+ $("pauseOverlay").style.display="none";
+
+ game.style.display="none";
+
+ world.style.display="block";
 
 }
 
-
 /* =====================================================
-   PLAYER POSITION
+   PLAYER
 ===================================================== */
 
 function updatePlayer(){
 
-  player.style.left =
-    state.x + "%";
+ player.style.left=
+   state.x+"%";
 
-  player.style.top =
-    state.y + "%";
+ player.style.top=
+   state.y+"%";
 
 }
-
 
 function updateBall(){
 
-  ball.style.left =
-    state.ballX + "%";
+ ball.style.left=
+   state.ballX+"%";
 
-  ball.style.top =
-    state.ballY + "%";
+ ball.style.top=
+   state.ballY+"%";
 
 }
-
 
 /* =====================================================
    TOUCH JOYSTICK
@@ -1710,120 +1991,131 @@ let joystickPointer=null;
 
 function handleJoystick(e){
 
-  const rect =
-    joystick.getBoundingClientRect();
+ if(
+   state.controlMode!=="touch"||
+   state.paused
+ )
+   return;
 
-  const cx =
-    rect.left + rect.width/2;
+ const rect=
+   joystick.getBoundingClientRect();
 
-  const cy =
-    rect.top + rect.height/2;
+ const cx=
+   rect.left+
+   rect.width/2;
 
-  let dx =
-    e.clientX-cx;
+ const cy=
+   rect.top+
+   rect.height/2;
 
-  let dy =
-    e.clientY-cy;
+ let dx=
+   e.clientX-cx;
 
-  const max =
-    rect.width*.32;
+ let dy=
+   e.clientY-cy;
 
-  const distance =
-    Math.sqrt(dx*dx+dy*dy);
+ const max=
+   rect.width*.32;
 
-  if(distance>max){
+ const distance=
+   Math.sqrt(dx*dx+dy*dy);
 
-    dx =
-      dx/distance*max;
+ if(distance>max){
 
-    dy =
-      dy/distance*max;
+   dx=
+     dx/distance*max;
 
-  }
+   dy=
+     dy/distance*max;
 
-  joystickStick.style.transform =
-    "translate(calc(-50% + "+dx+"px)," +
-    "calc(-50% + "+dy+"px))";
+ }
 
-  state.x +=
-    dx/max *
-    state.speed;
+ joystickStick.style.transform=
+   "translate(calc(-50% + "+
+   dx+"px),calc(-50% + "+
+   dy+"px))";
 
-  state.y +=
-    dy/max *
-    state.speed;
+ state.x+=
+   dx/max*
+   state.speed;
 
-  state.x =
-    Math.max(10,Math.min(90,state.x));
+ state.y+=
+   dy/max*
+   state.speed;
 
-  state.y =
-    Math.max(10,Math.min(90,state.y));
+ state.x=
+   Math.max(
+     10,
+     Math.min(90,state.x)
+   );
 
-  state.moving=true;
+ state.y=
+   Math.max(
+     10,
+     Math.min(90,state.y)
+   );
 
-  updatePlayer();
+ state.moving=true;
+
+ updatePlayer();
 
 }
 
-
 joystick.addEventListener(
-  "pointerdown",
-  e=>{
+ "pointerdown",
+ e=>{
 
-    if(state.controlMode!=="touch")
-      return;
+   if(state.controlMode!=="touch")
+     return;
 
-    joystickPointer=e.pointerId;
+   joystickPointer=
+     e.pointerId;
 
-    joystick.setPointerCapture(
-      e.pointerId
-    );
+   joystick.setPointerCapture(
+     e.pointerId
+   );
 
-    handleJoystick(e);
+   handleJoystick(e);
 
-  }
+ }
 );
 
-
 joystick.addEventListener(
-  "pointermove",
-  e=>{
+ "pointermove",
+ e=>{
 
-    if(
-      state.controlMode==="touch" &&
-      joystickPointer===e.pointerId
-    ){
+   if(
+     joystickPointer===
+     e.pointerId
+   ){
 
-      handleJoystick(e);
+     handleJoystick(e);
 
-    }
+   }
 
-  }
+ }
 );
-
 
 function resetJoystick(){
 
-  joystickPointer=null;
+ joystickPointer=null;
 
-  joystickStick.style.transform =
-    "translate(-50%,-50%)";
+ joystickStick.style.transform=
+   "translate(-50%,-50%)";
 
-  state.moving=false;
+ state.moving=false;
 
 }
 
-
 joystick.addEventListener(
-  "pointerup",
-  resetJoystick
+ "pointerup",
+ resetJoystick
 );
 
 joystick.addEventListener(
-  "pointercancel",
-  resetJoystick
+ "pointercancel",
+ resetJoystick
 );
-
 
 /* =====================================================
    ACTIONS
@@ -1831,75 +2123,96 @@ joystick.addEventListener(
 
 function passBall(){
 
-  if(!state.realWorldUnlocked)
-    return;
+ if(
+   !state.realWorldUnlocked||
+   state.paused
+ )
+   return;
 
-  state.ballX =
-    Math.min(
-      90,
-      state.x+10
-    );
+ state.ballX=
+   Math.min(
+     90,
+     state.x+10
+   );
 
-  state.ballY =
-    state.y;
+ state.ballY=
+   state.y;
 
-  updateBall();
+ updateBall();
 
-  commentary(
-    "A sharp pass into space."
-  );
+ commentary(
+   "A sharp pass into space."
+ );
 
-  checkOffside();
+ recordReplayEvent("PASS");
+
+ checkOffside();
 
 }
-
 
 function shootBall(){
 
-  if(!state.realWorldUnlocked)
-    return;
+ if(
+   !state.realWorldUnlocked||
+   state.paused
+ )
+   return;
 
-  state.ballX =
-    Math.min(
-      96,
-      state.x+24
-    );
+ state.ballX=
+   Math.min(
+     96,
+     state.x+24
+   );
 
-  state.ballY =
-    state.y;
+ state.ballY=
+   state.y;
 
-  updateBall();
+ updateBall();
 
-  commentary(
-    "He strikes the ball!"
-  );
+ commentary(
+   "He strikes the ball!"
+ );
 
-  setTimeout(
-    validateGoal,
-    450
-  );
+ recordReplayEvent("SHOT");
 
-}
-
-
-function sprint(){
-
-  state.sprinting=
-    !state.sprinting;
-
-  state.speed=
-    state.sprinting
-    ? 1.15
-    : .55;
-
-  showMessage(
-    state.sprinting
-    ? "SPRINT ON"
-    : "SPRINT OFF"
-  );
+ setTimeout(
+   validateGoal,
+   450
+ );
 
 }
 
+function setSprint(on){
+
+ state.sprinting=
+   !!on;
+
+ state.speed=
+   state.sprinting
+   ?1.15
+   :.55;
+
+}
+
+function setSprintFromTouch(){
+
+ if(
+   state.controlMode!=="touch"||
+   state.paused
+ )
+   return;
+
+ setSprint(
+   !state.sprinting
+ );
+
+ showMessage(
+   state.sprinting
+   ?"SPRINT ON"
+   :"SPRINT OFF"
+ );
+
+}
 
 /* =====================================================
    OFFSIDE
@@ -1907,164 +2220,216 @@ function sprint(){
 
 function checkOffside(){
 
-  /*
-    Prototype rule:
-    If the player is too far beyond the
-    simplified defensive line, the referee
-    calls offside.
-  */
+ const defensiveLine=82;
 
-  const defensiveLine=82;
+ if(state.x>defensiveLine){
 
-  if(state.x>defensiveLine){
+   commentary(
+     "Flag up! Offside."
+   );
 
-    commentary(
-      "Flag up! Offside."
-    );
+   showMessage(
+     "🚩 OFFSIDE — PLAY STOPPED"
+   );
 
-    showMessage(
-      "🚩 OFFSIDE — PLAY STOPPED"
-    );
+   recordReplayEvent(
+     "OFFSIDE"
+   );
 
-    return true;
+   return true;
 
-  }
+ }
 
-  return false;
+ return false;
 
 }
 
-
 /* =====================================================
-   GOAL VALIDATION
+   GOAL
 ===================================================== */
 
 function validateGoal(){
 
-  if(checkOffside()){
+ if(state.paused)
+   return;
 
-    resetBall();
+ if(checkOffside()){
 
-    return;
+   resetBall();
 
-  }
+   return;
 
-  if(state.ballX>=90){
+ }
 
-    state.scoreHome++;
+ if(state.ballX>=90){
 
-    document.getElementById(
-      "scoreHome"
-    ).textContent=
-      state.scoreHome;
+   state.scoreHome++;
 
-    commentary(
-      "GOAL! What a finish!"
-    );
+   $("scoreHome").textContent=
+     state.scoreHome;
 
-    showMessage(
-      "⚽ GOAL!"
-    );
+   commentary(
+     "GOAL! What a finish!"
+   );
 
-    setTimeout(
-      resetBall,
-      900
-    );
+   showMessage(
+     "⚽ GOAL!"
+   );
 
-  }else{
+   recordReplayEvent(
+     "GOAL"
+   );
 
-    resetBall();
+   setTimeout(
+     resetBall,
+     900
+   );
 
-  }
+ }else{
+
+   resetBall();
+
+ }
 
 }
-
 
 function resetBall(){
 
-  state.ballX=
-    state.x+3;
+ state.ballX=
+   Math.min(
+     90,
+     state.x+3
+   );
 
-  state.ballY=
-    state.y;
+ state.ballY=
+   state.y;
 
-  updateBall();
+ updateBall();
 
 }
 
+/* =====================================================
+   PAUSE
+===================================================== */
+
+function togglePause(){
+
+ if(game.style.display!=="block")
+   return;
+
+ state.paused=
+   !state.paused;
+
+ $("pauseOverlay").style.display=
+   state.paused
+   ?"flex"
+   :"none";
+
+ if(state.paused){
+
+   setSprint(false);
+
+   showMessage("PAUSED");
+
+ }else{
+
+   showMessage(
+     "MATCH RESUMED"
+   );
+
+ }
+
+}
+
+function openReplayListFromPause(){
+
+ $("pauseOverlay").style.display="none";
+
+ openReplayList();
+
+}
+
+function exitMatchFromPause(){
+
+ $("pauseOverlay").style.display="none";
+
+ backToWorld();
+
+}
 
 /* =====================================================
-   REFEREE + MATCH CLOCK
+   MATCH CLOCK
 ===================================================== */
 
 setInterval(()=>{
 
-  if(game.style.display!=="block")
-    return;
+ if(
+   game.style.display!=="block"||
+   state.paused
+ )
+   return;
 
-  state.minute++;
+ state.minute++;
 
-  if(state.minute>90)
-    state.minute=1;
+ if(state.minute>90)
+   state.minute=1;
 
-  document.getElementById(
-    "matchMinute"
-  ).textContent=
-    state.minute;
+ $("matchMinute").textContent=
+   state.minute;
 
-  /*
-    Random referee check.
-  */
+ if(Math.random()<.025){
 
-  if(Math.random()<.025){
+   const events=[
 
-    const events=[
-      "Referee checking the challenge.",
-      "Assistant referee checking the line.",
-      "Goal checked before restart.",
-      "Referee confirms play."
-    ];
+     "Referee checking the challenge.",
 
-    showMessage(
-      "REFEREE: " +
-      events[
-        Math.floor(
-          Math.random()*events.length
-        )
-      ]
-    );
+     "Assistant referee checking the line.",
 
-  }
+     "Goal checked before restart.",
 
-  /*
-    Occasional medical incident.
-  */
+     "Referee confirms play."
 
-  if(Math.random()<.01){
+   ];
 
-    medicalEmergency();
+   showMessage(
+     "REFEREE: "+
+     events[
+       Math.floor(
+         Math.random()*
+         events.length
+       )
+     ]
+   );
 
-  }
+ }
+
+ if(Math.random()<.01){
+
+   medicalEmergency();
+
+ }
 
 },1000);
 
-
 /* =====================================================
-   MEDICAL SYSTEM
+   MEDICAL
 ===================================================== */
 
 function medicalEmergency(){
 
-  commentary(
-    "The player is down. Medical staff are coming on."
-  );
+ commentary(
+   "The player is down. Medical staff are coming on."
+ );
 
-  showMessage(
-    "🩺 MEDICAL TEAM ON THE PITCH"
-  );
+ showMessage(
+   "🩺 MEDICAL TEAM ON THE PITCH"
+ );
+
+ recordReplayEvent(
+   "MEDICAL"
+ );
 
 }
-
 
 /* =====================================================
    COMMENTARY
@@ -2072,50 +2437,45 @@ function medicalEmergency(){
 
 function commentary(text){
 
-  const now=
-    Date.now();
+ const now=
+   Date.now();
 
-  if(
-    now-state.commentaryLast<
-    1200
-  )
-    return;
+ if(
+   now-state.commentaryLast<
+   1200
+ )
+   return;
 
-  state.commentaryLast=now;
+ state.commentaryLast=
+   now;
 
-  /*
-    Browser speech is used only as a prototype.
-    A professional commercial commentary system
-    can later use licensed/generated voice assets.
-  */
+ if(
+   "speechSynthesis"
+   in window
+ ){
 
-  if(
-    "speechSynthesis"
-    in window
-  ){
+   try{
 
-    try{
+     const utter=
+       new SpeechSynthesisUtterance(
+         text
+       );
 
-      const utter=
-        new SpeechSynthesisUtterance(
-          text
-        );
+     utter.rate=.95;
+     utter.pitch=.9;
+     utter.volume=.65;
 
-      utter.rate=.95;
-      utter.pitch=.9;
-      utter.volume=.65;
+     speechSynthesis.cancel();
 
-      speechSynthesis.cancel();
-      speechSynthesis.speak(
-        utter
-      );
+     speechSynthesis.speak(
+       utter
+     );
 
-    }catch(e){}
+   }catch(e){}
 
-  }
+ }
 
 }
-
 
 /* =====================================================
    MESSAGE
@@ -2125,374 +2485,1170 @@ let messageTimer;
 
 function showMessage(text){
 
-  matchMessage.textContent=
-    text;
+ matchMessage.textContent=
+   text;
 
-  matchMessage.classList.add(
-    "show"
-  );
+ matchMessage.classList.add(
+   "show"
+ );
 
-  clearTimeout(
-    messageTimer
-  );
+ clearTimeout(
+   messageTimer
+ );
 
-  messageTimer=
-    setTimeout(
-      ()=>{
-        matchMessage.classList.remove(
-          "show"
-        );
-      },
-      1600
-    );
+ messageTimer=
+   setTimeout(
+     ()=>{
+
+       matchMessage.classList.remove(
+         "show"
+       );
+
+     },
+     1600
+   );
 
 }
-
 
 /* =====================================================
-   PS5 / GAMEPAD SUPPORT
+   CONTROLLER
 ===================================================== */
 
-function openController(){
+function setControlMode(mode){
 
-  document.getElementById(
-    "controllerPanel"
-  ).style.display="block";
+ state.controlMode=
+   mode==="gamepad"
+   ?"gamepad"
+   :"touch";
 
-  scanGamepads();
+ localStorage.setItem(
+   "obitrend_control_mode",
+   state.controlMode
+ );
 
-}
+ document.body.classList.toggle(
+   "gamepad-mode",
+   state.controlMode==="gamepad"
+ );
 
-
-function closeController(){
-
-  document.getElementById(
-    "controllerPanel"
-  ).style.display="none";
-
-}
-
-
-function scanGamepads(){
-
-  const pads=
-    navigator.getGamepads
-    ? navigator.getGamepads()
-    : [];
-
-  state.gamepad=null;
-
-  for(
-    const pad of pads
-  ){
-
-    if(pad){
-
-      state.gamepad=pad;
-
-      document.getElementById(
-        "controllerStatus"
-      ).textContent=
-        "Connected: " +
-        pad.id;
-
-      return;
-
-    }
-
-  }
-
-  document.getElementById(
-    "controllerStatus"
-  ).textContent=
-    "No controller detected. Connect a PS5/DualSense or compatible Bluetooth controller and press a button.";
+ $("controlIndicator").textContent=
+   state.controlMode==="gamepad"
+   ?"🎮 DUALSENSE"
+   :"📱 TOUCH";
 
 }
-
-
-window.addEventListener(
-  "gamepadconnected",
-  e=>{
-
-    state.gamepad=
-      e.gamepad;
-
-    document.getElementById(
-      "controllerStatus"
-    ).textContent=
-      "Connected: " +
-      e.gamepad.id;
-
-  }
-);
-
-
-window.addEventListener(
-  "gamepaddisconnected",
-  e=>{
-
-    if(
-      state.gamepad &&
-      state.gamepad.index===
-      e.gamepad.index
-    ){
-
-      state.gamepad=null;
-
-    }
-
-    document.getElementById(
-      "controllerStatus"
-    ).textContent=
-      "Controller disconnected.";
-
-  }
-);
-
-
-/*
-  Standard Gamepad mapping:
-
-  Left stick = movement
-  Cross/A = pass
-  Circle/B = shoot
-  R2/RT = sprint
-  Options/Start = return/world
-*/
-
-function controllerLoop(){
-
-  if(
-    state.controlMode==="gamepad" &&
-    game.style.display==="block"
-  ){
-
-    const pads=
-      navigator.getGamepads
-      ? navigator.getGamepads()
-      : [];
-
-    const pad=
-      pads[state.gamepad?.index ?? 0];
-
-    if(pad){
-
-      state.gamepad=pad;
-
-      const lx=
-        pad.axes[0] || 0;
-
-      const ly=
-        pad.axes[1] || 0;
-
-      if(
-        Math.abs(lx)>.15 ||
-        Math.abs(ly)>.15
-      ){
-
-        state.x +=
-          lx *
-          state.speed;
-
-        state.y +=
-          ly *
-          state.speed;
-
-        state.x=
-          Math.max(
-            10,
-            Math.min(
-              90,
-              state.x
-            )
-          );
-
-        state.y=
-          Math.max(
-            10,
-            Math.min(
-              90,
-              state.y
-            )
-          );
-
-        updatePlayer();
-
-      }
-
-      /*
-        R2 / RT
-      */
-
-      state.sprinting=
-        !!(
-          pad.buttons[7] &&
-          pad.buttons[7].pressed
-        );
-
-      state.speed=
-        state.sprinting
-        ? 1.15
-        : .55;
-
-      /*
-        A / Cross
-      */
-
-      if(
-        pad.buttons[0] &&
-        pad.buttons[0].pressed
-      ){
-
-        if(
-          !controllerLoop.lastPass
-        ){
-
-          passBall();
-
-        }
-
-        controllerLoop.lastPass=true;
-
-      }else{
-
-        controllerLoop.lastPass=false;
-
-      }
-
-      /*
-        B / Circle
-      */
-
-      if(
-        pad.buttons[1] &&
-        pad.buttons[1].pressed
-      ){
-
-        if(
-          !controllerLoop.lastShoot
-        ){
-
-          shootBall();
-
-        }
-
-        controllerLoop.lastShoot=true;
-
-      }else{
-
-        controllerLoop.lastShoot=false;
-
-      }
-
-    }
-
-  }
-
-  requestAnimationFrame(
-    controllerLoop
-  );
-
-}
-
-controllerLoop();
-
-
-/* =====================================================
-   SWITCH CONTROL
-===================================================== */
 
 function switchControlMode(){
 
-  if(
-    state.controlMode==="touch"
-  ){
+ if(
+   state.controlMode==="touch"
+ ){
 
-    state.controlMode="gamepad";
+   setControlMode(
+     "gamepad"
+   );
 
-    localStorage.setItem(
-      "obitrend_control_mode",
-      "gamepad"
-    );
+   openController();
 
-    openController();
+   showMessage(
+     "🎮 CONTROLLER MODE"
+   );
 
-    showMessage(
-      "🎮 CONTROLLER MODE"
-    );
+ }else{
 
-  }else{
+   setControlMode(
+     "touch"
+   );
 
-    state.controlMode="touch";
+   closeController();
 
-    localStorage.setItem(
-      "obitrend_control_mode",
-      "touch"
-    );
+   showMessage(
+     "📱 TOUCH MODE"
+   );
 
-    showMessage(
-      "📱 TOUCH MODE"
-    );
-
-  }
+ }
 
 }
 
+function openController(){
+
+ $("controllerPanel").style.display=
+   "block";
+
+ scanGamepads();
+
+}
+
+function closeController(){
+
+ $("controllerPanel").style.display=
+   "none";
+
+}
+
+function scanGamepads(){
+
+ const pads=
+   navigator.getGamepads
+   ?navigator.getGamepads()
+   :[];
+
+ state.gamepad=null;
+
+ for(
+   const pad of pads
+ ){
+
+   if(pad){
+
+     state.gamepad=
+       pad;
+
+     $("controllerStatus").textContent=
+       "Connected: "+
+       pad.id;
+
+     return;
+
+   }
+
+ }
+
+ $("controllerStatus").textContent=
+   "No controller detected. Connect a PS5/DualSense or compatible Bluetooth controller and press a button.";
+
+}
+
+window.addEventListener(
+ "gamepadconnected",
+ e=>{
+
+   state.gamepad=
+     e.gamepad;
+
+   $("controllerStatus").textContent=
+     "Connected: "+
+     e.gamepad.id;
+
+   if(
+     game.style.display==="block"
+   ){
+
+     setControlMode(
+       "gamepad"
+     );
+
+     closeController();
+
+     showMessage(
+       "🎮 DUALSENSE CONNECTED"
+     );
+
+   }
+
+ }
+);
+
+window.addEventListener(
+ "gamepaddisconnected",
+ e=>{
+
+   if(
+     state.gamepad&&
+     state.gamepad.index===
+     e.gamepad.index
+   ){
+
+     state.gamepad=null;
+
+   }
+
+   $("controllerStatus").textContent=
+     "Controller disconnected.";
+
+   if(
+     state.controlMode===
+     "gamepad"
+   ){
+
+     setControlMode(
+       "touch"
+     );
+
+     if(
+       game.style.display==="block"
+     ){
+
+       showMessage(
+         "📱 TOUCH MODE"
+       );
+
+     }
+
+   }
+
+ }
+);
+
+/* =====================================================
+   CONTROLLER LOOP
+===================================================== */
+
+let previousButtons=[];
+
+function deadzone(
+ value,
+ zone=.15
+){
+
+ if(
+   Math.abs(value)<
+   zone
+ )
+   return 0;
+
+ return(
+   value>0?1:-1
+ )*
+ (
+   Math.abs(value)-zone
+ )/
+ (
+   1-zone
+ );
+
+}
+
+function controllerLoop(){
+
+ const pads=
+   navigator.getGamepads
+   ?navigator.getGamepads()
+   :[];
+
+ let pad=null;
+
+ if(
+   state.gamepad&&
+   pads[state.gamepad.index]
+ ){
+
+   pad=
+     pads[state.gamepad.index];
+
+ }else{
+
+   pad=
+     pads.find(Boolean)||
+     null;
+
+ }
+
+ if(pad)
+   state.gamepad=pad;
+
+ if(
+   pad&&
+   state.controlMode===
+   "gamepad"&&
+   game.style.display===
+   "block"
+ ){
+
+   const buttons=
+     pad.buttons||
+     [];
+
+   const pressed=
+     index=>
+       !!(
+         buttons[index]&&
+         (
+           buttons[index].pressed||
+           buttons[index].value>.55
+         )
+       );
+
+   const edge=
+     index=>
+       pressed(index)&&
+       !previousButtons[index];
+
+   /*
+      Standard Gamepad layout:
+
+      0 = Cross / A
+      1 = Circle / B
+      7 = R2 / RT
+      9 = Options / Start
+   */
+
+   if(!state.paused){
+
+     const lx=
+       deadzone(
+         pad.axes?.[0]||0
+       );
+
+     const ly=
+       deadzone(
+         pad.axes?.[1]||0
+       );
+
+     if(lx||ly){
+
+       state.x+=
+         lx*
+         state.speed;
+
+       state.y+=
+         ly*
+         state.speed;
+
+       state.x=
+         Math.max(
+           10,
+           Math.min(
+             90,
+             state.x
+           )
+         );
+
+       state.y=
+         Math.max(
+           10,
+           Math.min(
+             90,
+             state.y
+           )
+         );
+
+       state.moving=true;
+
+       updatePlayer();
+
+     }else{
+
+       state.moving=false;
+
+     }
+
+     /*
+        R2 / RT analog
+     */
+
+     setSprint(
+       (buttons[7]?.value||0)>.35
+     );
+
+     /*
+        Cross
+     */
+
+     if(edge(0))
+       passBall();
+
+     /*
+        Circle
+     */
+
+     if(edge(1))
+       shootBall();
+
+   }else{
+
+     setSprint(false);
+
+   }
+
+   /*
+      OPTIONS / START
+   */
+
+   if(edge(9))
+     togglePause();
+
+   previousButtons=
+     buttons.map(
+       b=>
+         !!(
+           b&&
+           (
+             b.pressed||
+             b.value>.55
+           )
+         )
+     );
+
+ }else{
+
+   previousButtons=[];
+
+ }
+
+ requestAnimationFrame(
+   controllerLoop
+ );
+
+}
+
+requestAnimationFrame(
+ controllerLoop
+ );
+
+/* =====================================================
+   KEYBOARD TESTING
+===================================================== */
+
+document.addEventListener(
+ "keydown",
+ e=>{
+
+   if(
+     e.key==="Escape"&&
+     game.style.display==="block"
+   ){
+
+     togglePause();
+
+   }
+
+ }
+);
+
+/* =====================================================
+   REPLAY RECORDING
+===================================================== */
+
+function loadReplays(){
+
+ try{
+
+   return JSON.parse(
+     localStorage.getItem(
+       REPLAY_KEY
+     )||"[]"
+   );
+
+ }catch(e){
+
+   return [];
+
+ }
+
+}
+
+function saveReplays(list){
+
+ try{
+
+   localStorage.setItem(
+     REPLAY_KEY,
+     JSON.stringify(
+       list.slice(
+         0,
+         MAX_REPLAYS
+       )
+     )
+   );
+
+ }catch(e){
+
+   console.warn(
+     "Replay storage unavailable."
+   );
+
+ }
+
+}
+
+function startReplayRecording(){
+
+ state.replay={
+
+   id:
+     Date.now().toString(36)+
+     Math.random()
+       .toString(36)
+       .slice(2,7),
+
+   startedAt:
+     Date.now(),
+
+   duration:0,
+
+   finalScoreHome:0,
+
+   finalScoreAway:0,
+
+   frames:[],
+
+   events:[]
+
+ };
+
+ state.replayLastRecord=0;
+
+ recordReplayFrame(true);
+
+}
+
+function recordReplayFrame(
+ force=false
+){
+
+ if(!state.replay)
+   return;
+
+ const time=
+   Date.now()-
+   state.replay.startedAt;
+
+ if(
+   !force&&
+   time-state.replayLastRecord<
+   100
+ )
+   return;
+
+ state.replayLastRecord=
+   time;
+
+ state.replay.frames.push({
+
+   t:
+     Math.round(time),
+
+   x:
+     Number(
+       state.x.toFixed(3)
+     ),
+
+   y:
+     Number(
+       state.y.toFixed(3)
+     ),
+
+   bx:
+     Number(
+       state.ballX.toFixed(3)
+     ),
+
+   by:
+     Number(
+       state.ballY.toFixed(3)
+     ),
+
+   m:
+     state.minute,
+
+   sh:
+     state.scoreHome,
+
+   sa:
+     state.scoreAway
+
+ });
+
+ /*
+    Protection against unlimited localStorage growth.
+ */
+
+ if(
+   state.replay.frames.length>
+   12000
+ ){
+
+   state.replay.frames.shift();
+
+ }
+
+}
+
+function recordReplayEvent(type){
+
+ if(!state.replay)
+   return;
+
+ state.replay.events.push({
+
+   t:
+     Date.now()-
+     state.replay.startedAt,
+
+   type
+
+ });
+
+}
+
+function stopReplayRecording(
+ save=true
+){
+
+ if(!state.replay)
+   return;
+
+ recordReplayFrame(true);
+
+ const frames=
+   state.replay.frames;
+
+ state.replay.duration=
+   frames.length
+   ?frames[frames.length-1].t
+   :0;
+
+ state.replay.finalScoreHome=
+   state.scoreHome;
+
+ state.replay.finalScoreAway=
+   state.scoreAway;
+
+ if(
+   save&&
+   state.replay.duration>
+   500
+ ){
+
+   const list=
+     loadReplays();
+
+   list.unshift(
+     state.replay
+   );
+
+   saveReplays(
+     list
+   );
+
+ }
+
+ state.replay=null;
+
+}
+
+/*
+   Record roughly 12.5 frames per second.
+   This is a lightweight reconstruction replay,
+   not a screen recording.
+*/
+
+setInterval(
+ ()=>{
+
+   if(
+     game.style.display===
+     "block"&&
+     !state.paused
+   ){
+
+     recordReplayFrame();
+
+   }
+
+ },
+ 80
+);
+
+/* =====================================================
+   REPLAY LIST
+===================================================== */
+
+function formatTime(ms){
+
+ const total=
+   Math.max(
+     0,
+     Math.floor(
+       ms/1000
+     )
+   );
+
+ const minutes=
+   Math.floor(
+     total/60
+   );
+
+ const seconds=
+   String(
+     total%60
+   ).padStart(
+     2,
+     "0"
+   );
+
+ return minutes+
+   ":"+
+   seconds;
+
+}
+
+function openReplayList(){
+
+ const list=
+   loadReplays();
+
+ const box=
+   $("replayList");
+
+ box.innerHTML="";
+
+ if(!list.length){
+
+   box.innerHTML=
+     '<div class="card">'+
+     '<strong>NO REPLAYS YET</strong>'+
+     '<small>Complete a match and it will appear here.</small>'+
+     '</div>';
+
+ }else{
+
+   list.forEach(
+     (replay,index)=>{
+
+       const item=
+         document.createElement(
+           "div"
+         );
+
+       item.className=
+         "replayItem";
+
+       item.innerHTML=
+         '<div class="replayMeta">'+
+         '<strong>OBITREND FC '+
+         replay.finalScoreHome+
+         ' - '+
+         replay.finalScoreAway+
+         ' WORLD XI</strong>'+
+         '<small>'+
+         formatTime(
+           replay.duration
+         )+
+         ' • '+
+         replay.events.length+
+         ' events</small>'+
+         '</div>'+
+         '<div class="replayButtons">'+
+         '<button onclick="playReplay('+
+         index+
+         ')">▶ WATCH</button>'+
+         '<button class="delete" onclick="deleteReplay('+
+         index+
+         ')">DELETE</button>'+
+         '</div>';
+
+       box.appendChild(
+         item
+       );
+
+     }
+   );
+
+ }
+
+ $("replayModal").style.display=
+   "flex";
+
+}
+
+function deleteReplay(index){
+
+ const list=
+   loadReplays();
+
+ if(
+   index<0||
+   index>=list.length
+ )
+   return;
+
+ list.splice(
+   index,
+   1
+ );
+
+ saveReplays(
+   list
+ );
+
+ openReplayList();
+
+}
+
+function deleteAllReplays(){
+
+ const list=
+   loadReplays();
+
+ if(!list.length)
+   return;
+
+ if(
+   confirm(
+     "Delete all saved match replays?"
+   )
+ ){
+
+   saveReplays([]);
+
+   openReplayList();
+
+ }
+
+}
+
+/* =====================================================
+   REPLAY PLAYER
+===================================================== */
+
+const replayPlayerState={
+
+ data:null,
+
+ index:0,
+
+ playing:false,
+
+ last:0,
+
+ raf:0
+
+};
+
+function playReplay(index){
+
+ const list=
+   loadReplays();
+
+ const replay=
+   list[index];
+
+ if(
+   !replay||
+   !replay.frames||
+   !replay.frames.length
+ )
+   return;
+
+ closeModal(
+   "replayModal"
+ );
+
+ replayPlayerState.data=
+   replay;
+
+ replayPlayerState.index=
+   0;
+
+ replayPlayerState.playing=
+   true;
+
+ replayPlayerState.last=
+   performance.now();
+
+ $("replayScreen").style.display=
+   "block";
+
+ $("replayRange").max=
+   replay.frames.length-1;
+
+ $("replayRange").value=0;
+
+ $("replayDuration").textContent=
+   formatTime(
+     replay.duration
+   );
+
+ $("replayPlayBtn").textContent=
+   "❚❚ PAUSE";
+
+ renderReplayFrame(
+   replay.frames[0]
+ );
+
+ replayPlayerState.raf=
+   requestAnimationFrame(
+     replayTick
+   );
+
+}
+
+function renderReplayFrame(frame){
+
+ if(!frame)
+   return;
+
+ $("replayPlayer").style.left=
+   frame.x+"%";
+
+ $("replayPlayer").style.top=
+   frame.y+"%";
+
+ $("replayBall").style.left=
+   frame.bx+"%";
+
+ $("replayBall").style.top=
+   frame.by+"%";
+
+ $("replayClock").textContent=
+   formatTime(
+     frame.t
+   );
+
+}
+
+function replayTick(now){
+
+ const replay=
+   replayPlayerState;
+
+ if(
+   !replay.data||
+   !replay.playing
+ )
+   return;
+
+ const delta=
+   now-
+   replay.last;
+
+ replay.last=
+   now;
+
+ /*
+    One recorded frame represents 80ms.
+ */
+
+ let next=
+   replay.index+
+   delta/80;
+
+ if(
+   next>=
+   replay.data.frames.length-1
+ ){
+
+   replay.index=
+     replay.data.frames.length-1;
+
+   replay.playing=
+     false;
+
+   $("replayPlayBtn").textContent=
+     "▶ PLAY";
+
+   renderReplayFrame(
+     replay.data.frames[
+       replay.index
+     ]
+   );
+
+   return;
+
+ }
+
+ replay.index=
+   next;
+
+ const index=
+   Math.floor(
+     replay.index
+   );
+
+ $("replayRange").value=
+   index;
+
+ renderReplayFrame(
+   replay.data.frames[
+     index
+   ]
+ );
+
+ replay.raf=
+   requestAnimationFrame(
+     replayTick
+   );
+
+}
+
+function toggleReplayPlay(){
+
+ const replay=
+   replayPlayerState;
+
+ if(!replay.data)
+   return;
+
+ if(
+   replay.playing
+ ){
+
+   replay.playing=
+     false;
+
+   $("replayPlayBtn").textContent=
+     "▶ PLAY";
+
+ }else{
+
+   if(
+     replay.index>=
+     replay.data.frames.length-1
+   ){
+
+     replay.index=0;
+
+   }
+
+   replay.playing=
+     true;
+
+   replay.last=
+     performance.now();
+
+   $("replayPlayBtn").textContent=
+     "❚❚ PAUSE";
+
+   replay.raf=
+     requestAnimationFrame(
+       replayTick
+     );
+
+ }
+
+}
+
+function restartReplay(){
+
+ const replay=
+   replayPlayerState;
+
+ if(!replay.data)
+   return;
+
+ replay.index=0;
+
+ replay.playing=
+   true;
+
+ replay.last=
+   performance.now();
+
+ $("replayRange").value=0;
+
+ renderReplayFrame(
+   replay.data.frames[0]
+ );
+
+ $("replayPlayBtn").textContent=
+   "❚❚ PAUSE";
+
+ replay.raf=
+   requestAnimationFrame(
+     replayTick
+   );
+
+}
+
+function seekReplay(value){
+
+ const replay=
+   replayPlayerState;
+
+ if(!replay.data)
+   return;
+
+ replay.index=
+   Number(value);
+
+ renderReplayFrame(
+   replay.data.frames[
+     replay.index
+   ]
+ );
+
+ replay.last=
+   performance.now();
+
+}
+
+function exitReplay(){
+
+ replayPlayerState.playing=
+   false;
+
+ cancelAnimationFrame(
+   replayPlayerState.raf
+ );
+
+ replayPlayerState.data=
+   null;
+
+ $("replayScreen").style.display=
+   "none";
+
+}
 
 /* =====================================================
    MUSIC FRAMEWORK
 ===================================================== */
 
-/*
-  Do not insert copyrighted commercial songs
-  without permission.
-
-  Later this can connect to a licensed music
-  catalogue or music files you have rights to use.
-*/
-
 const musicLibrary=[
 
-  {
-    title:"OBITREND MATCHDAY",
-    status:"ORIGINAL / PLACEHOLDER"
-  },
+ {
+   title:
+     "OBITREND MATCHDAY",
 
-  {
-    title:"STADIUM NIGHT",
-    status:"ORIGINAL / PLACEHOLDER"
-  },
+   status:
+     "ORIGINAL / PLACEHOLDER"
+ },
 
-  {
-    title:"WORLD TOUR",
-    status:"ORIGINAL / PLACEHOLDER"
-  }
+ {
+   title:
+     "STADIUM NIGHT",
+
+   status:
+     "ORIGINAL / PLACEHOLDER"
+ },
+
+ {
+   title:
+     "WORLD TOUR",
+
+   status:
+     "ORIGINAL / PLACEHOLDER"
+ }
 
 ];
-
 
 /* =====================================================
    FAN SIMULATION
 ===================================================== */
 
-/*
-  We do NOT create millions of individual 3D
-  characters.
-
-  Instead, the world represents a massive crowd
-  using simulation data, crowd LODs and instancing.
-*/
-
 const fanWorld={
 
-  estimatedFans:12500000,
+ estimatedFans:
+   12500000,
 
-  homeSupport:0.52,
+ homeSupport:
+   .52,
 
-  awaySupport:0.48
+ awaySupport:
+   .48
 
 };
 
+/* =====================================================
+   STARTUP
+===================================================== */
+
+updateCoinDisplays();
+
+setControlMode(
+  state.controlMode
+);
 
 </script>
 
