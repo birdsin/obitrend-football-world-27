@@ -1632,22 +1632,51 @@ REPLAYS
 <script>
 
 /* =====================================================
-   STATE
+   OBITREND FOOTBALL WORLD 27
+   SECURE ACCOUNT + COINS + REAL WORLD
+   GAMEPLAY + CONTROLLER + REPLAY PRESERVED
 ===================================================== */
 
 const REPLAY_KEY="obitrend_match_replays_v1";
 const MAX_REPLAYS=12;
 
+/* =====================================================
+   SECURE SUPABASE CONFIG
+===================================================== */
+
+const SUPABASE_URL=
+  "https://vjlitqujcujwsislprfg.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY=
+  "sb_publishable_vxKAcrlrdZ3wfNH_n7EuZg_joZKejD6";
+
+const FOOTBALL_API=
+  SUPABASE_URL+
+  "/functions/v1/football-api";
+
+const FOOTBALL_PAYMENTS=
+  SUPABASE_URL+
+  "/functions/v1/football-payments";
+
+const REAL_WORLD_UNLOCK_COST=800;
+
+let supabaseClient=null;
+let authenticatedSession=null;
+let footballAccount=null;
+
+/* =====================================================
+   STATE
+===================================================== */
+
 const state={
 
- coins:Number(
-   localStorage.getItem("obitrend_coins")||0
- ),
+ coins:0,
 
- realWorldUnlocked:
-   localStorage.getItem(
-     "obitrend_real_world"
-   )==="true",
+ realWorldUnlocked:false,
+
+ publicPlayerId:"",
+
+ email:"",
 
  controlMode:
    localStorage.getItem(
@@ -1700,57 +1729,1244 @@ const joystickStick=$("joystickStick");
 const matchMessage=$("matchMessage");
 
 /* =====================================================
-   COINS
+   LOAD SUPABASE
 ===================================================== */
 
-function saveCoins(){
+function loadSupabase(){
 
- localStorage.setItem(
-   "obitrend_coins",
-   String(state.coins)
+ return new Promise((resolve,reject)=>{
+
+   if(window.supabase){
+
+     resolve();
+
+     return;
+
+   }
+
+   const script=
+     document.createElement("script");
+
+   script.src=
+     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+   script.onload=()=>resolve();
+
+   script.onerror=()=>reject(
+     new Error(
+       "Authentication service could not load."
+     )
+   );
+
+   document.head.appendChild(script);
+
+ });
+
+}
+
+/* =====================================================
+   INITIALIZE AUTH
+===================================================== */
+
+async function initializeSupabase(){
+
+ await loadSupabase();
+
+ if(!window.supabase)
+   throw new Error(
+     "Supabase authentication unavailable."
+   );
+
+ supabaseClient=
+   window.supabase.createClient(
+     SUPABASE_URL,
+     SUPABASE_PUBLISHABLE_KEY,
+     {
+       auth:{
+         persistSession:true,
+         autoRefreshToken:true,
+         detectSessionInUrl:true
+       }
+     }
+   );
+
+ const sessionResult=
+   await supabaseClient.auth.getSession();
+
+ if(sessionResult.error)
+   throw sessionResult.error;
+
+ authenticatedSession=
+   sessionResult.data?.session||null;
+
+ if(authenticatedSession){
+
+   state.email=
+     authenticatedSession.user.email||"";
+
+   await refreshFootballAccount();
+
+ }else{
+
+   state.coins=0;
+   state.realWorldUnlocked=false;
+   state.publicPlayerId="";
+   updateCoinDisplays();
+
+ }
+
+ supabaseClient.auth.onAuthStateChange(
+   async(_event,session)=>{
+
+     authenticatedSession=
+       session||null;
+
+     if(session){
+
+       state.email=
+         session.user.email||"";
+
+       await refreshFootballAccount();
+
+     }else{
+
+       state.email="";
+       state.coins=0;
+       state.realWorldUnlocked=false;
+       state.publicPlayerId="";
+
+       updateCoinDisplays();
+
+     }
+
+     updateAuthUI();
+
+   }
  );
+
+ updateAuthUI();
+
+}
+
+/* =====================================================
+   AUTH HEADERS
+===================================================== */
+
+async function authHeaders(){
+
+ if(!supabaseClient)
+   throw new Error(
+     "Authentication service unavailable."
+   );
+
+ const result=
+   await supabaseClient.auth.getSession();
+
+ const session=
+   result.data?.session;
+
+ if(!session)
+   throw new Error(
+     "Please sign in first."
+   );
+
+ return{
+
+   "Authorization":
+     "Bearer "+
+     session.access_token,
+
+   "Content-Type":
+     "application/json",
+
+   "apikey":
+     SUPABASE_PUBLISHABLE_KEY
+
+ };
+
+}
+
+/* =====================================================
+   SECURE FOOTBALL API
+===================================================== */
+
+async function footballApi(
+ path,
+ options={}
+){
+
+ const headers=
+   await authHeaders();
+
+ const response=
+   await fetch(
+     FOOTBALL_API+path,
+     {
+       ...options,
+       headers:{
+         ...headers,
+         ...(options.headers||{})
+       },
+       cache:"no-store"
+     }
+   );
+
+ const raw=
+   await response.text();
+
+ let data={};
+
+ try{
+
+   data=
+     raw?
+     JSON.parse(raw):
+     {};
+
+ }catch{
+
+   throw new Error(
+     "Football server returned an invalid response."
+   );
+
+ }
+
+ if(!response.ok){
+
+   throw new Error(
+     safeMessage(data)
+   );
+
+ }
+
+ return data;
+
+}
+
+/* =====================================================
+   ACCOUNT
+===================================================== */
+
+async function refreshFootballAccount(){
+
+ if(!authenticatedSession){
+
+   state.coins=0;
+   state.realWorldUnlocked=false;
+
+   updateCoinDisplays();
+
+   return null;
+
+ }
+
+ try{
+
+   const data=
+     await footballApi(
+       "/account"
+     );
+
+   footballAccount=data;
+
+   state.coins=
+     Number(
+       data.coinBalance||0
+     );
+
+   state.realWorldUnlocked=
+     Boolean(
+       data.realWorldUnlocked
+     );
+
+   state.publicPlayerId=
+     data.publicPlayerId||"";
+
+   state.email=
+     authenticatedSession.user.email||"";
+
+   updateCoinDisplays();
+
+   return data;
+
+ }catch(error){
+
+   console.error(
+     "Football account:",
+     error
+   );
+
+   state.coins=0;
+   state.realWorldUnlocked=false;
+
+   updateCoinDisplays();
+
+   return null;
+
+ }
+
+}
+
+/* =====================================================
+   COIN DISPLAY
+===================================================== */
+
+function updateCoinDisplays(){
+
+ const worldCoins=
+   $("coinDisplayWorld");
+
+ const lockBalance=
+   $("lockBalance");
+
+ if(worldCoins)
+   worldCoins.textContent=
+     Number(state.coins||0)
+       .toLocaleString();
+
+ if(lockBalance)
+   lockBalance.textContent=
+     Number(state.coins||0)
+       .toLocaleString();
+
+ const unlockCost=
+   $("unlockCost");
+
+ if(unlockCost)
+   unlockCost.textContent=
+     REAL_WORLD_UNLOCK_COST
+       .toLocaleString();
+
+}
+
+/*
+   Compatibility function.
+   There is intentionally NO local coin saving.
+*/
+
+function saveCoins(){
 
  updateCoinDisplays();
 
 }
 
-function updateCoinDisplays(){
+/* =====================================================
+   AUTH MODAL
+===================================================== */
 
- $("coinDisplayWorld").textContent=
-   state.coins;
+function createAuthModal(){
 
- $("lockBalance").textContent=
-   state.coins;
+ if($("authModal"))
+   return;
+
+ const modal=
+   document.createElement("div");
+
+ modal.id="authModal";
+ modal.className="modal";
+
+ modal.innerHTML=`
+
+ <div class="modalCard">
+
+   <div class="modalTitle">
+     ⚽ OBITREND ACCOUNT
+   </div>
+
+   <div class="modalSub">
+     Sign in to protect your OBITREND player account,
+     coins and Real World entitlement.
+   </div>
+
+   <input
+     id="authEmail"
+     type="email"
+     autocomplete="email"
+     placeholder="Email address"
+     style="
+       width:100%;
+       padding:13px;
+       margin-bottom:9px;
+       border-radius:10px;
+       border:1px solid rgba(255,255,255,.15);
+       background:#080b11;
+       color:#fff;
+       outline:none;
+     "
+   >
+
+   <input
+     id="authPassword"
+     type="password"
+     autocomplete="current-password"
+     placeholder="Password"
+     style="
+       width:100%;
+       padding:13px;
+       margin-bottom:9px;
+       border-radius:10px;
+       border:1px solid rgba(255,255,255,.15);
+       background:#080b11;
+       color:#fff;
+       outline:none;
+     "
+   >
+
+   <div
+     id="authMessage"
+     style="
+       min-height:18px;
+       margin:5px 0 8px;
+       font-size:10px;
+       opacity:.8;
+     "
+   ></div>
+
+   <button
+     class="modalBtn"
+     onclick="signInAccount()">
+     SIGN IN
+   </button>
+
+   <button
+     class="modalBtn secondary"
+     onclick="signUpAccount()">
+     CREATE ACCOUNT
+   </button>
+
+   <button
+     class="modalBtn secondary"
+     onclick="resetAccountPassword()">
+     FORGOT PASSWORD
+   </button>
+
+   <button
+     class="modalBtn secondary"
+     onclick="closeModal('authModal')">
+     CLOSE
+   </button>
+
+ </div>
+ `;
+
+ document.body.appendChild(modal);
 
 }
 
-function openStore(){
+/* =====================================================
+   OPEN AUTH
+===================================================== */
 
- $("storeModal").style.display="flex";
+function openAuth(){
+
+ createAuthModal();
+
+ const email=
+   $("authEmail");
+
+ if(email&&!email.value)
+   email.value=
+     state.email||"";
+
+ $("authModal").style.display=
+   "flex";
 
 }
 
-function openStoreFromLock(){
+/* =====================================================
+   SIGN IN
+===================================================== */
 
- closeModal("lockModal");
+async function signInAccount(){
 
- openStore();
+ createAuthModal();
+
+ const email=
+   $("authEmail").value.trim();
+
+ const password=
+   $("authPassword").value;
+
+ const message=
+   $("authMessage");
+
+ if(!email||!password){
+
+   message.textContent=
+     "Enter your email and password.";
+
+   return;
+
+ }
+
+ message.textContent=
+   "Signing in...";
+
+ try{
+
+   const result=
+     await supabaseClient.auth.signInWithPassword(
+       {
+         email,
+         password
+       }
+     );
+
+   if(result.error)
+     throw result.error;
+
+   message.textContent=
+     "Signed in successfully.";
+
+   closeModal("authModal");
+
+   await refreshFootballAccount();
+
+   updateAuthUI();
+
+ }catch(error){
+
+   message.textContent=
+     safeMessage(error);
+
+ }
 
 }
 
-function demoPurchase(amount){
+/* =====================================================
+   SIGN UP
+===================================================== */
 
- state.coins+=amount;
+async function signUpAccount(){
 
- saveCoins();
+ createAuthModal();
 
- alert(
-   amount+
-   " demo coins added.\n\n"+
-   "This is prototype currency only."
- );
+ const email=
+   $("authEmail").value.trim();
 
- closeModal("storeModal");
+ const password=
+   $("authPassword").value;
+
+ const message=
+   $("authMessage");
+
+ if(!email||!password){
+
+   message.textContent=
+     "Enter an email and password.";
+
+   return;
+
+ }
+
+ if(password.length<6){
+
+   message.textContent=
+     "Password must contain at least 6 characters.";
+
+   return;
+
+ }
+
+ message.textContent=
+   "Creating your OBITREND account...";
+
+ try{
+
+   const result=
+     await supabaseClient.auth.signUp(
+       {
+         email,
+         password
+       }
+     );
+
+   if(result.error)
+     throw result.error;
+
+   if(result.data?.session){
+
+     message.textContent=
+       "Account created.";
+
+     closeModal("authModal");
+
+     await refreshFootballAccount();
+
+   }else{
+
+     message.textContent=
+       "Account created. Check your email if confirmation is required.";
+
+   }
+
+ }catch(error){
+
+   message.textContent=
+     safeMessage(error);
+
+ }
+
+}
+
+/* =====================================================
+   PASSWORD RESET
+===================================================== */
+
+async function resetAccountPassword(){
+
+ createAuthModal();
+
+ const email=
+   $("authEmail").value.trim();
+
+ const message=
+   $("authMessage");
+
+ if(!email){
+
+   message.textContent=
+     "Enter your email address first.";
+
+   return;
+
+ }
+
+ message.textContent=
+   "Sending password reset email...";
+
+ try{
+
+   const result=
+     await supabaseClient.auth.resetPasswordForEmail(
+       email,
+       {
+         redirectTo:
+           location.origin+
+           location.pathname+
+           "?football_password_reset=1"
+       }
+     );
+
+   if(result.error)
+     throw result.error;
+
+   message.textContent=
+     "If the account exists, a password reset email has been sent.";
+
+ }catch(error){
+
+   message.textContent=
+     safeMessage(error);
+
+ }
+
+}
+
+/* =====================================================
+   ACCOUNT MODAL
+===================================================== */
+
+function openAccount(){
+
+ if(!authenticatedSession){
+
+   openAuth();
+
+   return;
+
+ }
+
+ const existing=
+   $("accountModal");
+
+ if(existing)
+   existing.remove();
+
+ const modal=
+   document.createElement("div");
+
+ modal.id="accountModal";
+ modal.className="modal";
+
+ modal.innerHTML=`
+
+ <div class="modalCard">
+
+   <div class="modalTitle">
+     ⚽ MY OBITREND ACCOUNT
+   </div>
+
+   <div class="modalSub">
+     Your football identity is linked to your secure account.
+   </div>
+
+   <div class="grid">
+
+     <div class="card">
+       <strong>PLAYER ID</strong>
+       <small>
+         ${escapeHtml(
+           state.publicPlayerId||"Loading..."
+         )}
+       </small>
+     </div>
+
+     <div class="card">
+       <strong>EMAIL</strong>
+       <small>
+         ${escapeHtml(
+           state.email||""
+         )}
+       </small>
+     </div>
+
+     <div class="card">
+       <strong>🪙 COINS</strong>
+       <small>
+         ${Number(state.coins||0).toLocaleString()}
+       </small>
+     </div>
+
+     <div class="card">
+       <strong>REAL WORLD</strong>
+       <small>
+         ${
+           state.realWorldUnlocked
+           ?"UNLOCKED"
+           :"LOCKED"
+         }
+       </small>
+     </div>
+
+   </div>
+
+   <button
+     class="modalBtn secondary"
+     onclick="refreshFootballAccount().then(()=>openAccount())">
+     ↻ REFRESH ACCOUNT
+   </button>
+
+   <button
+     class="modalBtn"
+     onclick="signOutAccount()">
+     SIGN OUT
+   </button>
+
+   <button
+     class="modalBtn secondary"
+     onclick="closeModal('accountModal')">
+     CLOSE
+   </button>
+
+ </div>
+ `;
+
+ document.body.appendChild(modal);
+
+ modal.style.display=
+   "flex";
+
+}
+
+/* =====================================================
+   SIGN OUT
+===================================================== */
+
+async function signOutAccount(){
+
+ if(!supabaseClient)
+   return;
+
+ await supabaseClient.auth.signOut();
+
+ closeModal("accountModal");
+
+}
+
+/* =====================================================
+   AUTH UI
+===================================================== */
+
+function updateAuthUI(){
+
+ let badge=
+   $("obitrendAuthBadge");
+
+ if(!badge){
+
+   badge=
+     document.createElement("button");
+
+   badge.id=
+     "obitrendAuthBadge";
+
+   badge.style.position=
+     "absolute";
+
+   badge.style.left="22px";
+   badge.style.bottom="58px";
+   badge.style.zIndex="100";
+
+   badge.style.padding=
+     "9px 12px";
+
+   badge.style.borderRadius=
+     "10px";
+
+   badge.style.background=
+     "rgba(0,0,0,.45)";
+
+   badge.style.border=
+     "1px solid rgba(255,255,255,.15)";
+
+   badge.style.fontSize=
+     "8px";
+
+   badge.onclick=
+     openAccount;
+
+   document.getElementById(
+     "menu"
+   ).appendChild(
+     badge
+   );
+
+ }
+
+ if(authenticatedSession){
+
+   badge.textContent=
+     "⚽ "+
+     (
+       state.publicPlayerId||
+       "ACCOUNT"
+     );
+
+ }else{
+
+   badge.textContent=
+     "⚽ SIGN IN";
+
+ }
+
+}
+
+/* =====================================================
+   STORE
+===================================================== */
+
+async function openStore(){
+
+ if(!authenticatedSession){
+
+   openAuth();
+
+   return;
+
+ }
+
+ await refreshFootballAccount();
+
+ const modal=
+   $("storeModal");
+
+ if(!modal)
+   return;
+
+ const card=
+   modal.querySelector(
+     ".modalCard"
+   );
+
+ if(!card)
+   return;
+
+ card.innerHTML=`
+
+   <div class="modalTitle">
+     🪙 OBITREND COINS
+   </div>
+
+   <div class="modalSub">
+     Secure virtual currency for OBITREND FOOTBALL WORLD 27.
+     Your balance is stored on the game server.
+   </div>
+
+   <div class="card"
+     style="margin-bottom:12px">
+     <strong>
+       CURRENT BALANCE:
+       ${Number(state.coins||0).toLocaleString()}
+       🪙
+     </strong>
+     <small>
+       PLAYER:
+       ${escapeHtml(
+         state.publicPlayerId||""
+       )}
+     </small>
+   </div>
+
+   <div
+     id="coinProductsGrid"
+     class="grid">
+
+     <div class="card">
+       <strong>LOADING...</strong>
+       <small>
+         Loading secure coin packages.
+       </small>
+     </div>
+
+   </div>
+
+   <button
+     class="modalBtn secondary"
+     onclick="closeModal('storeModal')">
+     CLOSE
+   </button>
+ `;
+
+ modal.style.display=
+   "flex";
+
+ try{
+
+   const data=
+     await footballApi(
+       "/products"
+     );
+
+   const products=
+     Array.isArray(data.products)
+     ?data.products
+     :[];
+
+   const grid=
+     $("coinProductsGrid");
+
+   grid.innerHTML="";
+
+   if(!products.length){
+
+     grid.innerHTML=
+       `<div class="card">
+          <strong>NO PACKAGES AVAILABLE</strong>
+          <small>
+            Coin packages are temporarily unavailable.
+          </small>
+        </div>`;
+
+     return;
+
+   }
+
+   products.forEach(product=>{
+
+     const item=
+       document.createElement("div");
+
+     item.className="card";
+
+     item.innerHTML=`
+
+       <strong>
+         ${Number(product.coins)
+           .toLocaleString()}
+         COINS
+       </strong>
+
+       <small>
+         ${escapeHtml(
+           product.name||
+           "OBITREND Coin Package"
+         )}
+       </small>
+
+       <button
+         class="modalBtn"
+         onclick="purchaseProduct(
+           '${escapeJs(product.productId)}'
+         )">
+         ${formatMoney(
+           product.priceMinor,
+           product.currency
+         )}
+       </button>
+     `;
+
+     grid.appendChild(item);
+
+   });
+
+ }catch(error){
+
+   const grid=
+     $("coinProductsGrid");
+
+   if(grid){
+
+     grid.innerHTML=
+       `<div class="card">
+          <strong>STORE ERROR</strong>
+          <small>
+            ${escapeHtml(
+              safeMessage(error)
+            )}
+          </small>
+        </div>`;
+
+   }
+
+ }
+
+}
+
+/* =====================================================
+   PAYMENT
+===================================================== */
+
+let paymentBusy=false;
+
+async function purchaseProduct(productId){
+
+ if(paymentBusy)
+   return;
+
+ if(!authenticatedSession){
+
+   openAuth();
+
+   return;
+
+ }
+
+ if(!productId){
+
+   alert(
+     "Invalid coin package."
+   );
+
+   return;
+
+ }
+
+ paymentBusy=true;
+
+ try{
+
+   const headers=
+     await authHeaders();
+
+   const response=
+     await fetch(
+       FOOTBALL_PAYMENTS,
+       {
+         method:"POST",
+
+         headers,
+
+         body:JSON.stringify({
+           action:"initialize",
+           productId
+         }),
+
+         cache:"no-store"
+       }
+     );
+
+   const raw=
+     await response.text();
+
+   let data={};
+
+   try{
+
+     data=
+       raw?
+       JSON.parse(raw):
+       {};
+
+   }catch{
+
+     throw new Error(
+       "Payment server returned an invalid response."
+     );
+
+   }
+
+   if(!response.ok){
+
+     throw new Error(
+       safeMessage(data)
+     );
+
+   }
+
+   const paymentUrl=
+     data.authorization_url;
+
+   const reference=
+     data.reference;
+
+   if(!paymentUrl||!reference){
+
+     throw new Error(
+       "Paystack did not return a valid checkout."
+     );
+
+   }
+
+   localStorage.setItem(
+     "obitrend_pending_reference",
+     reference
+   );
+
+   location.href=
+     paymentUrl;
+
+ }catch(error){
+
+   paymentBusy=false;
+
+   alert(
+     "Payment Error:\n\n"+
+     safeMessage(error)
+   );
+
+ }
+
+}
+
+/* =====================================================
+   VERIFY RETURNED PAYMENT
+===================================================== */
+
+async function verifyReturnedPayment(){
+
+ if(!authenticatedSession)
+   return;
+
+ const url=
+   new URL(
+     location.href
+   );
+
+ const returnedRef=
+   url.searchParams.get(
+     "reference"
+   )||
+   url.searchParams.get(
+     "trxref"
+   )||
+   "";
+
+ const pendingRef=
+   localStorage.getItem(
+     "obitrend_pending_reference"
+   )||"";
+
+ const reference=
+   returnedRef||
+   pendingRef;
+
+ if(!reference)
+   return;
+
+ try{
+
+   showMessage(
+     "VERIFYING PAYMENT..."
+   );
+
+   const headers=
+     await authHeaders();
+
+   const response=
+     await fetch(
+       FOOTBALL_PAYMENTS,
+       {
+         method:"POST",
+
+         headers,
+
+         body:JSON.stringify({
+           action:"verify",
+           reference
+         }),
+
+         cache:"no-store"
+       }
+     );
+
+   const raw=
+     await response.text();
+
+   let data={};
+
+   try{
+
+     data=
+       raw?
+       JSON.parse(raw):
+       {};
+
+   }catch{
+
+     throw new Error(
+       "Payment verification returned invalid data."
+     );
+
+   }
+
+   if(!response.ok){
+
+     throw new Error(
+       safeMessage(data)
+     );
+
+   }
+
+   if(!data.ok){
+
+     throw new Error(
+       safeMessage(data)||
+       "Payment was not verified."
+     );
+
+   }
+
+   localStorage.removeItem(
+     "obitrend_pending_reference"
+   );
+
+   await refreshFootballAccount();
+
+   history.replaceState(
+     {},
+     document.title,
+     location.pathname
+   );
+
+   alert(
+     "Payment verified successfully.\n\n"+
+     "Your OBITREND coins have been credited."
+   );
+
+ }catch(error){
+
+   console.error(
+     "Payment verification:",
+     error
+   );
+
+   alert(
+     "Payment verification:\n\n"+
+     safeMessage(error)
+   );
+
+ }
 
 }
 
@@ -1758,7 +2974,17 @@ function demoPurchase(amount){
    REAL WORLD
 ===================================================== */
 
-function openRealWorld(){
+async function openRealWorld(){
+
+ if(!authenticatedSession){
+
+   openAuth();
+
+   return;
+
+ }
+
+ await refreshFootballAccount();
 
  if(state.realWorldUnlocked){
 
@@ -1768,40 +2994,135 @@ function openRealWorld(){
 
  }
 
- $("lockModal").style.display="flex";
+ $("unlockCost").textContent=
+   REAL_WORLD_UNLOCK_COST
+     .toLocaleString();
+
+ $("lockBalance").textContent=
+   Number(state.coins||0)
+     .toLocaleString();
+
+ $("lockModal").style.display=
+   "flex";
 
 }
 
-function unlockRealWorld(){
+async function unlockRealWorld(){
 
- const cost=100;
+ if(!authenticatedSession){
 
- if(state.coins<cost){
+   closeModal("lockModal");
 
-   alert(
-     "You need "+
-     cost+
-     " coins to unlock Real World."
-   );
+   openAuth();
 
    return;
 
  }
 
- state.coins-=cost;
+ const button=
+   document.querySelector(
+     '#lockModal .modalBtn'
+   );
 
- state.realWorldUnlocked=true;
+ if(button){
 
- localStorage.setItem(
-   "obitrend_real_world",
-   "true"
- );
+   button.disabled=true;
+   button.textContent=
+     "VERIFYING...";
 
- saveCoins();
+ }
 
- closeModal("lockModal");
+ try{
 
- openWorld();
+   await refreshFootballAccount();
+
+   if(state.realWorldUnlocked){
+
+     closeModal("lockModal");
+     openWorld();
+
+     return;
+
+   }
+
+   if(
+     Number(state.coins)<
+     REAL_WORLD_UNLOCK_COST
+   ){
+
+     throw new Error(
+       "You need "+
+       REAL_WORLD_UNLOCK_COST+
+       " coins to unlock Real World."
+     );
+
+   }
+
+   const requestId=
+     crypto.randomUUID();
+
+   const data=
+     await footballApi(
+       "/unlock-real-world",
+       {
+         method:"POST",
+
+         headers:{
+           "x-request-id":
+             requestId
+         },
+
+         body:JSON.stringify({
+           requestId
+         })
+       }
+     );
+
+   if(!data.unlocked){
+
+     throw new Error(
+       "Real World was not unlocked."
+     );
+
+   }
+
+   await refreshFootballAccount();
+
+   if(!state.realWorldUnlocked){
+
+     throw new Error(
+       "Server did not confirm the Real World entitlement."
+     );
+
+   }
+
+   closeModal("lockModal");
+
+   openWorld();
+
+   showMessage(
+     "🌍 REAL WORLD UNLOCKED"
+   );
+
+ }catch(error){
+
+   alert(
+     "Real World:\n\n"+
+     safeMessage(error)
+   );
+
+ }finally{
+
+   if(button){
+
+     button.disabled=false;
+
+     button.textContent=
+       "UNLOCK REAL WORLD";
+
+   }
+
+ }
 
 }
 
@@ -1817,6 +3138,10 @@ function openWorld(){
 
 }
 
+/* =====================================================
+   WORLD MENU
+===================================================== */
+
 function backToMenu(){
 
  stopReplayRecording(true);
@@ -1827,51 +3152,89 @@ function backToMenu(){
 
  menu.style.display="block";
 
+ updateAuthUI();
+
 }
 
 /* =====================================================
    TRAINING / LIFESTYLE / COACHES
 ===================================================== */
 
-function openTraining(){
+async function openTraining(){
 
- if(!state.realWorldUnlocked){
+ if(!authenticatedSession){
 
-   $("lockModal").style.display="flex";
+   openAuth();
 
    return;
 
  }
 
- $("trainingModal").style.display="flex";
+ await refreshFootballAccount();
+
+ if(!state.realWorldUnlocked){
+
+   $("lockModal").style.display=
+     "flex";
+
+   return;
+
+ }
+
+ $("trainingModal").style.display=
+   "flex";
 
 }
 
-function openLifestyle(){
+async function openLifestyle(){
 
- if(!state.realWorldUnlocked){
+ if(!authenticatedSession){
 
-   $("lockModal").style.display="flex";
+   openAuth();
 
    return;
 
  }
 
- $("lifestyleModal").style.display="flex";
+ await refreshFootballAccount();
+
+ if(!state.realWorldUnlocked){
+
+   $("lockModal").style.display=
+     "flex";
+
+   return;
+
+ }
+
+ $("lifestyleModal").style.display=
+   "flex";
 
 }
 
-function openCoaches(){
+async function openCoaches(){
 
- if(!state.realWorldUnlocked){
+ if(!authenticatedSession){
 
-   $("lockModal").style.display="flex";
+   openAuth();
 
    return;
 
  }
 
- $("coachModal").style.display="flex";
+ await refreshFootballAccount();
+
+ if(!state.realWorldUnlocked){
+
+   $("lockModal").style.display=
+     "flex";
+
+   return;
+
+ }
+
+ $("coachModal").style.display=
+   "flex";
 
 }
 
@@ -1881,10 +3244,12 @@ function openCoaches(){
 
 function closeModal(id){
 
- const el=$(id);
+ const el=
+   $(id);
 
  if(el)
-   el.style.display="none";
+   el.style.display=
+     "none";
 
 }
 
@@ -1892,31 +3257,49 @@ function closeModal(id){
    MATCH
 ===================================================== */
 
-function openMatch(){
+async function openMatch(){
 
- if(!state.realWorldUnlocked){
+ if(!authenticatedSession){
 
-   $("lockModal").style.display="flex";
+   openAuth();
 
    return;
 
  }
 
- world.style.display="none";
+ await refreshFootballAccount();
 
- game.style.display="block";
+ if(!state.realWorldUnlocked){
+
+   $("lockModal").style.display=
+     "flex";
+
+   return;
+
+ }
+
+ world.style.display=
+   "none";
+
+ game.style.display=
+   "block";
 
  state.paused=false;
 
- $("pauseOverlay").style.display="none";
+ $("pauseOverlay").style.display=
+   "none";
 
  resetMatch();
 
- setControlMode(state.controlMode);
+ setControlMode(
+   state.controlMode
+ );
 
  startReplayRecording();
 
- showMessage("MATCH READY");
+ showMessage(
+   "MATCH READY"
+ );
 
 }
 
@@ -1951,11 +3334,14 @@ function backToWorld(){
 
  state.paused=false;
 
- $("pauseOverlay").style.display="none";
+ $("pauseOverlay").style.display=
+   "none";
 
- game.style.display="none";
+ game.style.display=
+   "none";
 
- world.style.display="block";
+ world.style.display=
+   "block";
 
 }
 
@@ -2018,7 +3404,10 @@ function handleJoystick(e){
    rect.width*.32;
 
  const distance=
-   Math.sqrt(dx*dx+dy*dy);
+   Math.sqrt(
+     dx*dx+
+     dy*dy
+   );
 
  if(distance>max){
 
@@ -2032,8 +3421,10 @@ function handleJoystick(e){
 
  joystickStick.style.transform=
    "translate(calc(-50% + "+
-   dx+"px),calc(-50% + "+
-   dy+"px))";
+   dx+
+   "px),calc(-50% + "+
+   dy+
+   "px))";
 
  state.x+=
    dx/max*
@@ -2065,7 +3456,9 @@ joystick.addEventListener(
  "pointerdown",
  e=>{
 
-   if(state.controlMode!=="touch")
+   if(
+     state.controlMode!=="touch"
+   )
      return;
 
    joystickPointer=
@@ -2144,7 +3537,9 @@ function passBall(){
    "A sharp pass into space."
  );
 
- recordReplayEvent("PASS");
+ recordReplayEvent(
+   "PASS"
+ );
 
  checkOffside();
 
@@ -2173,7 +3568,9 @@ function shootBall(){
    "He strikes the ball!"
  );
 
- recordReplayEvent("SHOT");
+ recordReplayEvent(
+   "SHOT"
+ );
 
  setTimeout(
    validateGoal,
@@ -2329,7 +3726,9 @@ function togglePause(){
 
    setSprint(false);
 
-   showMessage("PAUSED");
+   showMessage(
+     "PAUSED"
+   );
 
  }else{
 
@@ -2343,7 +3742,8 @@ function togglePause(){
 
 function openReplayListFromPause(){
 
- $("pauseOverlay").style.display="none";
+ $("pauseOverlay").style.display=
+   "none";
 
  openReplayList();
 
@@ -2351,7 +3751,8 @@ function openReplayListFromPause(){
 
 function exitMatchFromPause(){
 
- $("pauseOverlay").style.display="none";
+ $("pauseOverlay").style.display=
+   "none";
 
  backToWorld();
 
@@ -2774,15 +4175,6 @@ function controllerLoop(){
        pressed(index)&&
        !previousButtons[index];
 
-   /*
-      Standard Gamepad layout:
-
-      0 = Cross / A
-      1 = Circle / B
-      7 = R2 / RT
-      9 = Options / Start
-   */
-
    if(!state.paused){
 
      const lx=
@@ -2833,24 +4225,12 @@ function controllerLoop(){
 
      }
 
-     /*
-        R2 / RT analog
-     */
-
      setSprint(
        (buttons[7]?.value||0)>.35
      );
 
-     /*
-        Cross
-     */
-
      if(edge(0))
        passBall();
-
-     /*
-        Circle
-     */
 
      if(edge(1))
        shootBall();
@@ -2860,10 +4240,6 @@ function controllerLoop(){
      setSprint(false);
 
    }
-
-   /*
-      OPTIONS / START
-   */
 
    if(edge(9))
      togglePause();
@@ -3050,10 +4426,6 @@ function recordReplayFrame(
 
  });
 
- /*
-    Protection against unlimited localStorage growth.
- */
-
  if(
    state.replay.frames.length>
    12000
@@ -3127,12 +4499,6 @@ function stopReplayRecording(
  state.replay=null;
 
 }
-
-/*
-   Record roughly 12.5 frames per second.
-   This is a lightweight reconstruction replay,
-   not a screen recording.
-*/
 
 setInterval(
  ()=>{
@@ -3417,10 +4783,6 @@ function replayTick(now){
  replay.last=
    now;
 
- /*
-    One recorded frame represents 80ms.
- */
-
  let next=
    replay.index+
    delta/80;
@@ -3641,14 +5003,142 @@ const fanWorld={
 };
 
 /* =====================================================
+   HELPERS
+===================================================== */
+
+function safeMessage(x){
+
+ if(!x)
+   return "Unable to complete the request.";
+
+ if(typeof x==="string")
+   return x;
+
+ if(x.message)
+   return x.message;
+
+ if(x.error?.message)
+   return x.error.message;
+
+ if(typeof x.error==="string")
+   return x.error;
+
+ return "Unable to complete the request.";
+
+}
+
+function escapeHtml(value){
+
+ return String(value??"")
+   .replaceAll("&","&amp;")
+   .replaceAll("<","&lt;")
+   .replaceAll(">","&gt;")
+   .replaceAll('"',"&quot;")
+   .replaceAll("'","&#039;");
+
+}
+
+function escapeJs(value){
+
+ return String(value??"")
+   .replaceAll("\\","\\\\")
+   .replaceAll("'","\\'")
+   .replaceAll("\n","\\n")
+   .replaceAll("\r","\\r");
+
+}
+
+function formatMoney(
+ minor,
+ currency
+){
+
+ const amount=
+   Number(minor||0)/100;
+
+ try{
+
+   return new Intl.NumberFormat(
+     undefined,
+     {
+       style:"currency",
+       currency:
+         String(
+           currency||"NGN"
+         ).toUpperCase(),
+       maximumFractionDigits:0
+     }
+   ).format(
+     amount
+   );
+
+ }catch{
+
+   return (
+     String(currency||"NGN")+
+     " "+
+     amount.toLocaleString()
+   );
+
+ }
+
+}
+
+/* =====================================================
+   LEGACY DEMO PURCHASE DISABLED
+===================================================== */
+
+function demoPurchase(){
+
+ openStore();
+
+}
+
+/* =====================================================
    STARTUP
 ===================================================== */
 
-updateCoinDisplays();
+async function initializeOBITREND(){
 
-setControlMode(
-  state.controlMode
-);
+ createAuthModal();
+
+ updateCoinDisplays();
+
+ setControlMode(
+   state.controlMode
+ );
+
+ try{
+
+   await initializeSupabase();
+
+ }catch(error){
+
+   console.error(
+     "OBITREND startup:",
+     error
+   );
+
+   alert(
+     "OBITREND account service could not start.\n\n"+
+     safeMessage(error)
+   );
+
+   return;
+
+ }
+
+ updateAuthUI();
+
+ await verifyReturnedPayment();
+
+ updateCoinDisplays();
+
+}
+
+/* Start */
+
+initializeOBITREND();
 
 </script>
 
