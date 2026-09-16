@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
 <meta name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,
-               viewport-fit=cover,user-scalable=no">
+content="width=device-width,initial-scale=1,maximum-scale=1,
+viewport-fit=cover,user-scalable=no">
 
 <meta name="theme-color" content="#05070b">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
 
 <title>OBITREND FOOTBALL WORLD 27</title>
 
@@ -18,247 +17,287 @@
   margin:0;
   padding:0;
   -webkit-tap-highlight-color:transparent;
-  -webkit-touch-callout:none;
+  user-select:none;
 }
 
-html,
-body{
+html,body{
   width:100%;
   height:100%;
   overflow:hidden;
   background:#05070b;
+  color:#fff;
   font-family:Arial,Helvetica,sans-serif;
   touch-action:none;
-  overscroll-behavior:none;
-}
-
-body{
-  color:#fff;
-  user-select:none;
 }
 
 button{
-  font:inherit;
-  color:inherit;
   border:0;
-  outline:0;
-  user-select:none;
-  touch-action:none;
+  color:#fff;
+  cursor:pointer;
+  font-weight:900;
+  letter-spacing:.8px;
+  touch-action:manipulation;
 }
-
-/* =========================================================
-   APP
-========================================================= */
 
 #app{
   position:fixed;
   inset:0;
-  width:100%;
-  height:100%;
+  overflow:hidden;
+  background:#05070b;
+}
+
+/* =====================================================
+   MAIN MENU
+===================================================== */
+
+#menu{
+  position:absolute;
+  inset:0;
   overflow:hidden;
   background:
-    radial-gradient(
-      circle at 50% 20%,
-      rgba(255,255,255,.12),
-      transparent 35%
-    ),
-    linear-gradient(
-      145deg,
-      #111827,
-      #030407 70%
-    );
+    radial-gradient(circle at 50% 10%,rgba(255,255,255,.12),transparent 32%),
+    linear-gradient(145deg,#172033,#030407 70%);
 }
 
-/* =========================================================
-   MENU LIGHTS
-========================================================= */
-
-.light{
+.menuGlow{
   position:absolute;
-  width:180px;
-  height:180px;
+  width:280px;
+  height:280px;
   border-radius:50%;
-  background:rgba(255,255,255,.16);
-  filter:blur(55px);
-  pointer-events:none;
+  filter:blur(90px);
+  background:rgba(255,255,255,.10);
 }
 
-.light.one{
-  top:-60px;
-  left:5%;
+.menuGlow.a{
+  top:-120px;
+  left:-80px;
 }
 
-.light.two{
-  top:-50px;
-  right:5%;
+.menuGlow.b{
+  right:-100px;
+  bottom:-120px;
 }
-
-/* =========================================================
-   BRAND
-========================================================= */
 
 .brand{
   position:absolute;
-  top:max(22px,env(safe-area-inset-top));
-  left:max(22px,env(safe-area-inset-left));
-  z-index:20;
+  top:max(18px,env(safe-area-inset-top));
+  left:22px;
+  z-index:10;
 }
 
-.brand-small{
+.brandSmall{
   font-size:10px;
-  letter-spacing:4px;
-  font-weight:700;
-  opacity:.8;
+  letter-spacing:5px;
+  opacity:.7;
 }
 
 .logo{
-  margin-top:3px;
-  font-size:27px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:1px;
+  margin-top:4px;
+  font-size:28px;
+  font-weight:1000;
+  letter-spacing:-1px;
 }
 
 .logo span{
   color:#e3262e;
 }
 
-/* =========================================================
-   CAMERA LABEL
-========================================================= */
-
 .camera{
   position:absolute;
-  top:max(24px,env(safe-area-inset-top));
-  right:max(22px,env(safe-area-inset-right));
+  right:22px;
+  top:max(18px,env(safe-area-inset-top));
   text-align:right;
-  z-index:20;
+  z-index:10;
 }
 
-.camera-title{
-  font-size:10px;
-  letter-spacing:2px;
-  opacity:.8;
+.cameraTitle{
+  font-size:9px;
+  letter-spacing:3px;
+  opacity:.65;
 }
 
-.camera-name{
+.cameraName{
   font-size:18px;
-  font-weight:900;
-  margin-top:3px;
+  font-weight:1000;
 }
 
-.camera-sub{
+.cameraSub{
   font-size:8px;
-  letter-spacing:1.5px;
-  opacity:.7;
-  margin-top:3px;
+  letter-spacing:1.4px;
+  opacity:.55;
 }
-
-/* =========================================================
-   HERO
-========================================================= */
 
 .hero{
   position:absolute;
   inset:0;
   display:flex;
-  flex-direction:column;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
+  flex-direction:column;
   text-align:center;
   padding:20px;
 }
 
 .eyebrow{
-  font-size:11px;
-  letter-spacing:6px;
-  font-weight:700;
-  opacity:.75;
+  font-size:10px;
+  letter-spacing:5px;
+  opacity:.65;
   margin-bottom:12px;
 }
 
-h1{
-  font-size:clamp(42px,10vw,86px);
-  line-height:.9;
+.hero h1{
+  font-size:clamp(42px,9vw,90px);
+  line-height:.86;
   font-weight:1000;
-  letter-spacing:-3px;
-  text-shadow:0 8px 30px rgba(0,0,0,.7);
+  letter-spacing:-4px;
+  text-shadow:0 12px 40px rgba(0,0,0,.8);
 }
 
-h1 span{
+.hero h1 span{
   color:#e3262e;
 }
 
 .tagline{
   margin-top:15px;
-  font-size:12px;
-  letter-spacing:5px;
-  opacity:.8;
+  font-size:10px;
+  letter-spacing:4px;
+  opacity:.65;
 }
 
-/* =========================================================
-   MENU BUTTONS
-========================================================= */
-
-.actions{
-  display:flex;
-  gap:12px;
+.menuButtons{
   margin-top:30px;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-
-.menu-button{
-  min-width:145px;
-  padding:15px 25px;
-  border-radius:10px;
-  font-size:13px;
-  font-weight:800;
-  letter-spacing:1px;
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.22);
-  backdrop-filter:blur(12px);
-}
-
-.menu-button:active{
-  transform:scale(.96);
-}
-
-.play{
-  background:#e3262e;
-  border-color:#ff555c;
-  box-shadow:0 8px 35px rgba(227,38,46,.35);
-}
-
-/* =========================================================
-   FEATURES
-========================================================= */
-
-.features{
-  position:absolute;
-  bottom:max(25px,env(safe-area-inset-bottom));
-  left:50%;
-  transform:translateX(-50%);
-  width:min(900px,92%);
   display:flex;
-  justify-content:center;
   gap:10px;
   flex-wrap:wrap;
+  justify-content:center;
 }
 
-.feature{
-  padding:9px 14px;
+.menuBtn{
+  min-width:150px;
+  padding:15px 20px;
+  border-radius:11px;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.2);
+  backdrop-filter:blur(15px);
+}
+
+.menuBtn.primary{
+  background:#e3262e;
+  border-color:#ff646a;
+  box-shadow:0 10px 35px rgba(227,38,46,.3);
+}
+
+.menuBottom{
+  position:absolute;
+  bottom:max(16px,env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%);
+  width:92%;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.pill{
+  padding:8px 12px;
   border-radius:30px;
-  background:rgba(0,0,0,.3);
-  border:1px solid rgba(255,255,255,.12);
-  font-size:9px;
-  letter-spacing:1.5px;
-  opacity:.85;
+  border:1px solid rgba(255,255,255,.13);
+  background:rgba(0,0,0,.25);
+  font-size:8px;
+  letter-spacing:1.2px;
 }
 
-/* =========================================================
-   GAME SCREEN
-========================================================= */
+/* =====================================================
+   WORLD SCREEN
+===================================================== */
+
+#world{
+  position:absolute;
+  inset:0;
+  display:none;
+  overflow:hidden;
+  background:
+    linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.3)),
+    linear-gradient(145deg,#6da6d9,#b8d7e9 42%,#557c4e);
+}
+
+.citySky{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 70% 15%,rgba(255,255,255,.65),transparent 12%),
+    linear-gradient(#86b9df 0 40%,#759b62 40% 100%);
+}
+
+.city{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:58%;
+  background:
+    linear-gradient(
+      90deg,
+      #555 0 10%,
+      #777 10% 18%,
+      #444 18% 25%,
+      #888 25% 36%,
+      #555 36% 45%,
+      #777 45% 58%,
+      #444 58% 70%,
+      #888 70% 82%,
+      #555 82% 100%
+    );
+  clip-path:polygon(
+    0 35%,8% 20%,16% 40%,23% 12%,31% 37%,
+    40% 5%,49% 34%,57% 15%,66% 38%,75% 8%,
+    83% 34%,92% 18%,100% 36%,100% 100%,0 100%
+  );
+}
+
+.worldHud{
+  position:absolute;
+  top:max(12px,env(safe-area-inset-top));
+  left:12px;
+  right:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:5;
+}
+
+.hudBox{
+  padding:10px 13px;
+  border-radius:12px;
+  background:rgba(0,0,0,.5);
+  border:1px solid rgba(255,255,255,.15);
+  backdrop-filter:blur(10px);
+  font-size:10px;
+}
+
+.worldMenu{
+  position:absolute;
+  left:50%;
+  bottom:max(15px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  width:min(800px,94%);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.worldAction{
+  padding:13px 5px;
+  border-radius:12px;
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.16);
+  font-size:9px;
+}
+
+/* =====================================================
+   MATCH
+===================================================== */
 
 #game{
   position:absolute;
@@ -266,214 +305,159 @@ h1 span{
   display:none;
   overflow:hidden;
   background:
-    linear-gradient(
-      rgba(0,0,0,.05),
-      rgba(0,0,0,.38)
-    ),
     repeating-linear-gradient(
       90deg,
-      #247a3c 0px,
-      #247a3c 45px,
-      #2b8544 45px,
-      #2b8544 90px
+      #23763a 0,
+      #23763a 55px,
+      #2b8345 55px,
+      #2b8345 110px
     );
 }
 
-/* =========================================================
-   PITCH
-========================================================= */
-
-.pitch-line{
+#pitch{
   position:absolute;
-  inset:7% 8%;
-  border:3px solid rgba(255,255,255,.85);
+  inset:5% 7%;
+  border:3px solid rgba(255,255,255,.88);
 }
 
-.center-line{
+#pitch:before{
+  content:"";
   position:absolute;
   left:50%;
-  top:7%;
-  bottom:7%;
+  top:0;
+  bottom:0;
   width:3px;
-  transform:translateX(-50%);
-  background:rgba(255,255,255,.85);
+  background:rgba(255,255,255,.88);
 }
 
-.center-circle{
+.centerCircle{
   position:absolute;
   left:50%;
   top:50%;
-  width:min(150px,20vw);
-  height:min(150px,20vw);
+  width:150px;
+  height:150px;
   transform:translate(-50%,-50%);
-  border:3px solid rgba(255,255,255,.85);
+  border:3px solid rgba(255,255,255,.88);
   border-radius:50%;
 }
 
-.center-dot{
+.penalty{
   position:absolute;
-  left:50%;
-  top:50%;
-  width:10px;
-  height:10px;
-  transform:translate(-50%,-50%);
-  border-radius:50%;
-  background:#fff;
-}
-
-/* PENALTY BOXES */
-
-.penalty-top,
-.penalty-bottom{
-  position:absolute;
-  left:32%;
-  width:36%;
-  height:16%;
+  width:17%;
+  height:25%;
+  top:37.5%;
   border:3px solid rgba(255,255,255,.8);
 }
 
-.penalty-top{
-  top:7%;
-  border-top:0;
+.penalty.left{
+  left:-1px;
 }
 
-.penalty-bottom{
-  bottom:7%;
-  border-bottom:0;
+.penalty.right{
+  right:-1px;
 }
 
-/* =========================================================
-   PLAYER
-========================================================= */
+.goal{
+  position:absolute;
+  top:43%;
+  width:3%;
+  height:14%;
+  border:4px solid white;
+}
+
+.goal.left{
+  left:-3%;
+}
+
+.goal.right{
+  right:-3%;
+}
 
 .player{
   position:absolute;
-  left:50%;
-  top:50%;
-  width:32px;
-  height:52px;
+  width:28px;
+  height:44px;
   transform:translate(-50%,-50%);
   z-index:5;
-  transition:filter .12s ease;
 }
 
-.player.active{
-  filter:
-    drop-shadow(0 0 6px rgba(255,255,255,.8))
-    drop-shadow(0 0 14px rgba(255,70,70,.7));
-}
-
-.player .head{
-  width:16px;
-  height:16px;
-  margin:0 auto;
+.playerHead{
+  width:14px;
+  height:14px;
+  margin:auto;
   border-radius:50%;
-  background:#9b633f;
+  background:#9a633f;
 }
 
-.player .body{
-  width:22px;
+.playerBody{
+  width:21px;
   height:27px;
-  margin:1px auto 0;
-  background:#f4f4f4;
-  border-radius:5px 5px 3px 3px;
+  margin:auto;
+  border-radius:5px;
+  background:#fff;
 }
 
-.player .leg{
+#ball{
   position:absolute;
-  top:42px;
-  width:7px;
-  height:13px;
-  background:#222;
-  border-radius:2px;
-}
-
-.player .leg.left{
-  left:7px;
-}
-
-.player .leg.right{
-  right:7px;
-}
-
-/* =========================================================
-   BALL
-========================================================= */
-
-.ball{
-  position:absolute;
-  left:calc(50% + 30px);
-  top:50%;
   width:16px;
   height:16px;
-  transform:translate(-50%,-50%);
   border-radius:50%;
-  background:
-    radial-gradient(circle at 35% 30%,#fff,#e7e7e7);
-  box-shadow:
-    0 2px 6px rgba(0,0,0,.55),
-    inset -2px -2px 4px rgba(0,0,0,.18);
-  z-index:6;
+  background:#fff;
+  box-shadow:0 3px 9px rgba(0,0,0,.5);
+  z-index:7;
 }
 
-/* =========================================================
+/* =====================================================
    MATCH HUD
-========================================================= */
+===================================================== */
 
-.match-hud{
+.matchHud{
   position:absolute;
-  top:max(12px,env(safe-area-inset-top));
+  top:max(8px,env(safe-area-inset-top));
   left:50%;
   transform:translateX(-50%);
-  min-width:190px;
-  padding:8px 16px;
-  border-radius:14px;
-  background:rgba(0,0,0,.45);
-  border:1px solid rgba(255,255,255,.16);
-  backdrop-filter:blur(12px);
+  min-width:250px;
+  padding:9px 14px;
   text-align:center;
-  z-index:30;
-}
-
-.hud-title{
-  font-size:9px;
-  letter-spacing:2px;
-  opacity:.65;
+  border-radius:14px;
+  background:rgba(0,0,0,.58);
+  backdrop-filter:blur(10px);
+  z-index:20;
 }
 
 .score{
-  margin-top:2px;
   font-size:18px;
-  font-weight:900;
+  font-weight:1000;
 }
 
-.timer{
-  font-size:10px;
-  opacity:.75;
+.clock{
+  font-size:9px;
+  opacity:.65;
+  margin-top:2px;
 }
 
-/* =========================================================
-   MENU BUTTON
-========================================================= */
-
-#back{
+.matchMessage{
   position:absolute;
-  top:max(12px,env(safe-area-inset-top));
-  left:max(12px,env(safe-area-inset-left));
-  min-width:auto;
-  padding:9px 13px;
-  border-radius:10px;
-  background:rgba(0,0,0,.42);
-  border:1px solid rgba(255,255,255,.2);
+  top:17%;
+  left:50%;
+  transform:translateX(-50%);
+  padding:10px 18px;
+  border-radius:30px;
+  background:rgba(0,0,0,.68);
   font-size:11px;
-  font-weight:800;
-  z-index:50;
-  pointer-events:auto;
+  font-weight:900;
+  opacity:0;
+  transition:.25s;
+  z-index:30;
 }
 
-/* =========================================================
-   CONTROLS LAYER
-========================================================= */
+.matchMessage.show{
+  opacity:1;
+}
+
+/* =====================================================
+   CONTROLS
+===================================================== */
 
 .controls{
   position:absolute;
@@ -482,358 +466,279 @@ h1 span{
   pointer-events:none;
 }
 
-/* =========================================================
-   LEFT ANALOG
-========================================================= */
-
-.analog-area{
+.joystick{
   position:absolute;
-  left:max(18px,env(safe-area-inset-left));
-  bottom:max(22px,env(safe-area-inset-bottom));
-  width:145px;
-  height:145px;
+  left:max(22px,env(safe-area-inset-left));
+  bottom:max(24px,env(safe-area-inset-bottom));
+  width:118px;
+  height:118px;
+  border-radius:50%;
+  background:rgba(255,255,255,.09);
+  border:2px solid rgba(255,255,255,.28);
+  box-shadow:inset 0 0 25px rgba(255,255,255,.05);
   pointer-events:auto;
 }
 
-.analog-base{
+.joystickStick{
   position:absolute;
   left:50%;
   top:50%;
-  width:124px;
-  height:124px;
+  width:50px;
+  height:50px;
   transform:translate(-50%,-50%);
   border-radius:50%;
-  background:
-    radial-gradient(
-      circle,
-      rgba(255,255,255,.14),
-      rgba(255,255,255,.05) 55%,
-      rgba(0,0,0,.25) 100%
-    );
-  border:2px solid rgba(255,255,255,.28);
-  box-shadow:
-    inset 0 0 18px rgba(0,0,0,.35),
-    0 8px 25px rgba(0,0,0,.25);
+  background:rgba(255,255,255,.42);
+  border:1px solid rgba(255,255,255,.5);
+}
+
+.actionButtons{
+  position:absolute;
+  right:max(18px,env(safe-area-inset-right));
+  bottom:max(20px,env(safe-area-inset-bottom));
+  width:220px;
+  height:155px;
+  pointer-events:none;
+}
+
+.actionBtn{
+  position:absolute;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  background:rgba(0,0,0,.48);
+  border:1px solid rgba(255,255,255,.3);
+  pointer-events:auto;
+  font-size:9px;
   backdrop-filter:blur(8px);
 }
 
-.analog-ring{
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:82px;
-  height:82px;
-  transform:translate(-50%,-50%);
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,.13);
+.actionBtn:active{
+  transform:scale(.91);
 }
 
-.analog-stick{
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:58px;
-  height:58px;
-  transform:translate(-50%,-50%);
-  border-radius:50%;
-  background:
-    radial-gradient(
-      circle at 35% 28%,
-      rgba(255,255,255,.5),
-      rgba(255,255,255,.17) 45%,
-      rgba(0,0,0,.25) 100%
-    );
-  border:2px solid rgba(255,255,255,.3);
-  box-shadow:
-    0 5px 15px rgba(0,0,0,.4),
-    inset 0 2px 4px rgba(255,255,255,.18);
-}
-
-/* =========================================================
-   RIGHT PS5 BUTTON CLUSTER
-========================================================= */
-
-.action-cluster{
-  position:absolute;
-  right:max(18px,env(safe-area-inset-right));
-  bottom:max(22px,env(safe-area-inset-bottom));
-  width:175px;
-  height:155px;
-  pointer-events:auto;
-}
-
-/* individual buttons */
-
-.ps-button{
-  position:absolute;
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  background:
-    radial-gradient(
-      circle at 35% 25%,
-      rgba(255,255,255,.28),
-      rgba(255,255,255,.08) 55%,
-      rgba(0,0,0,.22)
-    );
-  border:2px solid rgba(255,255,255,.25);
-  box-shadow:
-    0 7px 18px rgba(0,0,0,.35),
-    inset 0 1px 4px rgba(255,255,255,.12);
-  backdrop-filter:blur(7px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:25px;
-  font-weight:900;
-}
-
-.ps-button:active,
-.ps-button.pressed{
-  transform:scale(.88);
-  background:rgba(255,255,255,.25);
-}
-
-.btn-triangle{
-  left:59px;
-  top:0;
-}
-
-.btn-square{
-  left:0;
-  top:50px;
-}
-
-.btn-circle{
-  right:0;
-  top:50px;
-}
-
-.btn-cross{
-  left:59px;
+#passBtn{
+  left:5px;
   bottom:0;
 }
 
-.symbol-triangle{
-  color:#6ee7a5;
+#shootBtn{
+  right:5px;
+  bottom:30px;
+  background:rgba(227,38,46,.75);
 }
 
-.symbol-square{
-  color:#e9a9ff;
+#sprintBtn{
+  left:77px;
+  bottom:73px;
 }
 
-.symbol-circle{
-  color:#ff7777;
+#switchBtn{
+  right:78px;
+  bottom:0;
 }
 
-.symbol-cross{
-  color:#8cc8ff;
-}
-
-/* =========================================================
-   SHOULDER CONTROLS
-========================================================= */
-
-.shoulder{
+.backBtn{
   position:absolute;
-  top:max(15px,env(safe-area-inset-top));
-  width:74px;
-  height:42px;
-  border-radius:13px;
-  background:rgba(0,0,0,.38);
-  border:1px solid rgba(255,255,255,.18);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:1px;
-  pointer-events:auto;
+  top:max(10px,env(safe-area-inset-top));
+  left:12px;
+  z-index:50;
+  padding:9px 13px;
+  border-radius:10px;
+  background:rgba(0,0,0,.58);
+  font-size:9px;
 }
 
-.shoulder:active,
-.shoulder.pressed{
-  transform:scale(.94);
-  background:rgba(255,255,255,.2);
-}
+/* =====================================================
+   CONTROLLER PANEL
+===================================================== */
 
-#l1{
-  left:calc(max(18px,env(safe-area-inset-left)) + 160px);
-}
-
-#r1{
-  right:calc(max(18px,env(safe-area-inset-right)) + 160px);
-}
-
-/* =========================================================
-   ACTION LABELS
-========================================================= */
-
-.control-label{
-  position:absolute;
-  font-size:7px;
-  letter-spacing:1px;
-  font-weight:800;
-  opacity:.65;
-  pointer-events:none;
-}
-
-.label-pass{
-  right:96px;
-  bottom:72px;
-}
-
-.label-shoot{
-  right:2px;
-  bottom:72px;
-}
-
-.label-through{
-  right:63px;
-  bottom:137px;
-}
-
-.label-control{
-  right:63px;
-  bottom:3px;
-}
-
-/* =========================================================
-   TOUCH INDICATOR
-========================================================= */
-
-.touch-status{
+#controllerPanel{
   position:absolute;
   left:50%;
-  bottom:max(12px,env(safe-area-inset-bottom));
-  transform:translateX(-50%);
-  padding:5px 10px;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(430px,90%);
+  display:none;
+  z-index:100;
+  padding:20px;
+  border-radius:18px;
+  background:rgba(5,7,11,.95);
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 20px 70px rgba(0,0,0,.65);
+  text-align:center;
+}
+
+#controllerStatus{
+  margin:12px 0;
+  font-size:12px;
+  opacity:.8;
+}
+
+.controllerClose{
+  padding:12px 20px;
+  border-radius:10px;
+  background:#e3262e;
+}
+
+/* =====================================================
+   MODALS
+===================================================== */
+
+.modal{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(12px);
+  z-index:200;
+}
+
+.modalCard{
+  width:min(560px,94%);
+  max-height:88vh;
+  overflow:auto;
+  padding:22px;
   border-radius:20px;
-  background:rgba(0,0,0,.3);
-  font-size:8px;
-  letter-spacing:1px;
-  opacity:.45;
-  pointer-events:none;
+  background:#0c1018;
+  border:1px solid rgba(255,255,255,.16);
 }
 
-/* =========================================================
-   LANDSCAPE PHONE
-========================================================= */
-
-@media(max-height:520px){
-
-  .analog-area{
-    width:125px;
-    height:125px;
-  }
-
-  .analog-base{
-    width:108px;
-    height:108px;
-  }
-
-  .analog-ring{
-    width:72px;
-    height:72px;
-  }
-
-  .analog-stick{
-    width:52px;
-    height:52px;
-  }
-
-  .action-cluster{
-    width:155px;
-    height:135px;
-  }
-
-  .ps-button{
-    width:50px;
-    height:50px;
-    font-size:22px;
-  }
-
-  .btn-triangle{
-    left:52px;
-  }
-
-  .btn-cross{
-    left:52px;
-  }
-
-  .match-hud{
-    min-width:165px;
-    padding:6px 12px;
-  }
-
-  .score{
-    font-size:15px;
-  }
-
-  .shoulder{
-    width:65px;
-    height:36px;
-  }
+.modalTitle{
+  font-size:22px;
+  font-weight:1000;
+  margin-bottom:6px;
 }
 
-/* =========================================================
-   SMALL PHONE
-========================================================= */
+.modalSub{
+  font-size:10px;
+  opacity:.6;
+  margin-bottom:18px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.card{
+  padding:15px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.card strong{
+  display:block;
+  margin-bottom:6px;
+}
+
+.card small{
+  opacity:.6;
+  font-size:9px;
+}
+
+.modalBtn{
+  width:100%;
+  margin-top:14px;
+  padding:13px;
+  border-radius:11px;
+  background:#e3262e;
+}
+
+.locked{
+  opacity:.6;
+}
+
+.lock{
+  font-size:24px;
+  margin-bottom:8px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
 
 @media(max-width:600px){
 
   .brand{
-    top:12px;
-    left:12px;
+    left:13px;
   }
 
   .camera{
-    top:13px;
-    right:12px;
+    right:13px;
   }
 
   .logo{
     font-size:20px;
   }
 
-  .camera-name{
+  .cameraName{
     font-size:13px;
   }
 
-  .camera-sub{
-    font-size:7px;
-  }
-
-  .eyebrow{
-    font-size:8px;
-    letter-spacing:4px;
-  }
-
-  h1{
-    font-size:44px;
+  .hero h1{
+    font-size:45px;
   }
 
   .tagline{
-    font-size:9px;
-    letter-spacing:3px;
+    font-size:8px;
   }
 
-  .actions{
-    margin-top:24px;
+  .joystick{
+    width:105px;
+    height:105px;
   }
 
-  .menu-button{
-    min-width:130px;
-    padding:13px 18px;
+  .joystickStick{
+    width:44px;
+    height:44px;
   }
 
-  .features{
-    bottom:10px;
+  .actionButtons{
+    width:190px;
+    height:140px;
   }
 
-  .feature{
+  .actionBtn{
+    width:58px;
+    height:58px;
+    font-size:8px;
+  }
+
+  .worldMenu{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .worldAction{
     font-size:7px;
-    padding:7px 9px;
+    padding:11px 3px;
+  }
+
+}
+
+@media(max-height:430px){
+
+  .joystick{
+    width:92px;
+    height:92px;
+  }
+
+  .joystickStick{
+    width:40px;
+    height:40px;
+  }
+
+  .actionButtons{
+    transform:scale(.84);
+    transform-origin:bottom right;
+  }
+
+  .matchHud{
+    transform:translateX(-50%) scale(.86);
   }
 }
 </style>
@@ -843,29 +748,31 @@ h1 span{
 
 <div id="app">
 
-  <!-- =====================================================
-       MENU
-  ====================================================== -->
+<!-- ===================================================
+     MAIN MENU
+=================================================== -->
 
-  <div class="light one"></div>
-  <div class="light two"></div>
+<section id="menu">
+
+  <div class="menuGlow a"></div>
+  <div class="menuGlow b"></div>
 
   <div class="brand">
-    <div class="brand-small">OBITREND</div>
+    <div class="brandSmall">OBITREND</div>
     <div class="logo">
       FOOTBALL WORLD <span>27</span>
     </div>
   </div>
 
   <div class="camera">
-    <div class="camera-title">VISUAL ENGINE</div>
-    <div class="camera-name">X-T5 INSPIRED</div>
-    <div class="camera-sub">
+    <div class="cameraTitle">VISUAL ENGINE</div>
+    <div class="cameraName">X-T5 INSPIRED</div>
+    <div class="cameraSub">
       REALISTIC PHOTOGRAPHIC LOOK
     </div>
   </div>
 
-  <section class="hero">
+  <div class="hero">
 
     <div class="eyebrow">
       A NEW FOOTBALL REALITY
@@ -881,1270 +788,1712 @@ h1 span{
       FOOTBALL • OPEN WORLD • NEXT GENERATION
     </div>
 
-    <div class="actions">
+    <div class="menuButtons">
 
-      <button
-        class="menu-button play"
-        id="playButton">
-        PLAY NOW
+      <button class="menuBtn primary"
+      onclick="openRealWorld()">
+        ENTER REAL WORLD
       </button>
 
-      <button
-        class="menu-button"
-        id="exploreButton">
-        EXPLORE WORLD
+      <button class="menuBtn"
+      onclick="openStore()">
+        COINS
+      </button>
+
+      <button class="menuBtn"
+      onclick="openController()">
+        CONTROLS
       </button>
 
     </div>
 
-  </section>
-
-  <div class="features">
-    <div class="feature">REALISTIC GRAPHICS</div>
-    <div class="feature">OPEN WORLD</div>
-    <div class="feature">CAREER MODE</div>
-    <div class="feature">LEAGUES & CUPS</div>
-    <div class="feature">WORLD TOURNAMENTS</div>
   </div>
 
-  <!-- =====================================================
-       GAME
-  ====================================================== -->
+  <div class="menuBottom">
+    <div class="pill">OPEN WORLD</div>
+    <div class="pill">CAREER</div>
+    <div class="pill">LEAGUES</div>
+    <div class="pill">CUPS</div>
+    <div class="pill">WORLD TOURNAMENTS</div>
+    <div class="pill">ANDROID + CONTROLLER</div>
+  </div>
 
-  <div id="game">
+</section>
 
-    <button id="back">
+
+<!-- ===================================================
+     OPEN WORLD
+=================================================== -->
+
+<section id="world">
+
+  <div class="citySky"></div>
+  <div class="city"></div>
+
+  <div class="worldHud">
+
+    <button class="hudBox"
+    onclick="backToMenu()">
       ← MENU
     </button>
 
-    <div class="match-hud">
-      <div class="hud-title">
-        OBITREND FOOTBALL WORLD
-      </div>
-
-      <div class="score">
-        OBITREND FC&nbsp;&nbsp; 0 - 0 &nbsp;&nbsp;WORLD XI
-      </div>
-
-      <div class="timer" id="matchTimer">
-        00:00
-      </div>
+    <div class="hudBox">
+      🪙 <span id="coinDisplayWorld">0</span>
     </div>
 
-    <!-- PITCH -->
+  </div>
 
-    <div class="pitch-line"></div>
+  <div class="worldMenu">
 
-    <div class="center-line"></div>
+    <button class="worldAction"
+    onclick="openMatch()">
+      🏟️ STADIUM
+    </button>
 
-    <div class="center-circle"></div>
+    <button class="worldAction"
+    onclick="openTraining()">
+      🏋️ TRAINING
+    </button>
 
-    <div class="center-dot"></div>
+    <button class="worldAction"
+    onclick="openLifestyle()">
+      🏠 LIFESTYLE
+    </button>
 
-    <div class="penalty-top"></div>
+    <button class="worldAction"
+    onclick="openCoaches()">
+      👨‍🏫 COACHES
+    </button>
 
-    <div class="penalty-bottom"></div>
+  </div>
 
-    <!-- PLAYER -->
+</section>
+
+
+<!-- ===================================================
+     GAME
+=================================================== -->
+
+<section id="game">
+
+  <button class="backBtn"
+  onclick="backToWorld()">
+    ← WORLD
+  </button>
+
+  <div class="matchHud">
+
+    <div class="score">
+      OBITREND FC&nbsp;&nbsp; <span id="scoreHome">0</span>
+      -
+      <span id="scoreAway">0</span>
+      &nbsp;&nbsp;WORLD XI
+    </div>
+
+    <div class="clock">
+      MATCH <span id="matchMinute">1</span>'
+    </div>
+
+  </div>
+
+  <div id="matchMessage"></div>
+
+  <div id="pitch">
+
+    <div class="centerCircle"></div>
+
+    <div class="penalty left"></div>
+    <div class="penalty right"></div>
+
+    <div class="goal left"></div>
+    <div class="goal right"></div>
+
+  </div>
+
+  <div id="player" class="player">
+    <div class="playerHead"></div>
+    <div class="playerBody"></div>
+  </div>
+
+  <div id="ball"></div>
+
+  <div class="controls">
 
     <div
-      class="player active"
-      id="player">
-
-      <div class="head"></div>
-
-      <div class="body"></div>
-
-      <div class="leg left"></div>
-      <div class="leg right"></div>
-
-    </div>
-
-    <!-- BALL -->
-
-    <div
-      class="ball"
-      id="ball">
-    </div>
-
-    <!-- =================================================
-         CONTROLS
-    ================================================== -->
-
-    <div class="controls">
-
-      <!-- L1 -->
-
-      <button
-        class="shoulder"
-        id="l1">
-        L1
-      </button>
-
-      <!-- R1 -->
-
-      <button
-        class="shoulder"
-        id="r1">
-        R1
-      </button>
-
-      <!-- LEFT ANALOG -->
+      id="joystick"
+      class="joystick">
 
       <div
-        class="analog-area"
-        id="analogArea">
-
-        <div class="analog-base"></div>
-
-        <div class="analog-ring"></div>
-
-        <div
-          class="analog-stick"
-          id="analogStick">
-        </div>
-
+        id="joystickStick"
+        class="joystickStick">
       </div>
 
-      <!-- RIGHT PS BUTTONS -->
+    </div>
 
-      <div class="action-cluster">
+    <div class="actionButtons">
 
-        <button
-          class="ps-button btn-triangle"
-          id="triangle"
-          aria-label="Through ball">
-          <span class="symbol-triangle">△</span>
-        </button>
-
-        <button
-          class="ps-button btn-square"
-          id="square"
-          aria-label="Tackle">
-          <span class="symbol-square">□</span>
-        </button>
-
-        <button
-          class="ps-button btn-circle"
-          id="circle"
-          aria-label="Shoot">
-          <span class="symbol-circle">○</span>
-        </button>
-
-        <button
-          class="ps-button btn-cross"
-          id="cross"
-          aria-label="Pass">
-          <span class="symbol-cross">×</span>
-        </button>
-
-      </div>
-
-      <div class="control-label label-pass">
+      <button
+        id="passBtn"
+        class="actionBtn"
+        onclick="passBall()">
         PASS
-      </div>
+      </button>
 
-      <div class="control-label label-shoot">
+      <button
+        id="shootBtn"
+        class="actionBtn"
+        onclick="shootBall()">
         SHOOT
+      </button>
+
+      <button
+        id="sprintBtn"
+        class="actionBtn"
+        onclick="sprint()">
+        SPRINT
+      </button>
+
+      <button
+        id="switchBtn"
+        class="actionBtn"
+        onclick="switchControlMode()">
+        🎮
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ===================================================
+     CONTROLLER PANEL
+=================================================== -->
+
+<div id="controllerPanel">
+
+  <div class="modalTitle">
+    CONTROLLER
+  </div>
+
+  <div class="modalSub">
+    Connect a compatible Bluetooth controller.
+    PS5 DualSense controllers are supported where the
+    Android browser exposes the Gamepad API.
+  </div>
+
+  <div id="controllerStatus">
+    Searching for controller...
+  </div>
+
+  <button
+    class="controllerClose"
+    onclick="closeController()">
+    CLOSE
+  </button>
+
+</div>
+
+
+<!-- ===================================================
+     COIN STORE
+=================================================== -->
+
+<div id="storeModal" class="modal">
+
+  <div class="modalCard">
+
+    <div class="modalTitle">
+      🪙 OBITREND COINS
+    </div>
+
+    <div class="modalSub">
+      Coins unlock premium Real World content.
+      Real-money purchases require a secure Android
+      payment implementation later.
+    </div>
+
+    <div class="grid">
+
+      <div class="card">
+        <strong>100 COINS</strong>
+        <small>Starter package</small>
+        <button class="modalBtn"
+        onclick="demoPurchase(100)">
+          SELECT
+        </button>
       </div>
 
-      <div class="control-label label-through">
-        THROUGH
+      <div class="card">
+        <strong>500 COINS</strong>
+        <small>World package</small>
+        <button class="modalBtn"
+        onclick="demoPurchase(500)">
+          SELECT
+        </button>
       </div>
 
-      <div class="control-label label-control">
-        TACKLE
+      <div class="card">
+        <strong>1,000 COINS</strong>
+        <small>Career package</small>
+        <button class="modalBtn"
+        onclick="demoPurchase(1000)">
+          SELECT
+        </button>
       </div>
 
-      <div
-        class="touch-status"
-        id="touchStatus">
-        TOUCH CONTROLS
+      <div class="card">
+        <strong>5,000 COINS</strong>
+        <small>Premium package</small>
+        <button class="modalBtn"
+        onclick="demoPurchase(5000)">
+          SELECT
+        </button>
       </div>
 
     </div>
+
+    <button
+      class="modalBtn"
+      onclick="closeModal('storeModal')">
+      CLOSE
+    </button>
 
   </div>
 
 </div>
 
+
+<!-- ===================================================
+     LOCK
+=================================================== -->
+
+<div id="lockModal" class="modal">
+
+  <div class="modalCard">
+
+    <div class="lock">🔒</div>
+
+    <div class="modalTitle">
+      REAL WORLD LOCKED
+    </div>
+
+    <div class="modalSub">
+      Real World includes the open-world football city,
+      training, lifestyle, stadium access and career
+      systems.
+    </div>
+
+    <div class="card">
+
+      <strong>
+        Required: <span id="unlockCost">100</span> coins
+      </strong>
+
+      <small>
+        Current balance:
+        <span id="lockBalance">0</span>
+      </small>
+
+    </div>
+
+    <button
+      class="modalBtn"
+      onclick="unlockRealWorld()">
+      UNLOCK REAL WORLD
+    </button>
+
+    <button
+      class="modalBtn"
+      onclick="openStoreFromLock()">
+      GET COINS
+    </button>
+
+    <button
+      class="modalBtn"
+      onclick="closeModal('lockModal')">
+      CLOSE
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ===================================================
+     LIFESTYLE
+=================================================== -->
+
+<div id="lifestyleModal" class="modal">
+
+  <div class="modalCard">
+
+    <div class="modalTitle">
+      PLAYER LIFESTYLE
+    </div>
+
+    <div class="modalSub">
+      Your football career continues outside the pitch.
+    </div>
+
+    <div class="grid">
+
+      <div class="card">
+        <strong>🏠 HOUSE</strong>
+        <small>Own and upgrade your home.</small>
+      </div>
+
+      <div class="card">
+        <strong>🚗 CARS</strong>
+        <small>Collect and customize vehicles.</small>
+      </div>
+
+      <div class="card">
+        <strong>✈️ PRIVATE JET</strong>
+        <small>Premium travel feature.</small>
+      </div>
+
+      <div class="card">
+        <strong>❤️ RELATIONSHIPS</strong>
+        <small>
+          Family, partner and social-life systems.
+        </small>
+      </div>
+
+      <div class="card">
+        <strong>👶 CHILDREN</strong>
+        <small>
+          Family-life simulation system.
+        </small>
+      </div>
+
+      <div class="card">
+        <strong>🏙️ WORLD LIFE</strong>
+        <small>
+          Travel between football cities.
+        </small>
+      </div>
+
+    </div>
+
+    <button
+      class="modalBtn"
+      onclick="closeModal('lifestyleModal')">
+      CLOSE
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ===================================================
+     COACHES
+=================================================== -->
+
+<div id="coachModal" class="modal">
+
+  <div class="modalCard">
+
+    <div class="modalTitle">
+      👨‍🏫 COACHING CENTRE
+    </div>
+
+    <div class="modalSub">
+      Licensed real-world coaches can be added here
+      once the necessary rights are obtained.
+    </div>
+
+    <div class="grid">
+
+      <div class="card">
+        <strong>TACTICAL COACH</strong>
+        <small>
+          Possession and passing philosophy.
+        </small>
+      </div>
+
+      <div class="card">
+        <strong>ATTACK COACH</strong>
+        <small>
+          Finishing and attacking movement.
+        </small>
+      </div>
+
+      <div class="card">
+        <strong>DEFENCE COACH</strong>
+        <small>
+          Defensive shape and tackling.
+        </small>
+      </div>
+
+      <div class="card">
+        <strong>FITNESS COACH</strong>
+        <small>
+          Stamina and injury prevention.
+        </small>
+      </div>
+
+    </div>
+
+    <button
+      class="modalBtn"
+      onclick="closeModal('coachModal')">
+      CLOSE
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ===================================================
+     TRAINING
+=================================================== -->
+
+<div id="trainingModal" class="modal">
+
+  <div class="modalCard">
+
+    <div class="modalTitle">
+      🏋️ TRAINING CENTRE
+    </div>
+
+    <div class="modalSub">
+      Training is part of Real World and becomes
+      available after Real World is unlocked.
+    </div>
+
+    <div class="grid">
+
+      <div class="card">
+        <strong>⚽ SHOOTING</strong>
+        <small>Improve finishing.</small>
+      </div>
+
+      <div class="card">
+        <strong>🎯 PASSING</strong>
+        <small>Improve accuracy.</small>
+      </div>
+
+      <div class="card">
+        <strong>🏃 FITNESS</strong>
+        <small>Improve stamina.</small>
+      </div>
+
+      <div class="card">
+        <strong>🧠 TACTICS</strong>
+        <small>Improve decision making.</small>
+      </div>
+
+    </div>
+
+    <button
+      class="modalBtn"
+      onclick="closeModal('trainingModal')">
+      CLOSE
+    </button>
+
+  </div>
+
+</div>
+
+
+</div>
+
+
 <script>
-/* =========================================================
-   OBITREND FOOTBALL WORLD 27
-   MOBILE FOOTBALL CONTROL SYSTEM
-========================================================= */
 
-(function(){
-
-"use strict";
-
-/* =========================================================
-   ELEMENTS
-========================================================= */
-
-const game = document.getElementById("game");
-const hero = document.querySelector(".hero");
-const features = document.querySelector(".features");
-
-const playButton = document.getElementById("playButton");
-const exploreButton = document.getElementById("exploreButton");
-const backButton = document.getElementById("back");
-
-const player = document.getElementById("player");
-const ball = document.getElementById("ball");
-
-const analogArea = document.getElementById("analogArea");
-const analogStick = document.getElementById("analogStick");
-
-const triangle = document.getElementById("triangle");
-const square = document.getElementById("square");
-const circle = document.getElementById("circle");
-const cross = document.getElementById("cross");
-
-const l1 = document.getElementById("l1");
-const r1 = document.getElementById("r1");
-
-const matchTimer = document.getElementById("matchTimer");
-const touchStatus = document.getElementById("touchStatus");
-
-/* =========================================================
+/* =====================================================
    GAME STATE
-========================================================= */
+===================================================== */
 
 const state = {
 
-  running:false,
+  coins: Number(localStorage.getItem(
+    "obitrend_coins"
+  ) || 0),
+
+  realWorldUnlocked:
+    localStorage.getItem(
+      "obitrend_real_world"
+    ) === "true",
+
+  controlMode:
+    localStorage.getItem(
+      "obitrend_control_mode"
+    ) || "touch",
 
   x:50,
   y:50,
 
-  ballX:52.8,
+  ballX:53,
   ballY:50,
 
-  velocityX:0,
-  velocityY:0,
+  speed:0.55,
+  sprinting:false,
 
-  ballVelocityX:0,
-  ballVelocityY:0,
+  scoreHome:0,
+  scoreAway:0,
 
-  joystickX:0,
-  joystickY:0,
+  minute:1,
 
-  sprint:false,
+  moving:false,
 
-  matchSeconds:0,
+  gamepad:null,
 
-  lastTime:0,
-
-  controllerIndex:null,
-
-  controllerConnected:false
+  commentaryLast:0
 
 };
 
-/* =========================================================
-   LIMITS
-========================================================= */
 
-function clamp(value,min,max){
-  return Math.max(min,Math.min(max,value));
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const menu =
+  document.getElementById("menu");
+
+const world =
+  document.getElementById("world");
+
+const game =
+  document.getElementById("game");
+
+const player =
+  document.getElementById("player");
+
+const ball =
+  document.getElementById("ball");
+
+const joystick =
+  document.getElementById("joystick");
+
+const joystickStick =
+  document.getElementById("joystickStick");
+
+const matchMessage =
+  document.getElementById("matchMessage");
+
+
+/* =====================================================
+   COINS
+===================================================== */
+
+function saveCoins(){
+
+  localStorage.setItem(
+    "obitrend_coins",
+    String(state.coins)
+  );
+
+  updateCoinDisplays();
 }
 
-/* =========================================================
-   GAME START
-========================================================= */
 
-function startGame(){
+function updateCoinDisplays(){
 
-  state.running = true;
+  document.querySelector(
+    "#coinDisplayWorld"
+  ).textContent =
+    state.coins;
 
-  state.x = 50;
-  state.y = 50;
-
-  state.ballX = 52.8;
-  state.ballY = 50;
-
-  state.velocityX = 0;
-  state.velocityY = 0;
-
-  state.ballVelocityX = 0;
-  state.ballVelocityY = 0;
-
-  state.joystickX = 0;
-  state.joystickY = 0;
-
-  state.matchSeconds = 0;
-
-  hero.style.display = "none";
-  features.style.display = "none";
-
-  document.querySelector(".brand").style.display = "none";
-  document.querySelector(".camera").style.display = "none";
-
-  game.style.display = "block";
-
-  resetJoystick();
-
-  updatePlayerVisual();
-
-  updateBallVisual();
-
-  requestAnimationFrame(gameLoop);
+  document.querySelector(
+    "#lockBalance"
+  ).textContent =
+    state.coins;
 }
 
-/* =========================================================
-   RETURN TO MENU
-========================================================= */
+
+function openStore(){
+
+  document.getElementById(
+    "storeModal"
+  ).style.display="flex";
+
+}
+
+
+function openStoreFromLock(){
+
+  closeModal("lockModal");
+
+  openStore();
+
+}
+
+
+/*
+  DEMO ONLY.
+
+  This simulates a purchase so the prototype
+  can be tested.
+
+  DO NOT treat this as a real payment system.
+*/
+
+function demoPurchase(amount){
+
+  state.coins += amount;
+
+  saveCoins();
+
+  alert(
+    amount +
+    " demo coins added.\n\n" +
+    "Real money purchases will require " +
+    "Android/Google Play Billing and secure " +
+    "server-side verification."
+  );
+
+  closeModal("storeModal");
+}
+
+
+/* =====================================================
+   REAL WORLD LOCK
+===================================================== */
+
+function openRealWorld(){
+
+  if(state.realWorldUnlocked){
+
+    openWorld();
+
+    return;
+
+  }
+
+  document.getElementById(
+    "lockModal"
+  ).style.display="flex";
+
+}
+
+
+function unlockRealWorld(){
+
+  const cost=100;
+
+  if(state.coins < cost){
+
+    alert(
+      "You need " +
+      cost +
+      " coins to unlock Real World."
+    );
+
+    return;
+
+  }
+
+  state.coins-=cost;
+
+  state.realWorldUnlocked=true;
+
+  localStorage.setItem(
+    "obitrend_real_world",
+    "true"
+  );
+
+  saveCoins();
+
+  closeModal("lockModal");
+
+  openWorld();
+
+}
+
+
+function openWorld(){
+
+  menu.style.display="none";
+  game.style.display="none";
+  world.style.display="block";
+
+  updateCoinDisplays();
+
+}
+
 
 function backToMenu(){
 
-  state.running = false;
+  world.style.display="none";
+  game.style.display="none";
+  menu.style.display="block";
 
-  game.style.display = "none";
-
-  hero.style.display = "flex";
-  features.style.display = "flex";
-
-  document.querySelector(".brand").style.display = "block";
-  document.querySelector(".camera").style.display = "block";
-
-  resetJoystick();
 }
 
-/* =========================================================
-   POSITION PLAYER
-========================================================= */
 
-function updatePlayerVisual(){
+/* =====================================================
+   TRAINING
+===================================================== */
 
-  player.style.left = state.x + "%";
-  player.style.top = state.y + "%";
+function openTraining(){
 
-  const moving =
-    Math.abs(state.velocityX) > .01 ||
-    Math.abs(state.velocityY) > .01;
+  if(!state.realWorldUnlocked){
 
-  if(moving){
-    player.style.transform =
-      "translate(-50%,-50%) rotate(" +
-      (state.velocityX * 3) +
-      "deg)";
-  }else{
-    player.style.transform =
-      "translate(-50%,-50%)";
-  }
-}
-
-/* =========================================================
-   POSITION BALL
-========================================================= */
-
-function updateBallVisual(){
-
-  ball.style.left = state.ballX + "%";
-  ball.style.top = state.ballY + "%";
-}
-
-/* =========================================================
-   KEEP BALL CLOSE
-========================================================= */
-
-function keepBallNearPlayer(){
-
-  const dx = state.ballX - state.x;
-  const dy = state.ballY - state.y;
-
-  const distance = Math.sqrt(
-    dx * dx +
-    dy * dy
-  );
-
-  if(distance < 5){
-
-    const targetX =
-      state.x + state.joystickX * 2.8;
-
-    const targetY =
-      state.y + state.joystickY * 2.8;
-
-    state.ballX +=
-      (targetX - state.ballX) * .08;
-
-    state.ballY +=
-      (targetY - state.ballY) * .08;
-  }
-}
-
-/* =========================================================
-   PLAYER MOVEMENT
-========================================================= */
-
-function updateMovement(delta){
-
-  const magnitude = Math.sqrt(
-    state.joystickX * state.joystickX +
-    state.joystickY * state.joystickY
-  );
-
-  if(magnitude < .05){
-
-    state.velocityX *= .75;
-    state.velocityY *= .75;
+    document.getElementById(
+      "lockModal"
+    ).style.display="flex";
 
     return;
+
   }
 
-  let speed = .075;
+  document.getElementById(
+    "trainingModal"
+  ).style.display="flex";
 
-  if(state.sprint){
-    speed = .14;
-  }
-
-  state.velocityX =
-    state.joystickX * speed;
-
-  state.velocityY =
-    state.joystickY * speed;
-
-  state.x += state.velocityX * delta;
-
-  state.y += state.velocityY * delta;
-
-  state.x = clamp(
-    state.x,
-    10,
-    90
-  );
-
-  state.y = clamp(
-    state.y,
-    9,
-    91
-  );
-
-  keepBallNearPlayer();
 }
 
-/* =========================================================
-   BALL PHYSICS
-========================================================= */
 
-function updateBall(delta){
+/* =====================================================
+   LIFESTYLE
+===================================================== */
 
-  state.ballX +=
-    state.ballVelocityX * delta;
+function openLifestyle(){
 
-  state.ballY +=
-    state.ballVelocityY * delta;
+  if(!state.realWorldUnlocked){
 
-  state.ballVelocityX *= .93;
-  state.ballVelocityY *= .93;
+    document.getElementById(
+      "lockModal"
+    ).style.display="flex";
 
-  state.ballX = clamp(
-    state.ballX,
-    6,
-    94
-  );
-
-  state.ballY = clamp(
-    state.ballY,
-    7,
-    93
-  );
-}
-
-/* =========================================================
-   GAME LOOP
-========================================================= */
-
-function gameLoop(timestamp){
-
-  if(!state.running){
     return;
+
   }
 
-  if(!state.lastTime){
-    state.lastTime = timestamp;
+  document.getElementById(
+    "lifestyleModal"
+  ).style.display="flex";
+
+}
+
+
+/* =====================================================
+   COACHES
+===================================================== */
+
+function openCoaches(){
+
+  if(!state.realWorldUnlocked){
+
+    document.getElementById(
+      "lockModal"
+    ).style.display="flex";
+
+    return;
+
   }
 
-  let delta =
-    (timestamp - state.lastTime) / 16.666;
+  document.getElementById(
+    "coachModal"
+  ).style.display="flex";
 
-  delta = clamp(
-    delta,
-    .5,
-    2.5
+}
+
+
+/* =====================================================
+   MODALS
+===================================================== */
+
+function closeModal(id){
+
+  document.getElementById(
+    id
+  ).style.display="none";
+
+}
+
+
+/* =====================================================
+   MATCH
+===================================================== */
+
+function openMatch(){
+
+  if(!state.realWorldUnlocked){
+
+    document.getElementById(
+      "lockModal"
+    ).style.display="flex";
+
+    return;
+
+  }
+
+  world.style.display="none";
+  game.style.display="block";
+
+  resetMatch();
+
+  showMessage(
+    "MATCH READY"
   );
 
-  state.lastTime = timestamp;
-
-  updateController();
-
-  updateMovement(delta);
-
-  updateBall(delta);
-
-  updatePlayerVisual();
-
-  updateBallVisual();
-
-  updateMatchTimer();
-
-  requestAnimationFrame(gameLoop);
 }
 
-/* =========================================================
-   MATCH TIMER
-========================================================= */
 
-function updateMatchTimer(){
+function resetMatch(){
 
-  state.matchSeconds += 1 / 60;
+  state.x=50;
+  state.y=50;
 
-  const seconds =
-    Math.floor(state.matchSeconds);
+  state.ballX=53;
+  state.ballY=50;
 
-  const minutes =
-    Math.floor(seconds / 60);
+  state.scoreHome=0;
+  state.scoreAway=0;
 
-  const remaining =
-    seconds % 60;
+  state.minute=1;
 
-  matchTimer.textContent =
-    String(minutes).padStart(2,"0") +
-    ":" +
-    String(remaining).padStart(2,"0");
+  document.getElementById(
+    "scoreHome"
+  ).textContent=0;
+
+  document.getElementById(
+    "scoreAway"
+  ).textContent=0;
+
+  document.getElementById(
+    "matchMinute"
+  ).textContent=1;
+
+  updatePlayer();
+
+  updateBall();
+
 }
 
-/* =========================================================
-   JOYSTICK
-========================================================= */
 
-let joystickPointerId = null;
+function backToWorld(){
+
+  game.style.display="none";
+  world.style.display="block";
+
+}
+
+
+/* =====================================================
+   PLAYER POSITION
+===================================================== */
+
+function updatePlayer(){
+
+  player.style.left =
+    state.x + "%";
+
+  player.style.top =
+    state.y + "%";
+
+}
+
+
+function updateBall(){
+
+  ball.style.left =
+    state.ballX + "%";
+
+  ball.style.top =
+    state.ballY + "%";
+
+}
+
+
+/* =====================================================
+   TOUCH JOYSTICK
+===================================================== */
+
+let joystickPointer=null;
+
+function handleJoystick(e){
+
+  const rect =
+    joystick.getBoundingClientRect();
+
+  const cx =
+    rect.left + rect.width/2;
+
+  const cy =
+    rect.top + rect.height/2;
+
+  let dx =
+    e.clientX-cx;
+
+  let dy =
+    e.clientY-cy;
+
+  const max =
+    rect.width*.32;
+
+  const distance =
+    Math.sqrt(dx*dx+dy*dy);
+
+  if(distance>max){
+
+    dx =
+      dx/distance*max;
+
+    dy =
+      dy/distance*max;
+
+  }
+
+  joystickStick.style.transform =
+    "translate(calc(-50% + "+dx+"px)," +
+    "calc(-50% + "+dy+"px))";
+
+  state.x +=
+    dx/max *
+    state.speed;
+
+  state.y +=
+    dy/max *
+    state.speed;
+
+  state.x =
+    Math.max(10,Math.min(90,state.x));
+
+  state.y =
+    Math.max(10,Math.min(90,state.y));
+
+  state.moving=true;
+
+  updatePlayer();
+
+}
+
+
+joystick.addEventListener(
+  "pointerdown",
+  e=>{
+
+    if(state.controlMode!=="touch")
+      return;
+
+    joystickPointer=e.pointerId;
+
+    joystick.setPointerCapture(
+      e.pointerId
+    );
+
+    handleJoystick(e);
+
+  }
+);
+
+
+joystick.addEventListener(
+  "pointermove",
+  e=>{
+
+    if(
+      state.controlMode==="touch" &&
+      joystickPointer===e.pointerId
+    ){
+
+      handleJoystick(e);
+
+    }
+
+  }
+);
+
 
 function resetJoystick(){
 
-  state.joystickX = 0;
-  state.joystickY = 0;
+  joystickPointer=null;
 
-  analogStick.style.left = "50%";
-  analogStick.style.top = "50%";
+  joystickStick.style.transform =
+    "translate(-50%,-50%)";
 
-  joystickPointerId = null;
+  state.moving=false;
+
 }
 
-function setJoystick(clientX,clientY){
 
-  const rect =
-    analogArea.getBoundingClientRect();
-
-  const centerX =
-    rect.left + rect.width / 2;
-
-  const centerY =
-    rect.top + rect.height / 2;
-
-  let dx =
-    clientX - centerX;
-
-  let dy =
-    clientY - centerY;
-
-  const maxDistance = 43;
-
-  const distance =
-    Math.sqrt(dx * dx + dy * dy);
-
-  if(distance > maxDistance){
-
-    dx =
-      dx / distance *
-      maxDistance;
-
-    dy =
-      dy / distance *
-      maxDistance;
-  }
-
-  state.joystickX =
-    dx / maxDistance;
-
-  state.joystickY =
-    dy / maxDistance;
-
-  analogStick.style.left =
-    "calc(50% + " + dx + "px)";
-
-  analogStick.style.top =
-    "calc(50% + " + dy + "px)";
-
-  touchStatus.textContent =
-    "MOVING";
-}
-
-analogArea.addEventListener(
-  "pointerdown",
-  function(event){
-
-    if(joystickPointerId !== null){
-      return;
-    }
-
-    joystickPointerId =
-      event.pointerId;
-
-    analogArea.setPointerCapture(
-      event.pointerId
-    );
-
-    setJoystick(
-      event.clientX,
-      event.clientY
-    );
-
-    event.preventDefault();
-  },
-  {passive:false}
-);
-
-analogArea.addEventListener(
-  "pointermove",
-  function(event){
-
-    if(
-      event.pointerId !==
-      joystickPointerId
-    ){
-      return;
-    }
-
-    setJoystick(
-      event.clientX,
-      event.clientY
-    );
-
-    event.preventDefault();
-  },
-  {passive:false}
-);
-
-function endJoystick(event){
-
-  if(
-    event.pointerId !==
-    joystickPointerId
-  ){
-    return;
-  }
-
-  resetJoystick();
-
-  touchStatus.textContent =
-    "TOUCH CONTROLS";
-
-  event.preventDefault();
-}
-
-analogArea.addEventListener(
+joystick.addEventListener(
   "pointerup",
-  endJoystick,
-  {passive:false}
+  resetJoystick
 );
 
-analogArea.addEventListener(
+joystick.addEventListener(
   "pointercancel",
-  endJoystick,
-  {passive:false}
+  resetJoystick
 );
 
-/* =========================================================
-   BUTTON FEEDBACK
-========================================================= */
 
-function pressVisual(button){
-
-  if(!button){
-    return;
-  }
-
-  button.classList.add("pressed");
-
-  setTimeout(
-    function(){
-      button.classList.remove("pressed");
-    },
-    120
-  );
-}
-
-/* =========================================================
-   PASS
-========================================================= */
+/* =====================================================
+   ACTIONS
+===================================================== */
 
 function passBall(){
 
-  pressVisual(cross);
-
-  const power = .34;
-
-  let directionX =
-    state.joystickX;
-
-  let directionY =
-    state.joystickY;
-
-  if(
-    Math.abs(directionX) < .15 &&
-    Math.abs(directionY) < .15
-  ){
-
-    directionX = 1;
-    directionY = 0;
-  }
+  if(!state.realWorldUnlocked)
+    return;
 
   state.ballX =
-    state.x +
-    directionX * 3;
+    Math.min(
+      90,
+      state.x+10
+    );
 
   state.ballY =
-    state.y +
-    directionY * 3;
+    state.y;
 
-  state.ballVelocityX =
-    directionX * power;
+  updateBall();
 
-  state.ballVelocityY =
-    directionY * power;
+  commentary(
+    "A sharp pass into space."
+  );
 
-  touchStatus.textContent =
-    "PASS";
+  checkOffside();
+
 }
 
-/* =========================================================
-   SHOOT
-========================================================= */
 
 function shootBall(){
 
-  pressVisual(circle);
-
-  let directionX =
-    state.joystickX;
-
-  let directionY =
-    state.joystickY;
-
-  if(
-    Math.abs(directionX) < .15 &&
-    Math.abs(directionY) < .15
-  ){
-
-    directionX = 1;
-    directionY = 0;
-  }
+  if(!state.realWorldUnlocked)
+    return;
 
   state.ballX =
-    state.x +
-    directionX * 3;
+    Math.min(
+      96,
+      state.x+24
+    );
 
   state.ballY =
-    state.y +
-    directionY * 3;
+    state.y;
 
-  state.ballVelocityX =
-    directionX * .75;
+  updateBall();
 
-  state.ballVelocityY =
-    directionY * .75;
-
-  touchStatus.textContent =
-    "SHOT";
-}
-
-/* =========================================================
-   THROUGH BALL
-========================================================= */
-
-function throughBall(){
-
-  pressVisual(triangle);
-
-  let directionX =
-    state.joystickX;
-
-  let directionY =
-    state.joystickY;
-
-  if(
-    Math.abs(directionX) < .15 &&
-    Math.abs(directionY) < .15
-  ){
-
-    directionX = 1;
-    directionY = 0;
-  }
-
-  state.ballX =
-    state.x +
-    directionX * 4;
-
-  state.ballY =
-    state.y +
-    directionY * 4;
-
-  state.ballVelocityX =
-    directionX * .52;
-
-  state.ballVelocityY =
-    directionY * .52;
-
-  touchStatus.textContent =
-    "THROUGH BALL";
-}
-
-/* =========================================================
-   TACKLE / CONTROL
-========================================================= */
-
-function tackle(){
-
-  pressVisual(square);
-
-  player.classList.add("active");
+  commentary(
+    "He strikes the ball!"
+  );
 
   setTimeout(
-    function(){
-      player.classList.remove("active");
-    },
-    180
+    validateGoal,
+    450
   );
 
-  touchStatus.textContent =
-    "CONTROL";
 }
 
-/* =========================================================
-   PLAYER SWITCH
-========================================================= */
 
-function switchPlayer(){
+function sprint(){
 
-  pressVisual(l1);
+  state.sprinting=
+    !state.sprinting;
 
-  player.classList.add("active");
+  state.speed=
+    state.sprinting
+    ? 1.15
+    : .55;
 
-  touchStatus.textContent =
-    "PLAYER SWITCH";
-
-  setTimeout(
-    function(){
-      touchStatus.textContent =
-        "TOUCH CONTROLS";
-    },
-    600
-  );
-}
-
-/* =========================================================
-   SPRINT
-========================================================= */
-
-function sprintDown(){
-
-  pressVisual(r1);
-
-  state.sprint = true;
-
-  touchStatus.textContent =
-    "SPRINT";
-}
-
-function sprintUp(){
-
-  state.sprint = false;
-
-  touchStatus.textContent =
-    "TOUCH CONTROLS";
-}
-
-/* =========================================================
-   TOUCH BUTTON HELPER
-========================================================= */
-
-function bindButton(
-  button,
-  down,
-  up
-){
-
-  button.addEventListener(
-    "pointerdown",
-    function(event){
-
-      if(button.setPointerCapture){
-        try{
-          button.setPointerCapture(
-            event.pointerId
-          );
-        }catch(error){}
-      }
-
-      if(down){
-        down();
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-    },
-    {passive:false}
+  showMessage(
+    state.sprinting
+    ? "SPRINT ON"
+    : "SPRINT OFF"
   );
 
-  button.addEventListener(
-    "pointerup",
-    function(event){
-
-      if(up){
-        up();
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-    },
-    {passive:false}
-  );
-
-  button.addEventListener(
-    "pointercancel",
-    function(event){
-
-      if(up){
-        up();
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-    },
-    {passive:false}
-  );
 }
 
-/* =========================================================
-   BIND TOUCH CONTROLS
-========================================================= */
 
-bindButton(
-  cross,
-  passBall,
-  null
-);
+/* =====================================================
+   OFFSIDE
+===================================================== */
 
-bindButton(
-  circle,
-  shootBall,
-  null
-);
-
-bindButton(
-  triangle,
-  throughBall,
-  null
-);
-
-bindButton(
-  square,
-  tackle,
-  null
-);
-
-bindButton(
-  l1,
-  switchPlayer,
-  null
-);
-
-bindButton(
-  r1,
-  sprintDown,
-  sprintUp
-);
-
-/* =========================================================
-   MENU BUTTONS
-========================================================= */
-
-playButton.addEventListener(
-  "click",
-  startGame
-);
-
-backButton.addEventListener(
-  "click",
-  backToMenu
-);
-
-exploreButton.addEventListener(
-  "click",
-  function(){
-
-    alert(
-      "OPEN WORLD FOOTBALL CITY\n\n" +
-      "This world will be expanded " +
-      "during the next development phase."
-    );
-  }
-);
-
-/* =========================================================
-   PS5 / DUALSENSE GAMEPAD SUPPORT
-========================================================= */
-
-function findGamepad(){
-
-  const pads =
-    navigator.getGamepads ?
-    navigator.getGamepads() :
-    [];
-
-  for(let i=0;i<pads.length;i++){
-
-    if(pads[i]){
-
-      state.controllerIndex = i;
-      state.controllerConnected = true;
-
-      return pads[i];
-    }
-  }
-
-  state.controllerIndex = null;
-  state.controllerConnected = false;
-
-  return null;
-}
-
-/* =========================================================
-   GAMEPAD BUTTONS
-=========================================================
-
-   Standard Gamepad mapping:
-
-   0 = Cross
-   1 = Circle
-   2 = Square
-   3 = Triangle
-   4 = L1
-   5 = R1
-========================================================= */
-
-function updateController(){
-
-  if(!state.running){
-    return;
-  }
-
-  const pad =
-    findGamepad();
-
-  if(!pad){
-    return;
-  }
-
-  const leftX =
-    pad.axes[0] || 0;
-
-  const leftY =
-    pad.axes[1] || 0;
-
-  state.joystickX =
-    Math.abs(leftX) > .12 ?
-    leftX :
-    0;
-
-  state.joystickY =
-    Math.abs(leftY) > .12 ?
-    leftY :
-    0;
-
-  const crossPressed =
-    !!(
-      pad.buttons[0] &&
-      pad.buttons[0].pressed
-    );
-
-  const circlePressed =
-    !!(
-      pad.buttons[1] &&
-      pad.buttons[1].pressed
-    );
-
-  const squarePressed =
-    !!(
-      pad.buttons[2] &&
-      pad.buttons[2].pressed
-    );
-
-  const trianglePressed =
-    !!(
-      pad.buttons[3] &&
-      pad.buttons[3].pressed
-    );
-
-  const r1Pressed =
-    !!(
-      pad.buttons[5] &&
-      pad.buttons[5].pressed
-    );
-
-  state.sprint =
-    r1Pressed;
+function checkOffside(){
 
   /*
-    We intentionally trigger action buttons
-    on press transitions rather than every frame.
+    Prototype rule:
+    If the player is too far beyond the
+    simplified defensive line, the referee
+    calls offside.
   */
 
-  if(crossPressed &&
-     !state.lastCross){
-    passBall();
+  const defensiveLine=82;
+
+  if(state.x>defensiveLine){
+
+    commentary(
+      "Flag up! Offside."
+    );
+
+    showMessage(
+      "🚩 OFFSIDE — PLAY STOPPED"
+    );
+
+    return true;
+
   }
 
-  if(circlePressed &&
-     !state.lastCircle){
-    shootBall();
-  }
+  return false;
 
-  if(squarePressed &&
-     !state.lastSquare){
-    tackle();
-  }
-
-  if(trianglePressed &&
-     !state.lastTriangle){
-    throughBall();
-  }
-
-  state.lastCross =
-    crossPressed;
-
-  state.lastCircle =
-    circlePressed;
-
-  state.lastSquare =
-    squarePressed;
-
-  state.lastTriangle =
-    trianglePressed;
 }
 
-/* =========================================================
-   CONTROLLER CONNECTION EVENTS
-========================================================= */
+
+/* =====================================================
+   GOAL VALIDATION
+===================================================== */
+
+function validateGoal(){
+
+  if(checkOffside()){
+
+    resetBall();
+
+    return;
+
+  }
+
+  if(state.ballX>=90){
+
+    state.scoreHome++;
+
+    document.getElementById(
+      "scoreHome"
+    ).textContent=
+      state.scoreHome;
+
+    commentary(
+      "GOAL! What a finish!"
+    );
+
+    showMessage(
+      "⚽ GOAL!"
+    );
+
+    setTimeout(
+      resetBall,
+      900
+    );
+
+  }else{
+
+    resetBall();
+
+  }
+
+}
+
+
+function resetBall(){
+
+  state.ballX=
+    state.x+3;
+
+  state.ballY=
+    state.y;
+
+  updateBall();
+
+}
+
+
+/* =====================================================
+   REFEREE + MATCH CLOCK
+===================================================== */
+
+setInterval(()=>{
+
+  if(game.style.display!=="block")
+    return;
+
+  state.minute++;
+
+  if(state.minute>90)
+    state.minute=1;
+
+  document.getElementById(
+    "matchMinute"
+  ).textContent=
+    state.minute;
+
+  /*
+    Random referee check.
+  */
+
+  if(Math.random()<.025){
+
+    const events=[
+      "Referee checking the challenge.",
+      "Assistant referee checking the line.",
+      "Goal checked before restart.",
+      "Referee confirms play."
+    ];
+
+    showMessage(
+      "REFEREE: " +
+      events[
+        Math.floor(
+          Math.random()*events.length
+        )
+      ]
+    );
+
+  }
+
+  /*
+    Occasional medical incident.
+  */
+
+  if(Math.random()<.01){
+
+    medicalEmergency();
+
+  }
+
+},1000);
+
+
+/* =====================================================
+   MEDICAL SYSTEM
+===================================================== */
+
+function medicalEmergency(){
+
+  commentary(
+    "The player is down. Medical staff are coming on."
+  );
+
+  showMessage(
+    "🩺 MEDICAL TEAM ON THE PITCH"
+  );
+
+}
+
+
+/* =====================================================
+   COMMENTARY
+===================================================== */
+
+function commentary(text){
+
+  const now=
+    Date.now();
+
+  if(
+    now-state.commentaryLast<
+    1200
+  )
+    return;
+
+  state.commentaryLast=now;
+
+  /*
+    Browser speech is used only as a prototype.
+    A professional commercial commentary system
+    can later use licensed/generated voice assets.
+  */
+
+  if(
+    "speechSynthesis"
+    in window
+  ){
+
+    try{
+
+      const utter=
+        new SpeechSynthesisUtterance(
+          text
+        );
+
+      utter.rate=.95;
+      utter.pitch=.9;
+      utter.volume=.65;
+
+      speechSynthesis.cancel();
+      speechSynthesis.speak(
+        utter
+      );
+
+    }catch(e){}
+
+  }
+
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+let messageTimer;
+
+function showMessage(text){
+
+  matchMessage.textContent=
+    text;
+
+  matchMessage.classList.add(
+    "show"
+  );
+
+  clearTimeout(
+    messageTimer
+  );
+
+  messageTimer=
+    setTimeout(
+      ()=>{
+        matchMessage.classList.remove(
+          "show"
+        );
+      },
+      1600
+    );
+
+}
+
+
+/* =====================================================
+   PS5 / GAMEPAD SUPPORT
+===================================================== */
+
+function openController(){
+
+  document.getElementById(
+    "controllerPanel"
+  ).style.display="block";
+
+  scanGamepads();
+
+}
+
+
+function closeController(){
+
+  document.getElementById(
+    "controllerPanel"
+  ).style.display="none";
+
+}
+
+
+function scanGamepads(){
+
+  const pads=
+    navigator.getGamepads
+    ? navigator.getGamepads()
+    : [];
+
+  state.gamepad=null;
+
+  for(
+    const pad of pads
+  ){
+
+    if(pad){
+
+      state.gamepad=pad;
+
+      document.getElementById(
+        "controllerStatus"
+      ).textContent=
+        "Connected: " +
+        pad.id;
+
+      return;
+
+    }
+
+  }
+
+  document.getElementById(
+    "controllerStatus"
+  ).textContent=
+    "No controller detected. Connect a PS5/DualSense or compatible Bluetooth controller and press a button.";
+
+}
+
 
 window.addEventListener(
   "gamepadconnected",
-  function(event){
+  e=>{
 
-    state.controllerConnected = true;
-    state.controllerIndex =
-      event.gamepad.index;
+    state.gamepad=
+      e.gamepad;
 
-    touchStatus.textContent =
-      "PS5 CONTROLLER CONNECTED";
+    document.getElementById(
+      "controllerStatus"
+    ).textContent=
+      "Connected: " +
+      e.gamepad.id;
 
-    setTimeout(
-      function(){
-
-        if(state.running){
-          touchStatus.textContent =
-            "TOUCH CONTROLS";
-        }
-
-      },
-      1500
-    );
   }
 );
+
 
 window.addEventListener(
   "gamepaddisconnected",
-  function(event){
+  e=>{
 
     if(
-      event.gamepad.index ===
-      state.controllerIndex
+      state.gamepad &&
+      state.gamepad.index===
+      e.gamepad.index
     ){
 
-      state.controllerIndex = null;
-      state.controllerConnected = false;
+      state.gamepad=null;
 
-      touchStatus.textContent =
-        "CONTROLLER DISCONNECTED";
-
-      setTimeout(
-        function(){
-
-          if(state.running){
-            touchStatus.textContent =
-              "TOUCH CONTROLS";
-          }
-
-        },
-        1000
-      );
     }
+
+    document.getElementById(
+      "controllerStatus"
+    ).textContent=
+      "Controller disconnected.";
+
   }
 );
 
-/* =========================================================
-   PREVENT BROWSER GESTURES
-========================================================= */
 
-document.addEventListener(
-  "contextmenu",
-  function(event){
-    event.preventDefault();
-  },
-  {passive:false}
-);
+/*
+  Standard Gamepad mapping:
 
-document.addEventListener(
-  "touchmove",
-  function(event){
+  Left stick = movement
+  Cross/A = pass
+  Circle/B = shoot
+  R2/RT = sprint
+  Options/Start = return/world
+*/
 
-    if(state.running){
-      event.preventDefault();
+function controllerLoop(){
+
+  if(
+    state.controlMode==="gamepad" &&
+    game.style.display==="block"
+  ){
+
+    const pads=
+      navigator.getGamepads
+      ? navigator.getGamepads()
+      : [];
+
+    const pad=
+      pads[state.gamepad?.index ?? 0];
+
+    if(pad){
+
+      state.gamepad=pad;
+
+      const lx=
+        pad.axes[0] || 0;
+
+      const ly=
+        pad.axes[1] || 0;
+
+      if(
+        Math.abs(lx)>.15 ||
+        Math.abs(ly)>.15
+      ){
+
+        state.x +=
+          lx *
+          state.speed;
+
+        state.y +=
+          ly *
+          state.speed;
+
+        state.x=
+          Math.max(
+            10,
+            Math.min(
+              90,
+              state.x
+            )
+          );
+
+        state.y=
+          Math.max(
+            10,
+            Math.min(
+              90,
+              state.y
+            )
+          );
+
+        updatePlayer();
+
+      }
+
+      /*
+        R2 / RT
+      */
+
+      state.sprinting=
+        !!(
+          pad.buttons[7] &&
+          pad.buttons[7].pressed
+        );
+
+      state.speed=
+        state.sprinting
+        ? 1.15
+        : .55;
+
+      /*
+        A / Cross
+      */
+
+      if(
+        pad.buttons[0] &&
+        pad.buttons[0].pressed
+      ){
+
+        if(
+          !controllerLoop.lastPass
+        ){
+
+          passBall();
+
+        }
+
+        controllerLoop.lastPass=true;
+
+      }else{
+
+        controllerLoop.lastPass=false;
+
+      }
+
+      /*
+        B / Circle
+      */
+
+      if(
+        pad.buttons[1] &&
+        pad.buttons[1].pressed
+      ){
+
+        if(
+          !controllerLoop.lastShoot
+        ){
+
+          shootBall();
+
+        }
+
+        controllerLoop.lastShoot=true;
+
+      }else{
+
+        controllerLoop.lastShoot=false;
+
+      }
+
     }
 
-  },
-  {passive:false}
-);
-
-/* =========================================================
-   RESET STATE WHEN TAB IS HIDDEN
-========================================================= */
-
-document.addEventListener(
-  "visibilitychange",
-  function(){
-
-    if(document.hidden){
-
-      state.joystickX = 0;
-      state.joystickY = 0;
-      state.sprint = false;
-
-      resetJoystick();
-    }
   }
-);
 
-/* =========================================================
-   INITIAL STATE
-========================================================= */
+  requestAnimationFrame(
+    controllerLoop
+  );
 
-game.style.display = "none";
+}
 
-})();
+controllerLoop();
+
+
+/* =====================================================
+   SWITCH CONTROL
+===================================================== */
+
+function switchControlMode(){
+
+  if(
+    state.controlMode==="touch"
+  ){
+
+    state.controlMode="gamepad";
+
+    localStorage.setItem(
+      "obitrend_control_mode",
+      "gamepad"
+    );
+
+    openController();
+
+    showMessage(
+      "🎮 CONTROLLER MODE"
+    );
+
+  }else{
+
+    state.controlMode="touch";
+
+    localStorage.setItem(
+      "obitrend_control_mode",
+      "touch"
+    );
+
+    showMessage(
+      "📱 TOUCH MODE"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   MUSIC FRAMEWORK
+===================================================== */
+
+/*
+  Do not insert copyrighted commercial songs
+  without permission.
+
+  Later this can connect to a licensed music
+  catalogue or music files you have rights to use.
+*/
+
+const musicLibrary=[
+
+  {
+    title:"OBITREND MATCHDAY",
+    status:"ORIGINAL / PLACEHOLDER"
+  },
+
+  {
+    title:"STADIUM NIGHT",
+    status:"ORIGINAL / PLACEHOLDER"
+  },
+
+  {
+    title:"WORLD TOUR",
+    status:"ORIGINAL / PLACEHOLDER"
+  }
+
+];
+
+
+/* =====================================================
+   FAN SIMULATION
+===================================================== */
+
+/*
+  We do NOT create millions of individual 3D
+  characters.
+
+  Instead, the world represents a massive crowd
+  using simulation data, crowd LODs and instancing.
+*/
+
+const fanWorld={
+
+  estimatedFans:12500000,
+
+  homeSupport:0.52,
+
+  awaySupport:0.48
+
+};
+
+
 </script>
 
 </body>
