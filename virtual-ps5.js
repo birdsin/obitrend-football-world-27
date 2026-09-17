@@ -1,4 +1,4 @@
-/* OBITREND FOOTBALL WORLD 27 — FIFA INTERFACE LOADER */
+/* OBITREND FOOTBALL WORLD 27 — STABLE GAME LOADER */
 (function(){
 'use strict';
 if(window.__obiGameLoader)return;
@@ -14,7 +14,7 @@ function load(src){return new Promise(function(resolve,reject){
 })}
 
 async function loadPatchedEngine(){
-  var res=await fetch('virtual-ps5-base.js?v=20260917f',{cache:'no-store'});
+  var res=await fetch('virtual-ps5-base.js?v=20260917k',{cache:'no-store'});
   if(!res.ok)throw new Error('virtual-ps5-base.js HTTP '+res.status);
   var code=await res.text();
   var old='ball={x:50,y:50,vx:0,vy:0,targetX:50,targetY:50,air:0,spin:0};';
@@ -26,8 +26,8 @@ async function loadPatchedEngine(){
 
 (async function(){
  try{
-  await load('mobile-layout-fix.js?v=20260917i');
-  await load('interaction-hotfix.js?v=20260917i');
+  await load('mobile-layout-fix.js?v=20260917k');
+  await load('interaction-hotfix.js?v=20260917k');
   await load('real-players.js');
   await loadPatchedEngine();
   await load('real-squad-hub.js');
@@ -38,10 +38,15 @@ async function loadPatchedEngine(){
   await load('substitutions.js');
   await load('match-engine-bridge.js');
   await load('real-match-physics.js');
-  await load('fifa-interface.js?v=20260917j');
-  console.log('[OBI] FIFA interface loaded successfully');
+  /* Keep the original Stadium / match workflow. The FIFA Match Centre overlay
+     is intentionally not loaded here so the existing interface is unchanged. */
+  await load('match-setup.js?v=20260917k');
+  await load('match-start-fix.js?v=20260917k');
+  await load('match-loop-recovery.js?v=20260917k');
+  await load('controller-restore.js?v=20260917k');
+  console.log('[OBI] Original game interface restored; Stadium freeze fix active');
  }catch(err){
-  console.error('[OBI] FIFA loader failed:',err);
+  console.error('[OBI] game loader failed:',err);
   window.__obiGameLoaderError=err;
  }
 })();
