@@ -4666,292 +4666,1435 @@ function deleteAllReplays(){
 }
 
 /* =====================================================
-   REPLAY PLAYER
+   REPLAY PLAYER — OBITREND FOOTBALL WORLD 27
+   Stable playback / seek / pause / controller safe
 ===================================================== */
 
 const replayPlayerState={
-
- data:null,
-
- index:0,
-
- playing:false,
-
- last:0,
-
- raf:0
-
+  replay:null,
+  index:0,
+  playing:false,
+  startedAt:0,
+  pausedAt:0,
+  raf:0,
+  lastFrame:0
 };
+
+/* -----------------------------------------------------
+   SAFE ELEMENT HELPER
+----------------------------------------------------- */
+
+function replayEl(id){
+  return document.getElementById(id);
+}
+
+/* -----------------------------------------------------
+   STOP REPLAY LOOP
+----------------------------------------------------- */
+
+function stopReplayLoop(){
+
+  replayPlayerState.playing=false;
+
+  if(
+    replayPlayerState.raf
+  ){
+
+    cancelAnimationFrame(
+      replayPlayerState.raf
+    );
+
+  }
+
+  replayPlayerState.raf=0;
+
+}
+
+/* -----------------------------------------------------
+   OPEN REPLAY
+----------------------------------------------------- */
 
 function playReplay(index){
 
- const list=
-   loadReplays();
+  const list=
+    loadReplays();
 
- const replay=
-   list[index];
+  if(
+    !Array.isArray(list)||
+    index<0||
+    index>=list.length
+  ){
 
- if(
-   !replay||
-   !replay.frames||
-   !replay.frames.length
- )
-   return;
+    return;
 
- closeModal(
-   "replayModal"
- );
+  }
 
- replayPlayerState.data=
-   replay;
+  const replay=list[index];
 
- replayPlayerState.index=
-   0;
+  if(
+    !replay||
+    !Array.isArray(replay.frames)||
+    !replay.frames.length
+  ){
 
- replayPlayerState.playing=
-   true;
+    alert(
+      "This replay has no playable frames."
+    );
 
- replayPlayerState.last=
-   performance.now();
+    return;
 
- $("replayScreen").style.display=
-   "block";
+  }
 
- $("replayRange").max=
-   replay.frames.length-1;
+  stopReplayLoop();
 
- $("replayRange").value=0;
+  replayPlayerState.replay=replay;
+  replayPlayerState.index=index;
+  replayPlayerState.playing=false;
+  replayPlayerState.startedAt=0;
+  replayPlayerState.pausedAt=0;
+  replayPlayerState.lastFrame=0;
 
- $("replayDuration").textContent=
-   formatTime(
-     replay.duration
-   );
+  const modal=
+    replayEl("replayModal");
 
- $("replayPlayBtn").textContent=
-   "❚❚ PAUSE";
+  if(modal){
 
- renderReplayFrame(
-   replay.frames[0]
- );
+    modal.style.display="none";
 
- replayPlayerState.raf=
-   requestAnimationFrame(
-     replayTick
-   );
+  }
 
-}
+  const screen=
+    replayEl("replayScreen");
 
-function renderReplayFrame(frame){
+  if(screen){
 
- if(!frame)
-   return;
+    screen.style.display="flex";
 
- $("replayPlayer").style.left=
-   frame.x+"%";
+  }
 
- $("replayPlayer").style.top=
-   frame.y+"%";
+  updateReplayInformation();
 
- $("replayBall").style.left=
-   frame.bx+"%";
-
- $("replayBall").style.top=
-   frame.by+"%";
-
- $("replayClock").textContent=
-   formatTime(
-     frame.t
-   );
+  renderReplayFrame(0);
 
 }
 
-function replayTick(now){
+/* -----------------------------------------------------
+   REPLAY INFORMATION
+----------------------------------------------------- */
 
- const replay=
-   replayPlayerState;
+function updateReplayInformation(){
 
- if(
-   !replay.data||
-   !replay.playing
- )
-   return;
+  const replay=
+    replayPlayerState.replay;
 
- const delta=
-   now-
-   replay.last;
+  if(!replay)
+    return;
 
- replay.last=
-   now;
+  const score=
+    replayEl("replayScore");
 
- let next=
-   replay.index+
-   delta/80;
+  if(score){
 
- if(
-   next>=
-   replay.data.frames.length-1
- ){
+    score.textContent=
+      "OBITREND FC "+
+      Number(
+        replay.finalScoreHome||0
+      )+
+      " - "+
+      Number(
+        replay.finalScoreAway||0
+      )+
+      " WORLD XI";
 
-   replay.index=
-     replay.data.frames.length-1;
+  }
 
-   replay.playing=
-     false;
+  const duration=
+    replayEl("replayDuration");
 
-   $("replayPlayBtn").textContent=
-     "▶ PLAY";
+  if(duration){
 
-   renderReplayFrame(
-     replay.data.frames[
-       replay.index
-     ]
-   );
+    duration.textContent=
+      formatTime(
+        Number(
+          replay.duration||0
+        )
+      );
 
-   return;
+  }
 
- }
+  const events=
+    replayEl("replayEvents");
 
- replay.index=
-   next;
+  if(events){
 
- const index=
-   Math.floor(
-     replay.index
-   );
+    events.textContent=
+      String(
+        Array.isArray(replay.events)
+          ? replay.events.length
+          : 0
+      )+
+      " events";
 
- $("replayRange").value=
-   index;
-
- renderReplayFrame(
-   replay.data.frames[
-     index
-   ]
- );
-
- replay.raf=
-   requestAnimationFrame(
-     replayTick
-   );
+  }
 
 }
+
+/* -----------------------------------------------------
+   FORMAT REPLAY TIME
+----------------------------------------------------- */
+
+function replayTimeText(seconds){
+
+  seconds=Math.max(
+    0,
+    Number(seconds)||0
+  );
+
+  const m=
+    Math.floor(
+      seconds/60
+    );
+
+  const s=
+    Math.floor(
+      seconds%60
+    );
+
+  return(
+    String(m).padStart(2,"0")+
+    ":"+
+    String(s).padStart(2,"0")
+  );
+
+}
+
+/* -----------------------------------------------------
+   FIND FRAME FOR TIME
+----------------------------------------------------- */
+
+function getReplayFrameAtTime(time){
+
+  const replay=
+    replayPlayerState.replay;
+
+  if(
+    !replay||
+    !Array.isArray(replay.frames)||
+    !replay.frames.length
+  ){
+
+    return null;
+
+  }
+
+  const frames=
+    replay.frames;
+
+  if(time<=Number(frames[0].t||0)){
+
+    return {
+      frame:frames[0],
+      index:0
+    };
+
+  }
+
+  let low=0;
+  let high=frames.length-1;
+
+  while(low<=high){
+
+    const mid=
+      Math.floor(
+        (low+high)/2
+      );
+
+    const t=
+      Number(
+        frames[mid].t||0
+      );
+
+    if(t<=time){
+
+      low=mid+1;
+
+    }else{
+
+      high=mid-1;
+
+    }
+
+  }
+
+  const index=
+    Math.max(
+      0,
+      Math.min(
+        frames.length-1,
+        high
+      )
+    );
+
+  return{
+    frame:frames[index],
+    index:index
+  };
+
+}
+
+/* -----------------------------------------------------
+   DRAW REPLAY FRAME
+----------------------------------------------------- */
+
+function renderReplayFrame(index){
+
+  const replay=
+    replayPlayerState.replay;
+
+  if(
+    !replay||
+    !Array.isArray(replay.frames)||
+    !replay.frames.length
+  ){
+
+    return;
+
+  }
+
+  index=Math.max(
+    0,
+    Math.min(
+      replay.frames.length-1,
+      Number(index)||0
+    )
+  );
+
+  const frame=
+    replay.frames[index];
+
+  replayPlayerState.lastFrame=index;
+
+  /*
+   * Use the existing game renderer when available.
+   * This keeps replay compatible with the current
+   * OBITREND football pitch/player system.
+   */
+
+  try{
+
+    if(
+      typeof drawMatchFrame==="function"
+    ){
+
+      drawMatchFrame(
+        frame
+      );
+
+    }else if(
+      typeof renderMatchFrame==="function"
+    ){
+
+      renderMatchFrame(
+        frame
+      );
+
+    }else if(
+      typeof drawGame==="function"
+    ){
+
+      drawGame(
+        frame
+      );
+
+    }else{
+
+      /*
+       * Fallback renderer.
+       * Draws a lightweight football replay
+       * when the main renderer is unavailable.
+       */
+
+      drawReplayFallback(
+        frame
+      );
+
+    }
+
+  }catch(error){
+
+    console.warn(
+      "Replay renderer:",
+      error
+    );
+
+    drawReplayFallback(
+      frame
+    );
+
+  }
+
+  updateReplayProgress(
+    Number(frame.t||0)
+  );
+
+}
+
+/* -----------------------------------------------------
+   FALLBACK REPLAY RENDERER
+----------------------------------------------------- */
+
+function drawReplayFallback(frame){
+
+  const canvas=
+    replayEl("replayCanvas");
+
+  if(!canvas)
+    return;
+
+  const ctx=
+    canvas.getContext("2d");
+
+  if(!ctx)
+    return;
+
+  const w=
+    canvas.width=
+      canvas.clientWidth||
+      900;
+
+  const h=
+    canvas.height=
+      canvas.clientHeight||
+      520;
+
+  ctx.clearRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+  /*
+   * Pitch
+   */
+
+  ctx.fillStyle="#126b38";
+
+  ctx.fillRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+  /*
+   * Pitch markings
+   */
+
+  ctx.strokeStyle=
+    "rgba(255,255,255,.8)";
+
+  ctx.lineWidth=3;
+
+  ctx.strokeRect(
+    20,
+    20,
+    w-40,
+    h-40
+  );
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    w/2,
+    20
+  );
+
+  ctx.lineTo(
+    w/2,
+    h-20
+  );
+
+  ctx.stroke();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    w/2,
+    h/2,
+    65,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+  /*
+   * Player
+   */
+
+  const px=
+    Number(frame.x);
+
+  const py=
+    Number(frame.y);
+
+  if(
+    Number.isFinite(px)&&
+    Number.isFinite(py)
+  ){
+
+    ctx.beginPath();
+
+    ctx.arc(
+      px,
+      py,
+      12,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle="#ffffff";
+
+    ctx.fill();
+
+  }
+
+  /*
+   * Ball
+   */
+
+  const bx=
+    Number(frame.bx);
+
+  const by=
+    Number(frame.by);
+
+  if(
+    Number.isFinite(bx)&&
+    Number.isFinite(by)
+  ){
+
+    ctx.beginPath();
+
+    ctx.arc(
+      bx,
+      by,
+      7,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle="#f5f5f5";
+
+    ctx.fill();
+
+    ctx.strokeStyle="#111";
+
+    ctx.stroke();
+
+  }
+
+}
+
+/* -----------------------------------------------------
+   UPDATE PROGRESS
+----------------------------------------------------- */
+
+function updateReplayProgress(time){
+
+  const replay=
+    replayPlayerState.replay;
+
+  if(!replay)
+    return;
+
+  const duration=
+    Math.max(
+      0.001,
+      Number(
+        replay.duration||0
+      )
+    );
+
+  const ratio=
+    Math.max(
+      0,
+      Math.min(
+        1,
+        time/duration
+      )
+    );
+
+  const bar=
+    replayEl("replayProgress");
+
+  if(bar){
+
+    if(
+      bar.tagName==="INPUT"
+    ){
+
+      bar.value=
+        Math.round(
+          ratio*1000
+        );
+
+    }else{
+
+      bar.style.width=
+        (ratio*100)+
+        "%";
+
+    }
+
+  }
+
+  const timeBox=
+    replayEl("replayCurrentTime");
+
+  if(timeBox){
+
+    timeBox.textContent=
+      replayTimeText(time)+
+      " / "+
+      replayTimeText(duration);
+
+  }
+
+  const timeText=
+    replayEl("replayTime");
+
+  if(timeText){
+
+    timeText.textContent=
+      replayTimeText(time)+
+      " / "+
+      replayTimeText(duration);
+
+  }
+
+}
+
+/* -----------------------------------------------------
+   PLAY REPLAY
+----------------------------------------------------- */
+
+function startReplay(){
+
+  const replay=
+    replayPlayerState.replay;
+
+  if(
+    !replay||
+    !replay.frames||
+    !replay.frames.length
+  ){
+
+    return;
+
+  }
+
+  if(
+    replayPlayerState.playing
+  ){
+
+    return;
+
+  }
+
+  const duration=
+    Number(
+      replay.duration||
+      replay.frames[
+        replay.frames.length-1
+      ].t||
+      0
+    );
+
+  let currentTime=
+    Number(
+      replay.frames[
+        replayPlayerState.lastFrame
+      ]?.t||0
+    );
+
+  if(
+    currentTime>=duration
+  ){
+
+    currentTime=0;
+
+    replayPlayerState.lastFrame=0;
+
+  }
+
+  replayPlayerState.playing=true;
+
+  replayPlayerState.startedAt=
+    performance.now()-
+    currentTime*1000;
+
+  replayPlayerState.lastFrame=
+    Math.max(
+      0,
+      replayPlayerState.lastFrame
+    );
+
+  replayTick();
+
+}
+
+/* -----------------------------------------------------
+   REPLAY TICK
+----------------------------------------------------- */
+
+function replayTick(){
+
+  if(
+    !replayPlayerState.playing
+  ){
+
+    return;
+
+  }
+
+  const replay=
+    replayPlayerState.replay;
+
+  if(!replay){
+
+    stopReplayLoop();
+
+    return;
+
+  }
+
+  const now=
+    performance.now();
+
+  const elapsed=
+    (
+      now-
+      replayPlayerState.startedAt
+    )/1000;
+
+  const duration=
+    Number(
+      replay.duration||
+      replay.frames[
+        replay.frames.length-1
+      ].t||
+      0
+    );
+
+  if(
+    elapsed>=duration
+  ){
+
+    renderReplayFrame(
+      replay.frames.length-1
+    );
+
+    stopReplayLoop();
+
+    updateReplayPlayButton();
+
+    return;
+
+  }
+
+  const found=
+    getReplayFrameAtTime(
+      elapsed
+    );
+
+  if(found){
+
+    renderReplayFrame(
+      found.index
+    );
+
+  }
+
+  replayPlayerState.raf=
+    requestAnimationFrame(
+      replayTick
+    );
+
+}
+
+/* -----------------------------------------------------
+   PAUSE
+----------------------------------------------------- */
+
+function pauseReplay(){
+
+  if(
+    !replayPlayerState.playing
+  ){
+
+    return;
+
+  }
+
+  const replay=
+    replayPlayerState.replay;
+
+  if(!replay){
+
+    stopReplayLoop();
+
+    return;
+
+  }
+
+  const now=
+    performance.now();
+
+  const currentTime=
+    (
+      now-
+      replayPlayerState.startedAt
+    )/1000;
+
+  const found=
+    getReplayFrameAtTime(
+      currentTime
+    );
+
+  if(found){
+
+    replayPlayerState.lastFrame=
+      found.index;
+
+  }
+
+  stopReplayLoop();
+
+  replayPlayerState.pausedAt=
+    currentTime;
+
+  updateReplayPlayButton();
+
+}
+
+/* -----------------------------------------------------
+   PLAY / PAUSE TOGGLE
+----------------------------------------------------- */
 
 function toggleReplayPlay(){
 
- const replay=
-   replayPlayerState;
+  if(
+    replayPlayerState.playing
+  ){
 
- if(!replay.data)
-   return;
+    pauseReplay();
 
- if(
-   replay.playing
- ){
+  }else{
 
-   replay.playing=
-     false;
+    startReplay();
 
-   $("replayPlayBtn").textContent=
-     "▶ PLAY";
+  }
 
- }else{
-
-   if(
-     replay.index>=
-     replay.data.frames.length-1
-   ){
-
-     replay.index=0;
-
-   }
-
-   replay.playing=
-     true;
-
-   replay.last=
-     performance.now();
-
-   $("replayPlayBtn").textContent=
-     "❚❚ PAUSE";
-
-   replay.raf=
-     requestAnimationFrame(
-       replayTick
-     );
-
- }
+  updateReplayPlayButton();
 
 }
+
+/* -----------------------------------------------------
+   UPDATE PLAY BUTTON
+----------------------------------------------------- */
+
+function updateReplayPlayButton(){
+
+  const button=
+    replayEl("replayPlayButton");
+
+  if(!button)
+    return;
+
+  button.textContent=
+    replayPlayerState.playing
+      ? "❚❚ PAUSE"
+      : "▶ PLAY";
+
+}
+
+/* -----------------------------------------------------
+   RESTART
+----------------------------------------------------- */
 
 function restartReplay(){
 
- const replay=
-   replayPlayerState;
+  const replay=
+    replayPlayerState.replay;
 
- if(!replay.data)
-   return;
+  if(!replay)
+    return;
 
- replay.index=0;
+  stopReplayLoop();
 
- replay.playing=
-   true;
+  replayPlayerState.lastFrame=0;
+  replayPlayerState.startedAt=0;
+  replayPlayerState.pausedAt=0;
 
- replay.last=
-   performance.now();
+  renderReplayFrame(0);
 
- $("replayRange").value=0;
-
- renderReplayFrame(
-   replay.data.frames[0]
- );
-
- $("replayPlayBtn").textContent=
-   "❚❚ PAUSE";
-
- replay.raf=
-   requestAnimationFrame(
-     replayTick
-   );
+  updateReplayPlayButton();
 
 }
+
+/* -----------------------------------------------------
+   SEEK BY PERCENTAGE
+----------------------------------------------------- */
 
 function seekReplay(value){
 
- const replay=
-   replayPlayerState;
+  const replay=
+    replayPlayerState.replay;
 
- if(!replay.data)
-   return;
+  if(!replay)
+    return;
 
- replay.index=
-   Number(value);
+  const duration=
+    Number(
+      replay.duration||
+      replay.frames[
+        replay.frames.length-1
+      ]?.t||
+      0
+    );
 
- renderReplayFrame(
-   replay.data.frames[
-     replay.index
-   ]
- );
+  const ratio=
+    Math.max(
+      0,
+      Math.min(
+        1,
+        Number(value)/100
+      )
+    );
 
- replay.last=
-   performance.now();
+  const target=
+    duration*ratio;
+
+  const found=
+    getReplayFrameAtTime(
+      target
+    );
+
+  if(found){
+
+    replayPlayerState.lastFrame=
+      found.index;
+
+    renderReplayFrame(
+      found.index
+    );
+
+  }
+
+  if(
+    replayPlayerState.playing
+  ){
+
+    replayPlayerState.startedAt=
+      performance.now()-
+      target*1000;
+
+  }else{
+
+    replayPlayerState.pausedAt=
+      target;
+
+  }
 
 }
+
+/* -----------------------------------------------------
+   SEEK FROM RANGE INPUT
+----------------------------------------------------- */
+
+function seekReplayInput(input){
+
+  if(!input)
+    return;
+
+  seekReplay(
+    Number(
+      input.value
+    )
+  );
+
+}
+
+/* -----------------------------------------------------
+   STEP FORWARD
+----------------------------------------------------- */
+
+function replayStepForward(){
+
+  const replay=
+    replayPlayerState.replay;
+
+  if(
+    !replay||
+    !replay.frames||
+    !replay.frames.length
+  )
+    return;
+
+  pauseReplay();
+
+  const next=
+    Math.min(
+      replay.frames.length-1,
+      replayPlayerState.lastFrame+1
+    );
+
+  replayPlayerState.lastFrame=
+    next;
+
+  renderReplayFrame(
+    next
+  );
+
+}
+
+/* -----------------------------------------------------
+   STEP BACK
+----------------------------------------------------- */
+
+function replayStepBack(){
+
+  const replay=
+    replayPlayerState.replay;
+
+  if(
+    !replay||
+    !replay.frames||
+    !replay.frames.length
+  )
+    return;
+
+  pauseReplay();
+
+  const previous=
+    Math.max(
+      0,
+      replayPlayerState.lastFrame-1
+    );
+
+  replayPlayerState.lastFrame=
+    previous;
+
+  renderReplayFrame(
+    previous
+  );
+
+}
+
+/* -----------------------------------------------------
+   EXIT REPLAY
+----------------------------------------------------- */
 
 function exitReplay(){
 
- replayPlayerState.playing=
-   false;
+  stopReplayLoop();
 
- cancelAnimationFrame(
-   replayPlayerState.raf
- );
+  replayPlayerState.replay=null;
+  replayPlayerState.index=-1;
+  replayPlayerState.lastFrame=0;
+  replayPlayerState.startedAt=0;
+  replayPlayerState.pausedAt=0;
 
- replayPlayerState.data=
-   null;
+  const screen=
+    replayEl("replayScreen");
 
- $("replayScreen").style.display=
-   "none";
+  if(screen){
+
+    screen.style.display="none";
+
+  }
+
+  const modal=
+    replayEl("replayModal");
+
+  if(modal){
+
+    modal.style.display="flex";
+
+  }
 
 }
+
+/* -----------------------------------------------------
+   RETURN FROM REPLAY TO WORLD
+----------------------------------------------------- */
+
+function backFromReplay(){
+
+  stopReplayLoop();
+
+  replayPlayerState.replay=null;
+
+  const screen=
+    replayEl("replayScreen");
+
+  if(screen){
+
+    screen.style.display="none";
+
+  }
+
+  /*
+   * Return to the existing world screen
+   * without touching coins, payments or
+   * authentication.
+   */
+
+  if(
+    typeof showScreen==="function"
+  ){
+
+    showScreen("world");
+
+  }else if(
+    typeof backToWorld==="function"
+  ){
+
+    backToWorld();
+
+  }
+
+}
+
+/* -----------------------------------------------------
+   REPLAY KEYBOARD CONTROLS
+----------------------------------------------------- */
+
+document.addEventListener(
+  "keydown",
+  function(e){
+
+    const replay=
+      replayPlayerState.replay;
+
+    if(!replay)
+      return;
+
+    if(
+      e.code==="Space"
+    ){
+
+      e.preventDefault();
+
+      toggleReplayPlay();
+
+      return;
+
+    }
+
+    if(
+      e.code==="ArrowRight"
+    ){
+
+      e.preventDefault();
+
+      replayStepForward();
+
+      return;
+
+    }
+
+    if(
+      e.code==="ArrowLeft"
+    ){
+
+      e.preventDefault();
+
+      replayStepBack();
+
+      return;
+
+    }
+
+    if(
+      e.code==="Escape"
+    ){
+
+      e.preventDefault();
+
+      exitReplay();
+
+    }
+
+  }
+);
+
+/* -----------------------------------------------------
+   REPLAY RANGE TOUCH / INPUT
+----------------------------------------------------- */
+
+document.addEventListener(
+  "input",
+  function(e){
+
+    if(
+      e.target &&
+      e.target.id==="replayProgress"
+    ){
+
+      seekReplayInput(
+        e.target
+      );
+
+    }
+
+  }
+);
+
+/* -----------------------------------------------------
+   CONTROLLER SUPPORT DURING REPLAY
+   Uses the existing controller state and
+   does NOT create a second gamepad loop.
+----------------------------------------------------- */
+
+function handleReplayController(){
+
+  if(
+    !replayPlayerState.replay
+  )
+    return;
+
+  if(
+    typeof navigator.getGamepads!=="function"
+  )
+    return;
+
+  let pads=[];
+
+  try{
+
+    pads=
+      Array.from(
+        navigator.getGamepads()||[]
+      );
+
+  }catch(error){
+
+    return;
+
+  }
+
+  const gp=
+    pads.find(
+      p=>p&&p.connected
+    );
+
+  if(!gp)
+    return;
+
+  const button=
+    index=>{
+
+      const b=
+        gp.buttons?.[index];
+
+      return !!(
+        b &&
+        (
+          b.pressed||
+          Number(b.value||0)>.5
+        )
+      );
+
+    };
+
+  /*
+   * Cross / A = Play/Pause
+   */
+
+  if(button(0)){
+
+    if(
+      !handleReplayController.lastCross
+    ){
+
+      toggleReplayPlay();
+
+    }
+
+    handleReplayController.lastCross=true;
+
+  }else{
+
+    handleReplayController.lastCross=false;
+
+  }
+
+  /*
+   * Circle / B = Exit
+   */
+
+  if(button(1)){
+
+    if(
+      !handleReplayController.lastCircle
+    ){
+
+      exitReplay();
+
+    }
+
+    handleReplayController.lastCircle=true;
+
+  }else{
+
+    handleReplayController.lastCircle=false;
+
+  }
+
+  /*
+   * Options / Start = Exit
+   */
+
+  if(button(9)){
+
+    if(
+      !handleReplayController.lastOptions
+    ){
+
+      exitReplay();
+
+    }
+
+    handleReplayController.lastOptions=true;
+
+  }else{
+
+    handleReplayController.lastOptions=false;
+
+  }
+
+  /*
+   * R2 / RT = Fast-forward
+   */
+
+  const r2=
+    Number(
+      gp.buttons?.[7]?.value||0
+    );
+
+  if(r2>.25){
+
+    const replay=
+      replayPlayerState.replay;
+
+    if(replay){
+
+      const current=
+        Number(
+          replay.frames[
+            replayPlayerState.lastFrame
+          ]?.t||0
+        );
+
+      const duration=
+        Number(
+          replay.duration||0
+        );
+
+      const target=
+        Math.min(
+          duration,
+          current+
+          (1/60)*4
+        );
+
+      const found=
+        getReplayFrameAtTime(
+          target
+        );
+
+      if(found){
+
+        replayPlayerState.lastFrame=
+          found.index;
+
+        renderReplayFrame(
+          found.index
+        );
+
+      }
+
+    }
+
+  }
+
+}
+
+/* -----------------------------------------------------
+   SINGLE SAFE CONTROLLER WATCHER
+----------------------------------------------------- */
+
+(function(){
+
+  if(
+    window.__obitrendReplayControllerLoop
+  ){
+
+    return;
+
+  }
+
+  window.__obitrendReplayControllerLoop=true;
+
+  function loop(){
+
+    try{
+
+      handleReplayController();
+
+    }catch(error){
+
+      console.warn(
+        "Replay controller:",
+        error
+      );
+
+    }
+
+    requestAnimationFrame(
+      loop
+    );
+
+  }
+
+  requestAnimationFrame(
+    loop
+  );
+
+})();
+
+/* -----------------------------------------------------
+   CLEANUP WHEN PAGE IS HIDDEN
+----------------------------------------------------- */
+
+document.addEventListener(
+  "visibilitychange",
+  function(){
+
+    if(
+      document.hidden &&
+      replayPlayerState.playing
+    ){
+
+      pauseReplay();
+
+    }
+
+  }
+);
 
 /* =====================================================
    MUSIC FRAMEWORK
