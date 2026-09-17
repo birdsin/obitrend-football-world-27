@@ -9,4 +9,5 @@ load('real-players.js');
 load('real-squad-hub.js');
 load('multiplayer.js');
 load('real-gameplay.js');
+load('match-setup.js');
 })();
