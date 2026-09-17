@@ -1,7 +1,7 @@
 const { chromium } = require('playwright');
 const { execFileSync, spawn } = require('node:child_process');
 
-const files = ['virtual-ps5-base.js','virtual-ps5.js','real-players.js','multiplayer.js','controls-step1.js'];
+const files = ['virtual-ps5-base.js','virtual-ps5.js','real-players.js','real-squad-hub.js','multiplayer.js','controls-step1.js'];
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 
 const server = spawn(process.platform === 'win32' ? 'python' : 'python3', ['-m','http.server','4173','--bind','127.0.0.1'], { stdio:'ignore' });
@@ -27,6 +27,8 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
     if (rosterCount !== 22) throw new Error('Real player roster expected 22, got '+rosterCount);
     const yamal = await page.evaluate(() => window.OBITREND_REAL_PLAYERS.find(p => p.name === 'Lamine Yamal'));
     if (!yamal || yamal.ovr !== 90) throw new Error('Lamine Yamal roster entry missing or incorrect');
+    if (!(await page.locator('#obiRealHubBtn').count())) throw new Error('Real Players button missing');
+    if (!(await page.locator('#obiRealHub').count())) throw new Error('Real Player Hub missing');
 
     await page.locator('#obiMPWorldButton').click();
     if (!(await page.locator('#obiMP.show').count())) throw new Error('Multiplayer lobby did not open');
