@@ -53,4 +53,7 @@ window.addEventListener('gamepadconnected',e=>{pad=e.gamepad.index;const s=S();i
 window.addEventListener('gamepaddisconnected',e=>{if(pad===e.gamepad.index)pad=null;const s=S();if(s&&s.gamepad&&s.gamepad.index===e.gamepad.index){s.gamepad=null;s.sprinting=false;s.moving=false}});
 function init(){controller();ui();refresh();requestAnimationFrame(loop);requestAnimationFrame(physical);setInterval(refresh,150)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+
+// Load online multiplayer without changing the existing match workflow.
+(function(){if(window.__obiMPBoot)return;window.__obiMPBoot=true;var x=document.createElement('script');x.src='multiplayer.js';x.async=true;document.head.appendChild(x);})();
 })();
