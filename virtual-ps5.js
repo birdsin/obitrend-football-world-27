@@ -7,8 +7,8 @@ function load(src){var s=document.createElement('script');s.src=src;s.async=fals
 load('mobile-layout-fix.js?v=20260917c');
 load('interaction-hotfix.js?v=20260917c');
 load('real-players.js');
+load('game-loop-restart.js?v=20260917d');
 load('virtual-ps5-base.js');
-load('game-loop-restart.js?v=20260917');
 load('real-squad-hub.js');
 load('match-setup.js');
 load('club-squads.js');
