@@ -51,27 +51,72 @@ function textButton(words,name){
  });
 }
 
+function syncWorldUI(){
+ const world=document.getElementById('world');
+ const game=document.getElementById('game');
+ const worldOn=!!(world&&getComputedStyle(world).display!=='none');
+ const gameOn=!!(game&&getComputedStyle(game).display!=='none');
+ const ps=document.getElementById('virtualPS5');
+ if(ps){
+   ps.style.display=gameOn?'block':'none';
+   ps.style.pointerEvents=gameOn?'auto':'none';
+ }
+ const wm=document.querySelector('#world .worldMenu');
+ if(wm){
+   wm.style.position='fixed';
+   wm.style.left='50%';
+   wm.style.top='auto';
+   wm.style.right='auto';
+   wm.style.bottom='12px';
+   wm.style.width='min(800px,94vw)';
+   wm.style.transform='translateX(-50%)';
+   wm.style.zIndex='900';
+   wm.style.pointerEvents='auto';
+ }
+ const mp=document.getElementById('obiMPWorldButton');
+ if(mp){
+   mp.style.position='fixed';
+   mp.style.left='50%';
+   mp.style.top='auto';
+   mp.style.right='auto';
+   mp.style.transform='translateX(-50%)';
+   mp.style.zIndex='910';
+   mp.style.bottom=worldOn?'76px':'18px';
+   mp.style.display=worldOn?'block':'';
+   mp.style.pointerEvents='auto';
+ }
+}
+
 function install(){
  const style=document.getElementById('obiInteractionHotfixStyle')||document.createElement('style');
  style.id='obiInteractionHotfixStyle';
  style.textContent=`
-  #world .worldAction,#world button,#world .worldMenu,#obiMatchSetupBtn,#obiRealHubBtn,#obiMPWorldButton{pointer-events:auto!important;touch-action:manipulation!important;position:relative;z-index:500!important}
-  #world .worldMenu{z-index:490!important}
+  #world .worldAction,#world button,#world .worldMenu,#obiMatchSetupBtn,#obiRealHubBtn,#obiMPWorldButton{pointer-events:auto!important;touch-action:manipulation!important;z-index:900!important}
+  #world .worldMenu{position:fixed!important;top:auto!important;right:auto!important;bottom:12px!important;left:50%!important;transform:translateX(-50%)!important;z-index:900!important}
   #virtualPS5{z-index:120!important}
-  #vShoulders,#vR,#vL,#vOpt{z-index:520!important}
+  #world~#virtualPS5{display:none!important}
  `;
  if(!style.parentNode)document.head.appendChild(style);
  bindFallback(document.getElementById('obiMatchSetupBtn'),'openMatchSetup');
  bindFallback(document.getElementById('obiRealHubBtn'),'openRealHub');
  bindFallback(document.getElementById('obiMPWorldButton'),'openMultiplayer');
- textButton(['stadium','match'],'openMatch');
+ textButton(['stadium'],'openMatch');
  textButton(['training'],'openTraining');
  textButton(['lifestyle'],'openLifestyle');
  textButton(['coaches'],'openCoaches');
- textButton(['← menu','menu'],'backToMenu');
+ textButton(['← menu'],'backToMenu');
+ syncWorldUI();
 }
 
-function boot(){install();setTimeout(install,500);setTimeout(install,1500);}
+function boot(){
+ install();
+ setTimeout(install,300);
+ setTimeout(install,800);
+ setTimeout(install,1500);
+ setTimeout(syncWorldUI,2200);
+}
+
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 window.addEventListener('load',boot,{once:true});
+setInterval(syncWorldUI,250);
 })();
