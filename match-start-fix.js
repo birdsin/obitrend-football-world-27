@@ -6,17 +6,17 @@ window.__obiHardMatchStartFix=true;
 
 function get(id){return document.getElementById(id)}
 function show(el,value){if(el)el.style.display=value}
-function run(name){
+function call(name){
   try{
     if(typeof window[name]==='function'){
-      window[name]();
+      const args=[].slice.call(arguments,1);
+      window[name].apply(window,args);
       return true;
     }
   }catch(err){console.error('[OBI MATCH START]',name,err)}
   return false;
 }
 
-/* Never let a network/account refresh block the visible match transition. */
 async function refreshWithTimeout(ms){
   try{
     if(typeof window.refreshFootballAccount!=='function')return;
@@ -36,7 +36,7 @@ async function hardOpenMatch(){
   try{unlocked=!!(typeof state!=='undefined'&&state.realWorldUnlocked)}catch(_e){}
 
   if(!session){
-    if(typeof window.openAuth==='function')window.openAuth();
+    call('openAuth');
     return;
   }
 
@@ -55,29 +55,30 @@ async function hardOpenMatch(){
   const game=get('game');
   const pause=get('pauseOverlay');
 
-  /* Switch screens FIRST. This makes Stadium feel instant even on a slow
-     connection. The actual account refresh is never on this critical path. */
+  /* Critical path: switch screens immediately. Network calls are never
+     allowed to hold the Stadium button or freeze the match transition. */
   show(world,'none');
   show(game,'block');
   show(pause,'none');
 
   try{if(typeof state!=='undefined')state.paused=false}catch(_e){}
 
-  /* IMPORTANT: call the unified FIFA engine's resetMatch, not the legacy
-     index.html resetMatch function. */
-  if(!run('resetMatch')){
-    console.error('[OBI MATCH START] unified resetMatch is unavailable');
+  /* This deliberately resolves to virtual-ps5-base.js's unified engine,
+     rather than index.html's legacy resetMatch(). */
+  if(!call('resetMatch')){
+    console.error('[OBI MATCH START] unified resetMatch unavailable');
   }
 
-  run('setControlMode');
-  run('startReplayRecording');
-  run('showMessage');
+  let mode='touch';
+  try{mode=state.controlMode||'touch'}catch(_e){}
+  call('setControlMode',mode);
+  call('startReplayRecording');
+  call('showMessage','MATCH READY');
 
   document.body.classList.remove('obi-world-mode');
   document.body.classList.add('obi-game-mode');
 }
 
-/* Replace the global click target after every gameplay script has loaded. */
 function install(){
   window.openMatch=hardOpenMatch;
   const world=get('world');
