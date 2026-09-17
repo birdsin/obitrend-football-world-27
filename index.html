@@ -2846,7 +2846,11 @@ window.purchaseProduct = async function(productId){
           .slice(2,10);
 
     }
-
+console.log("OBITREND PRODUCT DEBUG:", {
+  original: productId,
+  cleaned: cleanId,
+  allowed: window.OBITREND_COIN_PRODUCTS[cleanId] === true
+});
     const response =
       await fetch(
         FOOTBALL_PAYMENTS,
