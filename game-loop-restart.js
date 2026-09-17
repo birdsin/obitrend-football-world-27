@@ -1,42 +1,38 @@
-/* OBITREND FOOTBALL WORLD 27 — MATCH LOOP RESTART FIX */
+/* OBITREND FOOTBALL WORLD 27 — MATCH LOOP HEARTBEAT */
 (function(){
 'use strict';
-if(window.__obiMatchLoopRestartFix)return;
-window.__obiMatchLoopRestartFix=true;
+if(window.__obiMatchLoopHeartbeat)return;
+window.__obiMatchLoopHeartbeat=true;
 
-let lastGame=false;
-let restartCount=0;
+const nativeRAF=window.requestAnimationFrame.bind(window);
+let gameLoopCallback=null;
+let lastGameTick=0;
 
-function isGame(){
- const g=document.getElementById('game');
- return !!(g&&getComputedStyle(g).display!=='none');
+window.requestAnimationFrame=function(cb){
+  if(cb&&cb.name==='gameLoop'){
+    gameLoopCallback=cb;
+    const wrapped=function(t){
+      lastGameTick=performance.now();
+      return cb(t);
+    };
+    return nativeRAF(wrapped);
+  }
+  return nativeRAF(cb);
+};
+
+function gameVisible(){
+  const g=document.getElementById('game');
+  return !!(g&&getComputedStyle(g).display!=='none');
 }
 
-function restartEngine(){
- if(restartCount>0){
-   restartCount++;
- }
- if(restartCount>4)return;
-
- /* The original engine stops its requestAnimationFrame loop while WORLD is
-    visible. Starting a match later therefore needs a fresh engine instance. */
- window.__obitrendUnifiedPS5=false;
- const s=document.createElement('script');
- s.src='virtual-ps5-base.js?v=20260917-matchfix-'+Date.now();
- s.async=false;
- document.head.appendChild(s);
- restartCount++;
-}
-
-function tick(){
- const g=isGame();
- if(g&&!lastGame){
-   setTimeout(restartEngine,40);
- }
- lastGame=g;
-}
-
-setInterval(tick,120);
-window.addEventListener('pageshow',function(){lastGame=false;});
-tick();
+setInterval(function(){
+  if(!gameVisible()||!gameLoopCallback)return;
+  if(performance.now()-lastGameTick>180){
+    lastGameTick=performance.now();
+    nativeRAF(function(t){
+      lastGameTick=performance.now();
+      try{gameLoopCallback(t)}catch(e){console.error('[OBI MATCH LOOP]',e)}
+    });
+  }
+},100);
 })();
