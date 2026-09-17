@@ -33,7 +33,12 @@
   /* controls-step1.js calls this when its physical Gamepad loop reads the stick. */
   window.handlePlayerMovement = movement;
 
-  /* Do not force controller mode until a real controller exists. */
+  /* The original index.html controller loop also reads the same pad.
+     Disable that duplicate loop; controls-step1.js owns physical Gamepad input. */
+  window.controllerLoop = function(){
+    window.requestAnimationFrame(window.controllerLoop);
+  };
+
   window.addEventListener("gamepadconnected", function(event){
     if(!window.state || !event.gamepad) return;
 
@@ -71,5 +76,8 @@
     if(window.state.controlMode === "gamepad" && typeof window.setControlMode === "function"){
       window.setControlMode("touch");
     }
+
+    const indicator = document.getElementById("controlIndicator");
+    if(indicator) indicator.textContent = "📱 TOUCH";
   });
 })();
