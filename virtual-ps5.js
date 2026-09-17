@@ -14,4 +14,5 @@ load('real-gameplay.js');
 load('player-attributes.js');
 load('substitutions.js');
 load('match-engine-bridge.js');
+load('real-match-physics.js');
 })();
