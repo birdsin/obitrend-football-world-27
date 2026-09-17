@@ -2723,26 +2723,47 @@ async function openStore(){
 
 }
 
-/* =====================================================
-   SECURE COIN PURCHASE
-   CANONICAL PRODUCT-ID PROTECTION
-===================================================== */
+<!-- =========================================================
+     OBITREND SECURE COIN PURCHASE
+     SINGLE SAFE PAYMENT IMPLEMENTATION
+========================================================= -->
+
+<script>
+/*
+=========================================================
+SECURE COIN PURCHASE
+=========================================================
+IMPORTANT:
+- No client-side coin crediting
+- No localStorage coin balance
+- Product ID must come from the server product list
+- Paystack checkout is initialized by the secure backend
+- purchaseProduct is exposed globally for HTML onclick buttons
+=========================================================
+*/
+
+window.OBITREND_PAYMENT_BUSY = false;
+
+window.OBITREND_COIN_PRODUCTS = Object.freeze({
+  "obi_coins_100": true,
+  "obi_coins_550": true,
+  "obi_coins_1200": true,
+  "obi_coins_2500": true,
+  "obi_coins_6000": true,
+  "obi_coins_15000": true
+});
 
 
-let paymentBusy = false;
+function obitrendCleanProductId(value){
 
-const FOOTBALL_COIN_PRODUCT_IDS = new Set([
-  "obi_coins_100",
-  "obi_coins_550",
-  "obi_coins_1200",
-  "obi_coins_2500",
-  "obi_coins_6000",
-  "obi_coins_15000"
-]);
-
-function cleanFootballProductId(value){
   let id = String(value ?? "").trim();
 
+  /*
+  Remove accidental surrounding quotes.
+  Example:
+  "obi_coins_100"
+  'obi_coins_100'
+  */
   if(
     (id.startsWith('"') && id.endsWith('"')) ||
     (id.startsWith("'") && id.endsWith("'"))
@@ -2753,107 +2774,290 @@ function cleanFootballProductId(value){
   return id;
 }
 
-async function purchaseProduct(productId){
 
-  if(paymentBusy) return;
+function obitrendPaymentErrorMessage(error){
 
-  if(!authenticatedSession){
-    openAuth();
+  if(!error){
+    return "Payment could not be started.";
+  }
+
+  if(typeof error === "string"){
+    return error;
+  }
+
+  if(error.message){
+    return String(error.message);
+  }
+
+  if(error.error){
+    return String(error.error);
+  }
+
+  return "Payment could not be started.";
+}
+
+
+/*
+=========================================================
+GLOBAL PURCHASE FUNCTION
+=========================================================
+*/
+
+window.purchaseProduct = async function(productId){
+
+  if(window.OBITREND_PAYMENT_BUSY){
     return;
   }
 
-  const cleanId = cleanFootballProductId(productId);
 
-  console.log(
-    "OBITREND PAYMENT PRODUCT ID:",
-    cleanId
-  );
+  /*
+  Authentication is required.
+  */
+  if(!authenticatedSession){
 
-  if(!FOOTBALL_COIN_PRODUCT_IDS.has(cleanId)){
-    alert(
-      "Invalid coin package.\n\nProduct ID:\n" +
+    if(typeof openAuth === "function"){
+      openAuth();
+    }else{
+      alert("Please sign in before buying coins.");
+    }
+
+    return;
+  }
+
+
+  /*
+  Clean the product ID.
+  */
+  const cleanId = obitrendCleanProductId(productId);
+
+
+  /*
+  Only exact server product IDs are accepted.
+  */
+  if(!window.OBITREND_COIN_PRODUCTS[cleanId]){
+
+    console.error(
+      "OBITREND INVALID PRODUCT ID:",
+      productId,
+      "=>",
       cleanId
     );
+
+    alert(
+      "Invalid coin package.\n\n" +
+      "Please close the store and open it again."
+    );
+
     return;
   }
 
-  paymentBusy = true;
+
+  window.OBITREND_PAYMENT_BUSY = true;
+
 
   try{
 
+    /*
+    Get the current authenticated Supabase access token.
+    */
     const headers = await authHeaders();
 
-    headers["Content-Type"] =
-      "application/json";
 
+    /*
+    Explicit JSON content type.
+    */
+    headers["Content-Type"] = "application/json";
+
+
+    /*
+    Create a unique client request ID.
+    This is NOT used as payment authority.
+    The server remains authoritative.
+    */
+    let requestId = "";
+
+    try{
+
+      if(
+        window.crypto &&
+        typeof window.crypto.randomUUID === "function"
+      ){
+        requestId = window.crypto.randomUUID();
+      }
+
+    }catch(_e){
+      requestId = "";
+    }
+
+
+    /*
+    Fallback request ID for older browsers.
+    */
+    if(!requestId){
+
+      requestId =
+        "obi-" +
+        Date.now().toString(36) +
+        "-" +
+        Math.random().toString(36).slice(2,10);
+
+    }
+
+
+    /*
+    Initialize Paystack payment through the secure backend.
+    */
     const response = await fetch(
       FOOTBALL_PAYMENTS,
       {
-        method:"POST",
-        headers,
-        body:JSON.stringify({
-          action:"initialize",
-          productId:cleanId
+        method: "POST",
+
+        headers: {
+          ...headers,
+          "x-request-id": requestId
+        },
+
+        body: JSON.stringify({
+          action: "initialize",
+          productId: cleanId,
+          requestId: requestId
         }),
-        cache:"no-store"
+
+        cache: "no-store"
       }
     );
 
+
+    /*
+    Read the response safely.
+    */
     const raw = await response.text();
 
     let data = {};
 
-    try{
-      data = raw ? JSON.parse(raw) : {};
-    }catch(e){
-      throw new Error(
-        "Payment server returned an invalid response."
-      );
+    if(raw){
+
+      try{
+
+        data = JSON.parse(raw);
+
+      }catch(_e){
+
+        console.error(
+          "OBITREND PAYMENT SERVER RESPONSE:",
+          raw
+        );
+
+        throw new Error(
+          "Payment server returned an invalid response."
+        );
+
+      }
+
     }
 
+
+    /*
+    Backend error.
+    */
     if(!response.ok){
-      throw new Error(
-        data.error ||
-        data.message ||
-        "Payment initialization failed."
-      );
+
+      const message =
+        data?.error ||
+        data?.message ||
+        `Payment initialization failed (${response.status}).`;
+
+      throw new Error(String(message));
     }
 
+
+    /*
+    Paystack authorization URL.
+    */
     const paymentUrl =
-      data.authorization_url;
+      data?.authorization_url ||
+      data?.authorizationUrl ||
+      data?.data?.authorization_url ||
+      "";
 
+
+    /*
+    Server-created payment reference.
+    */
     const reference =
-      data.reference;
+      data?.reference ||
+      data?.data?.reference ||
+      "";
 
-    if(!paymentUrl || !reference){
+
+    /*
+    Both values are required.
+    */
+    if(!paymentUrl){
+
       throw new Error(
-        "Paystack did not return a valid checkout."
+        "Paystack did not return a checkout URL."
       );
+
     }
 
-    localStorage.setItem(
-      "obitrend_pending_reference",
-      reference
-    );
 
-    window.location.href =
-      paymentUrl;
+    if(!reference){
+
+      throw new Error(
+        "Payment reference was not returned by the server."
+      );
+
+    }
+
+
+    /*
+    Store ONLY the payment reference.
+
+    This does NOT give coins to the player.
+    The backend verifies the payment before
+    crediting the wallet.
+    */
+    try{
+
+      localStorage.setItem(
+        "obitrend_pending_reference",
+        String(reference)
+      );
+
+    }catch(_e){
+      /*
+      localStorage may be unavailable.
+      Payment can still continue.
+      */
+    }
+
+
+    /*
+    Open Paystack checkout.
+    */
+    window.location.assign(paymentUrl);
 
   }catch(error){
-
-    paymentBusy = false;
 
     console.error(
       "OBITREND PAYMENT ERROR:",
       error
     );
 
+
+    window.OBITREND_PAYMENT_BUSY = false;
+
+
     alert(
       "Payment Error:\n\n" +
-      (error?.message || String(error))
+      obitrendPaymentErrorMessage(error)
     );
+
   }
-}
+
+};
+</script>
 
 /* =====================================================
    VERIFY RETURNED PAYMENT
