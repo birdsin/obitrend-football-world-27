@@ -21,6 +21,12 @@ async function loadPatchedEngine(){
   var fixed='ball.x=50;ball.y=50;ball.vx=0;ball.vy=0;ball.targetX=50;ball.targetY=50;ball.air=0;ball.spin=0;';
   if(code.indexOf(old)<0)console.warn('[OBI ENGINE] ball reset signature not found; source unchanged');
   else code=code.replace(old,fixed);
+  /* Export the engine's private joystick movement function so the independent
+     mobile touch layer can drive the exact same movement path as DualSense. */
+  var exportMark='window.resetMatch=resetMatch;window.passBall=passBall;';
+  var exportFixed='window.move=move;window.resetMatch=resetMatch;window.passBall=passBall;';
+  if(code.indexOf(exportMark)<0)console.warn('[OBI ENGINE] move export signature not found; touch joystick bridge unavailable');
+  else code=code.replace(exportMark,exportFixed);
   new Function(code+'\n//# sourceURL=virtual-ps5-base.patched.js')();
 }
 
@@ -44,8 +50,8 @@ async function loadPatchedEngine(){
   await load('match-start-fix.js?v=20260917k');
   await load('match-loop-recovery.js?v=20260917k');
   await load('controller-restore.js?v=20260917o');
-  await load('mobile-touch-controller.js?v=20260917q');
-  console.log('[OBI] Original game interface restored; Stadium freeze + independent mobile PS5 touch controller active');
+  await load('mobile-touch-controller.js?v=20260917r');
+  console.log('[OBI] Original game interface restored; PS5 touch controller v2 active');
  }catch(err){
   console.error('[OBI] game loader failed:',err);
   window.__obiGameLoaderError=err;
