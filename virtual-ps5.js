@@ -38,7 +38,7 @@ async function loadPatchedEngine(){
   await load('substitutions.js');
   await load('match-engine-bridge.js');
   await load('real-match-physics.js');
-  await load('fifa-interface.js?v=20260917i');
+  await load('fifa-interface.js?v=20260917j');
   console.log('[OBI] FIFA interface loaded successfully');
  }catch(err){
   console.error('[OBI] FIFA loader failed:',err);
