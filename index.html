@@ -2832,108 +2832,103 @@ function normalizeFootballProductId(value){
   return aliases[raw]||"";
 }
 
-async function purchaseProduct(productId){
+let paymentBusy = false;
 
-  if(paymentBusy)
-    return;
+const FOOTBALL_COIN_PRODUCT_IDS = new Set([
+  "obi_coins_100",
+  "obi_coins_550",
+  "obi_coins_1200",
+  "obi_coins_2500",
+  "obi_coins_6000",
+  "obi_coins_15000"
+]);
+
+function cleanFootballProductId(value){
+  let id = String(value ?? "").trim();
+
+  // Remove accidental JSON/string quotes
+  if(
+    (id.startsWith('"') && id.endsWith('"')) ||
+    (id.startsWith("'") && id.endsWith("'"))
+  ){
+    id = id.slice(1, -1).trim();
+  }
+
+  // If the value itself is JSON encoded, decode it
+  try{
+    const parsed = JSON.parse(id);
+    if(typeof parsed === "string"){
+      id = parsed.trim();
+    }
+  }catch(e){}
+
+  return id;
+}
+
+async function purchaseProduct(productId){
+  if(paymentBusy) return;
 
   if(!authenticatedSession){
-
     openAuth();
-
     return;
-
   }
 
-  const canonicalProductId=
-    normalizeFootballProductId(
-      productId
-    );
+  const cleanId = cleanFootballProductId(productId);
 
-  if(!canonicalProductId){
+  console.log("OBITREND PAYMENT PRODUCT ID:", cleanId);
 
+  if(!FOOTBALL_COIN_PRODUCT_IDS.has(cleanId)){
     alert(
-      "Invalid coin package."
+      "Invalid coin package.\n\nProduct ID received:\n" +
+      cleanId
     );
-
-    console.error(
-      "Invalid football product:",
-      productId
-    );
-
     return;
-
   }
 
-  paymentBusy=true;
+  paymentBusy = true;
 
   try{
+    const headers = await authHeaders();
 
-    /*
-      Always send the exact server product ID.
-    */
+    headers["Content-Type"] = "application/json";
 
-    const headers=
-      await authHeaders();
+    const response = await fetch(FOOTBALL_PAYMENTS,{
+      method:"POST",
+      headers,
+      body:JSON.stringify({
+        action:"initialize",
+        productId:cleanId
+      }),
+      cache:"no-store"
+    });
 
-    const response=
-      await fetch(
-        FOOTBALL_PAYMENTS,
-        {
-          method:"POST",
+    const raw = await response.text();
 
-          headers,
-
-          body:JSON.stringify({
-            action:"initialize",
-            productId:
-              canonicalProductId
-          }),
-
-          cache:"no-store"
-        }
-      );
-
-    const raw=
-      await response.text();
-
-    let data={};
+    let data = {};
 
     try{
-
-      data=
-        raw?
-        JSON.parse(raw):
-        {};
-
-    }catch{
-
+      data = raw ? JSON.parse(raw) : {};
+    }catch(e){
       throw new Error(
         "Payment server returned an invalid response."
       );
-
     }
 
     if(!response.ok){
-
       throw new Error(
-        safeMessage(data)
+        data.error ||
+        data.message ||
+        "Payment initialization failed."
       );
-
     }
 
-    const paymentUrl=
-      data.authorization_url;
+    const paymentUrl = data.authorization_url;
+    const reference = data.reference;
 
-    const reference=
-      data.reference;
-
-    if(!paymentUrl||!reference){
-
+    if(!paymentUrl || !reference){
       throw new Error(
         "Paystack did not return a valid checkout."
       );
-
     }
 
     localStorage.setItem(
@@ -2941,30 +2936,22 @@ async function purchaseProduct(productId){
       reference
     );
 
-    /*
-      Navigate only after the server has
-      successfully created the pending purchase.
-    */
-
-    location.href=
-      paymentUrl;
+    window.location.href = paymentUrl;
 
   }catch(error){
 
+    paymentBusy = false;
+
     console.error(
-      "Coin payment:",
+      "OBITREND PAYMENT ERROR:",
       error
     );
 
-    paymentBusy=false;
-
     alert(
-      "Payment Error:\n\n"+
-      safeMessage(error)
+      "Payment Error:\n\n" +
+      (error?.message || String(error))
     );
-
   }
-
 }
 
 /* =====================================================
