@@ -18,7 +18,6 @@ const players = [
   {name:'Jude Bellingham',club:'Real Madrid',nation:'England',pos:'CAM',ovr:90,pac:79,sho:86,pas:83,dri:88,def:79,phy:85},
   {name:'Vinícius Jr.',club:'Real Madrid',nation:'Brazil',pos:'LW',ovr:89,pac:93,sho:85,pas:80,dri:91,def:31,phy:71},
   {name:'Victor Osimhen',club:'Galatasaray',nation:'Nigeria',pos:'ST',ovr:85,pac:89,sho:84,pas:65,dri:78,def:51,phy:86},
-
   {name:'Gianluigi Donnarumma',club:'Manchester City',nation:'Italy',pos:'GK',ovr:89,pac:88,sho:88,pas:75,dri:82,def:48,phy:91},
   {name:'Achraf Hakimi',club:'Paris Saint-Germain',nation:'Morocco',pos:'RB',ovr:89,pac:95,sho:72,pas:83,dri:88,def:71,phy:80},
   {name:'Gabriel',club:'Arsenal',nation:'Brazil',pos:'CB',ovr:88,pac:78,sho:40,pas:72,dri:63,def:91,phy:88},
@@ -37,7 +36,8 @@ function apply(){
   const nodes=[...document.querySelectorAll('.obiFifaPlayer')];
   if(nodes.length!==22)return false;
   nodes.forEach((el,i)=>{
-    const p=profileFor(i); el.dataset.player=p.name; el.dataset.club=p.club; el.dataset.nation=p.nation;
+    const p=profileFor(i);
+    el.dataset.player=p.name; el.dataset.club=p.club; el.dataset.nation=p.nation; el.dataset.playerPos=p.pos;
     el.dataset.ovr=p.ovr; el.dataset.pace=p.pac; el.dataset.shooting=p.sho; el.dataset.passing=p.pas; el.dataset.dribbling=p.dri; el.dataset.defending=p.def; el.dataset.physical=p.phy;
     const n=el.querySelector('.name'); if(n)n.textContent=p.name;
     el.title=p.name+' • '+p.pos+' • OVR '+p.ovr+' • '+p.club;
