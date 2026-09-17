@@ -24,4 +24,4 @@ joystick.addEventListener('touchstart',e=>{e.preventDefault();const t=e.changedT
 jumpBtn.addEventListener('touchstart',e=>{e.preventDefault();jump()},{passive:false});webBtn.addEventListener('touchstart',e=>{e.preventDefault();attach()},{passive:false});attackBtn.addEventListener('touchstart',e=>{e.preventDefault();hero.style.filter='brightness(1.7)';setTimeout(()=>hero.style.filter='',120)},{passive:false});
 startButton.addEventListener('click',()=>{started=true;start.style.display='none';draw()});
 document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});addEventListener('resize',()=>{if(!jumping)y=innerHeight*.69;draw()});setInterval(()=>{if(started){coins++;coinsEl.textContent=coins}},5000);requestAnimationFrame(loop);
-</script><script src="city.js"></script></body></html>
+</script><script src="city.js"></script><script src="combat.js"></script></body></html>
