@@ -8,6 +8,7 @@ load('real-players.js');
 load('virtual-ps5-base.js');
 load('real-squad-hub.js');
 load('match-setup.js');
+load('club-squads.js');
 load('multiplayer.js');
 load('real-gameplay.js');
 })();
