@@ -8,7 +8,7 @@ function visible(id){
  const e=document.getElementById(id);
  return !!(e&&getComputedStyle(e).display!=='none'&&getComputedStyle(e).visibility!=='hidden');
 }
-function inGame(){return visible('game')||visible('pitch');}
+function inGame(){return visible('game');}
 
 function style(){
  let s=document.getElementById('obiControllerRestoreStyle');
@@ -17,10 +17,11 @@ function style(){
 #virtualPS5{
  position:fixed!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
  width:100vw!important;height:100vh!important;z-index:5000!important;
- display:none!important;font-family:Arial,sans-serif!important;pointer-events:none!important;
+ font-family:Arial,sans-serif!important;pointer-events:none!important;
+ display:block!important;visibility:visible!important;opacity:1!important;
 }
+#virtualPS5.obi-controller-hidden{display:none!important;visibility:hidden!important;opacity:0!important}
 #virtualPS5.obi-controller-visible{display:block!important;visibility:visible!important;opacity:1!important}
-#virtualPS5.obi-controller-hidden{display:none!important}
 #virtualPS5 #vL{position:absolute!important;left:max(14px,env(safe-area-inset-left))!important;bottom:max(14px,env(safe-area-inset-bottom))!important;width:120px!important;height:120px!important;border-radius:50%!important;background:#07100ddd!important;border:2px solid #ffffff50!important;box-shadow:inset 0 0 25px #0008,0 6px 18px #0008!important;pointer-events:auto!important;touch-action:none!important}
 #virtualPS5 #vS{position:absolute!important;left:50%!important;top:50%!important;width:52px!important;height:52px!important;transform:translate(-50%,-50%)!important;border-radius:50%!important;background:#ffffff66!important;border:1px solid #fff!important;pointer-events:none!important}
 #virtualPS5 #vR{position:absolute!important;right:12px!important;bottom:14px!important;width:185px!important;height:185px!important;pointer-events:none!important;touch-action:none!important}
@@ -94,7 +95,7 @@ function sync(){
  r.style.setProperty('visibility',on?'visible':'hidden','important');
  r.style.setProperty('opacity',on?'1':'0','important');
  r.style.setProperty('pointer-events','none','important');
- if(r.dataset.obiFallbackBound!=='1' && (!window.__obitrendUnifiedPS5 || !r.querySelector('#vX')))bindFallback(r);
+ if(r.dataset.obiFallbackBound!=='1')bindFallback(r);
 }
 
 sync();
