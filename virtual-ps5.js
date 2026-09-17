@@ -11,4 +11,5 @@ load('match-setup.js');
 load('club-squads.js');
 load('multiplayer.js');
 load('real-gameplay.js');
+load('player-attributes.js');
 })();
