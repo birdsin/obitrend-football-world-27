@@ -1,0 +1,122 @@
+/* OBITREND FOOTBALL WORLD 27 — FIFA STYLE INTERFACE */
+(function(){
+'use strict';
+if(window.__obiFifaInterface)return;
+window.__obiFifaInterface=true;
+
+const $=id=>document.getElementById(id);
+const visible=e=>!!(e&&getComputedStyle(e).display!=='none');
+const call=(n,...a)=>{try{return typeof window[n]==='function'?window[n](...a):false}catch(err){console.error('[OBI FIFA UI]',n,err);return false}};
+
+function css(){
+ if($('obiFifaInterfaceStyle'))return;
+ const s=document.createElement('style');s.id='obiFifaInterfaceStyle';s.textContent=`
+ #obiFifaCenter{position:fixed;inset:0;z-index:1800;display:none;background:linear-gradient(180deg,#07101bf5,#03060bf8);font-family:Arial,sans-serif;color:#fff;overflow:auto;overscroll-behavior:contain}
+ #obiFifaCenter.show{display:block}
+ .obiFCwrap{width:min(980px,100%);min-height:100%;margin:auto;padding:max(18px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom));}
+ .obiFCTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 0 16px}
+ .obiFCbrand{font-size:10px;font-weight:1000;letter-spacing:2px;opacity:.55}.obiFCtitle{font-size:25px;font-weight:1000;margin-top:3px}.obiFCclose{border:1px solid #ffffff25;background:#ffffff0b;color:#fff;border-radius:11px;padding:11px 15px;font-weight:1000}
+ .obiFCnav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:13px}.obiFCnav button{padding:10px 4px;border-radius:9px;border:1px solid #ffffff18;background:#0d1520;color:#fff;font-size:8px;font-weight:1000}.obiFCnav button.active{background:#e3262e;border-color:#ff666c}
+ .obiFChero{border:1px solid #ffffff18;border-radius:18px;background:radial-gradient(circle at 50% 0,#18324f,#0b111b 55%,#070b11);padding:18px;margin-bottom:12px;box-shadow:0 18px 55px #0008}
+ .obiFCbadge{text-align:center;font-size:8px;letter-spacing:2px;opacity:.55}.obiFCversus{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-top:14px}.obiFCTeam{background:#ffffff08;border:1px solid #ffffff15;border-radius:14px;padding:14px;text-align:center}.obiFCTeam .crest{font-size:30px}.obiFCTeam b{display:block;font-size:12px;margin-top:6px}.obiFCTeam span{font-size:7px;opacity:.55}.obiFCvs{font-size:11px;font-weight:1000;color:#ff5158}
+ .obiFCgrid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}.obiFCCard{border:1px solid #ffffff18;border-radius:15px;background:#0b111a;padding:14px}.obiFCCard h3{font-size:10px;letter-spacing:1px;margin-bottom:10px}.obiFCrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;background:#ffffff06;border-radius:9px;margin-bottom:5px}.obiFCrow b{font-size:9px}.obiFCrow span{font-size:7px;opacity:.55}.obiFCselect{width:100%;padding:12px;border-radius:10px;border:1px solid #ffffff20;background:#151f2c;color:#fff;font-weight:900;margin-bottom:8px}.obiFCprimary{width:100%;padding:15px;border:0;border-radius:12px;background:linear-gradient(135deg,#e3262e,#b70f18);color:#fff;font-weight:1000;letter-spacing:1px;box-shadow:0 10px 30px #e3262e30}.obiFCsecondary{width:100%;padding:12px;border-radius:10px;border:1px solid #ffffff18;background:#ffffff08;color:#fff;font-weight:900;margin-top:7px}
+ #obiFifaCenter .obiFCnote{text-align:center;font-size:7px;opacity:.45;margin-top:12px}
+ #obiMPWorldButton{left:50%!important;top:auto!important;bottom:calc(max(72px,env(safe-area-inset-bottom) + 58px))!important;transform:translateX(-50%)!important;z-index:950!important;width:min(250px,70vw)!important}
+ body.obi-game-mode #obiMPWorldButton,body.obi-game-mode #obiFifaCenter{display:none!important}
+ body.obi-world-mode #virtualPS5{display:none!important;pointer-events:none!important}
+ body.obi-world-mode #obiFifaCenter{display:none}
+ body.obi-game-mode #obiMatchSetup,body.obi-game-mode #obiMatchSetupBtn{display:none!important}
+ @media(max-width:650px){.obiFCgrid{grid-template-columns:1fr}.obiFCtitle{font-size:21px}.obiFCversus{gap:6px}.obiFCTeam{padding:11px}.obiFCTeam .crest{font-size:24px}.obiFCnav{grid-template-columns:repeat(2,1fr)}}
+ `;document.head.appendChild(s);
+}
+
+function build(){
+ if($('obiFifaCenter'))return;
+ css();
+ const c=document.createElement('section');c.id='obiFifaCenter';
+ c.innerHTML=`<div class="obiFCwrap">
+  <div class="obiFCTop"><div><div class="obiFCbrand">OBITREND FOOTBALL WORLD 27</div><div class="obiFCtitle">MATCH CENTRE</div></div><button class="obiFCclose" id="obiFCClose">CLOSE</button></div>
+  <div class="obiFCnav"><button class="active">MATCH</button><button>TEAM MANAGEMENT</button><button>TACTICS</button><button>ONLINE</button></div>
+  <div class="obiFChero"><div class="obiFCbadge">STADIUM • KICK-OFF • REAL PLAYERS</div><div class="obiFCversus"><div class="obiFCTeam"><div class="crest">🔴</div><b id="obiFCHomeName">WORLD XI</b><span>HOME</span></div><div class="obiFCvs">VS</div><div class="obiFCTeam"><div class="crest">🔵</div><b id="obiFCAwayName">OBITREND SHOWCASE XI</b><span>AWAY</span></div></div></div>
+  <div class="obiFCgrid">
+   <div class="obiFCCard"><h3>STARTING XI</h3><div id="obiFCXI"></div></div>
+   <div class="obiFCCard"><h3>MATCH SETTINGS</h3><select id="obiFCHomeSelect" class="obiFCselect"></select><select id="obiFCAwaySelect" class="obiFCselect"></select><button class="obiFCprimary" id="obiFCPlay">▶ PLAY MATCH</button><button class="obiFCsecondary" id="obiFCQuick">QUICK MATCH</button><div class="obiFCnote">Your existing PS5 touch controller appears only after kickoff.</div></div>
+  </div>
+ </div>`;
+ document.body.appendChild(c);
+ $('obiFCClose').onclick=close;
+ $('obiFCPlay').onclick=start;
+ $('obiFCQuick').onclick=start;
+ const clubs=[['showcase','OBITREND SHOWCASE XI'],['real-madrid','REAL MADRID SHOWCASE'],['psg','PARIS SHOWCASE XI'],['world','WORLD XI']];
+ clubs.forEach(x=>{$('obiFCHomeSelect').insertAdjacentHTML('beforeend',`<option value="${x[0]}">${x[1]}</option>`);$('obiFCAwaySelect').insertAdjacentHTML('beforeend',`<option value="${x[0]}">${x[1]}</option>`)});
+ $('obiFCHomeSelect').value='world';$('obiFCAwaySelect').value='showcase';
+ $('obiFCHomeSelect').onchange=render;$('obiFCAwaySelect').onchange=render;
+ render();
+}
+
+function getXI(){
+ try{
+  if(typeof window.OBITREND_GET_MATCH_XI==='function')return window.OBITREND_GET_MATCH_XI();
+ }catch(e){}
+ return {home:[],away:[]};
+}
+function render(){
+ const h=$('obiFCHomeSelect'),a=$('obiFCAwaySelect');if(!h||!a)return;
+ $('obiFCHomeName').textContent=h.options[h.selectedIndex]?.text||'WORLD XI';
+ $('obiFCAwayName').textContent=a.options[a.selectedIndex]?.text||'OBITREND SHOWCASE XI';
+ const x=getXI(),list=[...(x.home||[])].slice(0,11);
+ $('obiFCXI').innerHTML=list.length?list.map((p,i)=>`<div class="obiFCrow"><b>${i+1}. ${String(p.name||'Player')}</b><span>${String(p.pos||'') } • OVR ${String(p.ovr||'')}</span></div>`).join(''):'<div class="obiFCrow"><b>Starting XI ready</b><span>11 players</span></div>';
+}
+
+function open(){build();render();$('obiFifaCenter').classList.add('show');document.body.classList.remove('obi-game-mode');document.body.classList.add('obi-world-mode');const p=$('virtualPS5');if(p)p.style.setProperty('display','none','important');const mp=$('obiMPWorldButton');if(mp)mp.style.setProperty('display','none','important')}
+function close(){const c=$('obiFifaCenter');if(c)c.classList.remove('show');sync()}
+async function start(){
+ close();
+ const game=$('game'),world=$('world'),pause=$('pauseOverlay');
+ if(!game)return;
+ let unlocked=true;
+ try{unlocked=!!(typeof state!=='undefined'&&state.realWorldUnlocked)}catch(e){}
+ if(!unlocked&&typeof window.refreshFootballAccount==='function'){
+  try{await Promise.race([window.refreshFootballAccount(),new Promise(r=>setTimeout(r,2500))])}catch(e){}
+  try{unlocked=!!(typeof state!=='undefined'&&state.realWorldUnlocked)}catch(e){}
+ }
+ if(!unlocked){const l=$('lockModal');if(l)l.style.display='flex';return}
+ if(world)world.style.display='none';game.style.display='block';if(pause)pause.style.display='none';
+ try{if(typeof state!=='undefined')state.paused=false}catch(e){}
+ try{if(typeof window.resetMatch==='function')window.resetMatch()}catch(e){console.error('[OBI FIFA START]',e)}
+ try{if(typeof state!=='undefined')window.setControlMode&&window.setControlMode(state.controlMode||'touch')}catch(e){}
+ document.body.classList.remove('obi-world-mode');document.body.classList.add('obi-game-mode');
+ const p=$('virtualPS5');if(p)p.style.setProperty('display','block','important');
+}
+
+function sync(){
+ const game=visible($('game')),world=visible($('world')),center=$('obiFifaCenter');
+ if(center&&game)center.classList.remove('show');
+ const mp=$('obiMPWorldButton');
+ if(mp){
+  const modal=visible($('obiMP'))||visible($('obiMatchSetup'))||visible(center);
+  mp.style.setProperty('display',world&&!modal?'block':'none','important');
+  mp.style.setProperty('position','fixed','important');mp.style.setProperty('left','50%','important');mp.style.setProperty('top','auto','important');mp.style.setProperty('bottom','76px','important');mp.style.setProperty('transform','translateX(-50%)','important');mp.style.setProperty('z-index','950','important');
+ }
+ const p=$('virtualPS5');if(p&&!game)p.style.setProperty('display','none','important');
+}
+
+function install(){
+ build();
+ const world=$('world');
+ if(world){world.querySelectorAll('.worldAction').forEach(btn=>{
+  const t=(btn.textContent||'').toLowerCase();
+  if(t.includes('stadium')&&!btn.dataset.obiFifaBound){btn.dataset.obiFifaBound='1';btn.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();open()},true)}
+ });}
+ const old=$('obiMatchSetupBtn');if(old)old.style.display='none';
+ const oldModal=$('obiMatchSetup');if(oldModal)oldModal.classList.remove('show');
+ const ms=$('obiMatchSetupBtn');if(ms&&!ms.dataset.obiFifaBound){ms.dataset.obiFifaBound='1';ms.onclick=open}
+ sync();
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+[100,400,1000,2000].forEach(t=>setTimeout(install,t));
+setInterval(sync,250);
+window.openFifaMatchCentre=open;
+window.openMatch=start;
+})();
