@@ -4,7 +4,7 @@
   "private": true,
   "description": "OBITREND FOOTBALL WORLD 27",
   "scripts": {
-    "check": "node --check virtual-ps5-base.js && node --check virtual-ps5.js && node --check real-players.js && node --check real-squad-hub.js && node --check multiplayer.js && node --check real-gameplay.js && node --check match-setup.js && node --check club-squads.js && node --check player-attributes.js && node --check substitutions.js && node --check controls-step1.js",
+    "check": "node --check virtual-ps5-base.js && node --check virtual-ps5.js && node --check real-players.js && node --check real-squad-hub.js && node --check multiplayer.js && node --check real-gameplay.js && node --check real-match-physics.js && node --check match-setup.js && node --check club-squads.js && node --check player-attributes.js && node --check substitutions.js && node --check controls-step1.js",
     "test": "node tests/smoke-test.js"
   },
   "devDependencies": {
