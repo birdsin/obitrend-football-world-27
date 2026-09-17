@@ -29,6 +29,8 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
  if(!(await page.locator('#obiSubsBtn').count()))throw new Error('Bench button missing');
  if(!(await page.evaluate(()=>typeof window.OBITREND_MATCH_ENGINE?.switchPlayer==='function')))throw new Error('Match engine bridge API missing');
  if(!(await page.evaluate(()=>typeof window.OBITREND_MATCH_ENGINE?.actionQuality==='function')))throw new Error('Match engine attribute quality API missing');
+ const quality=await page.evaluate(()=>({shoot:window.OBITREND_MATCH_ENGINE.actionQuality('shoot'),pass:window.OBITREND_MATCH_ENGINE.actionQuality('pass'),skill:window.OBITREND_MATCH_ENGINE.actionQuality('skill')}));
+ if(!(quality.shoot>=.58&&quality.shoot<=1.10&&quality.pass>=.58&&quality.pass<=1.10&&quality.skill>=.58&&quality.skill<=1.10))throw new Error('Attribute quality output out of range');
  await page.evaluate(()=>document.getElementById('obiMatchSetupBtn').click());if(!(await page.locator('#obiMatchSetup.show').count()))throw new Error('Match Setup did not open');
  if(await page.locator('#obiMSHome option').count()<4)throw new Error('Team selector options missing');
  if(await page.locator('#obiMSHome .obiMSPlayer').count()!==11)throw new Error('Home XI should contain 11 players');
