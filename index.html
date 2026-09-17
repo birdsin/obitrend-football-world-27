@@ -2664,41 +2664,61 @@ async function openStore(){
 
    products.forEach(product=>{
 
-     const item=
-       document.createElement("div");
+  const item=document.createElement("div");
+  item.className="card";
 
-     item.className="card";
+  item.innerHTML=`
+    <strong>
+      ${Number(product.coins).toLocaleString()}
+      COINS
+    </strong>
 
-     item.innerHTML=`
+    <small>
+      ${escapeHtml(
+        product.name ||
+        "OBITREND Coin Package"
+      )}
+    </small>
+  `;
 
-       <strong>
-         ${Number(product.coins)
-           .toLocaleString()}
-         COINS
-       </strong>
+  const buyButton=document.createElement("button");
 
-       <small>
-         ${escapeHtml(
-           product.name||
-           "OBITREND Coin Package"
-         )}
-       </small>
+  buyButton.type="button";
+  buyButton.className="modalBtn";
 
-       <button
-         class="modalBtn"
-         onclick="purchaseProduct(
-           '${escapeJs(product.productId)}'
-         )">
-         ${formatMoney(
-           product.priceMinor,
-           product.currency
-         )}
-       </button>
-     `;
+  buyButton.textContent=formatMoney(
+    product.priceMinor,
+    product.currency
+  );
 
-     grid.appendChild(item);
+  /*
+   * Store the EXACT product ID returned
+   * by the secure /products endpoint.
+   */
+  buyButton.dataset.productId=String(
+    product.productId || ""
+  ).trim();
 
-   });
+  buyButton.addEventListener("click",function(){
+
+    const exactProductId=
+      String(
+        buyButton.dataset.productId || ""
+      ).trim();
+
+    console.log(
+      "OBITREND PURCHASE CLICK:",
+      exactProductId
+    );
+
+    purchaseProduct(exactProductId);
+  });
+
+  item.appendChild(buyButton);
+  grid.appendChild(item);
+
+});
+
 
  }catch(error){
 
