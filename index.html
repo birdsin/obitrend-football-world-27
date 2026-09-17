@@ -2743,35 +2743,12 @@ async function openStore(){
 
 }
 
-/* =========================================================
-   OBITREND SECURE COIN PURCHASE
-   SINGLE SAFE PAYMENT IMPLEMENTATION
-========================================================= */
+/* =====================================================
+   OBITREND FLUTTERWAVE COIN PURCHASE
+   SERVER-AUTHORITATIVE PAYMENT FLOW
+===================================================== */
 
 window.OBITREND_PAYMENT_BUSY = false;
-
-window.OBITREND_COIN_PRODUCTS = Object.freeze({
-  "obi_coins_100": true,
-  "obi_coins_550": true,
-  "obi_coins_1200": true,
-  "obi_coins_2500": true,
-  "obi_coins_6000": true,
-  "obi_coins_15000": true
-});
-
-function obitrendCleanProductId(value){
-
-  let id = String(value ?? "").trim();
-
-  if(
-    (id.startsWith('"') && id.endsWith('"')) ||
-    (id.startsWith("'") && id.endsWith("'"))
-  ){
-    id = id.slice(1,-1).trim();
-  }
-
-  return id;
-}
 
 function obitrendPaymentErrorMessage(error){
 
@@ -2794,6 +2771,11 @@ function obitrendPaymentErrorMessage(error){
   return "Payment could not be started.";
 }
 
+
+/* =====================================================
+   START FLUTTERWAVE PAYMENT
+===================================================== */
+
 window.purchaseProduct = async function(productId){
 
   if(window.OBITREND_PAYMENT_BUSY){
@@ -2812,18 +2794,12 @@ window.purchaseProduct = async function(productId){
   }
 
   const cleanId =
-    obitrendCleanProductId(productId);
+    String(productId ?? "").trim();
 
-  if(!window.OBITREND_COIN_PRODUCTS[cleanId]){
-
-    console.error(
-      "OBITREND INVALID PRODUCT ID:",
-      productId,
-      cleanId
-    );
+  if(!cleanId){
 
     alert(
-      "Invalid coin package.\n\n" +
+      "This coin package is unavailable.\n\n" +
       "Please close the store and open it again."
     );
 
@@ -2849,8 +2825,10 @@ window.purchaseProduct = async function(productId){
         typeof window.crypto.randomUUID ===
         "function"
       ){
+
         requestId =
           window.crypto.randomUUID();
+
       }
 
     }catch(_e){}
@@ -2866,11 +2844,19 @@ window.purchaseProduct = async function(productId){
           .slice(2,10);
 
     }
-console.log("OBITREND PRODUCT DEBUG:", {
-  original: productId,
-  cleaned: cleanId,
-  allowed: window.OBITREND_COIN_PRODUCTS[cleanId] === true
-});
+
+    /*
+     * IMPORTANT:
+     * The browser sends only the product ID.
+     *
+     * The server decides:
+     * - price
+     * - coin amount
+     * - currency
+     * - user
+     * - Flutterwave reference
+     */
+
     const response =
       await fetch(
         FOOTBALL_PAYMENTS,
@@ -2882,11 +2868,11 @@ console.log("OBITREND PRODUCT DEBUG:", {
             "x-request-id":requestId
           },
 
-body: JSON.stringify({
-    action:"initialize",
-    productId:cleanId,
-    requestId
-}),
+          body:JSON.stringify({
+            action:"initialize",
+            productId:cleanId,
+            requestId
+          }),
 
           cache:"no-store"
         }
@@ -2895,7 +2881,7 @@ body: JSON.stringify({
     const raw =
       await response.text();
 
-    let data = {};
+    let data={};
 
     if(raw){
 
@@ -2926,19 +2912,21 @@ body: JSON.stringify({
 
     const paymentUrl =
       data?.authorization_url ||
-      data?.authorizationUrl ||
+      data?.checkout_url ||
+      data?.data?.link ||
       data?.data?.authorization_url ||
       "";
 
     const reference =
       data?.reference ||
+      data?.tx_ref ||
       data?.data?.reference ||
       "";
 
     if(!paymentUrl){
 
       throw new Error(
-        "Paystack did not return a checkout URL."
+        "Flutterwave did not return a checkout link."
       );
 
     }
@@ -2951,6 +2939,11 @@ body: JSON.stringify({
 
     }
 
+    /*
+     * Save only the transaction reference.
+     * The balance is NEVER stored here.
+     */
+
     try{
 
       localStorage.setItem(
@@ -2960,6 +2953,10 @@ body: JSON.stringify({
 
     }catch(_e){}
 
+    /*
+     * Leave the game and open Flutterwave checkout.
+     */
+
     window.location.assign(
       paymentUrl
     );
@@ -2967,7 +2964,7 @@ body: JSON.stringify({
   }catch(error){
 
     console.error(
-      "OBITREND PAYMENT ERROR:",
+      "OBITREND FLUTTERWAVE PAYMENT ERROR:",
       error
     );
 
@@ -2983,136 +2980,254 @@ body: JSON.stringify({
 
 };
 
+
 /* =====================================================
-   VERIFY RETURNED PAYMENT
+   VERIFY FLUTTERWAVE RETURN
 ===================================================== */
 
 async function verifyReturnedPayment(){
 
- if(!authenticatedSession)
-   return;
+  if(!authenticatedSession){
+    return;
+  }
 
- const url=
-   new URL(
-     location.href
-   );
+  const url =
+    new URL(
+      location.href
+    );
 
- const returnedRef=
-   url.searchParams.get(
-     "reference"
-   )||
-   url.searchParams.get(
-     "trxref"
-   )||
-   "";
+  /*
+   * Flutterwave Standard returns tx_ref.
+   */
 
- const pendingRef=
-   localStorage.getItem(
-     "obitrend_pending_reference"
-   )||"";
+  const returnedRef =
+    url.searchParams.get("tx_ref") ||
+    url.searchParams.get("reference") ||
+    "";
 
- const reference=
-   returnedRef||
-   pendingRef;
+  const returnedStatus =
+    String(
+      url.searchParams.get("status") ||
+      ""
+    ).toLowerCase();
 
- if(!reference)
-   return;
+  const pendingRef = (() => {
 
- try{
+    try{
 
-   showMessage(
-     "VERIFYING PAYMENT..."
-   );
+      return localStorage.getItem(
+        "obitrend_pending_reference"
+      ) || "";
 
-   const headers=
-     await authHeaders();
+    }catch(_e){
 
-   const response=
-     await fetch(
-       FOOTBALL_PAYMENTS,
-       {
-         method:"POST",
+      return "";
 
-         headers,
+    }
 
-         body:JSON.stringify({
-           action:"verify",
-           reference
-         }),
+  })();
 
-         cache:"no-store"
-       }
-     );
+  const reference =
+    returnedRef ||
+    pendingRef;
 
-   const raw=
-     await response.text();
+  if(!reference){
+    return;
+  }
 
-   let data={};
 
-   try{
+  /*
+   * If Flutterwave explicitly returned failed,
+   * don't attempt to credit anything.
+   */
 
-     data=
-       raw?
-       JSON.parse(raw):
-       {};
+  if(
+    returnedStatus &&
+    returnedStatus !== "successful"
+  ){
 
-   }catch{
+    try{
 
-     throw new Error(
-       "Payment verification returned invalid data."
-     );
+      localStorage.removeItem(
+        "obitrend_pending_reference"
+      );
 
-   }
+    }catch(_e){}
 
-   if(!response.ok){
+    window.OBITREND_PAYMENT_BUSY =
+      false;
 
-     throw new Error(
-       safeMessage(data)
-     );
+    alert(
+      "Payment was not completed.\n\n" +
+      "No coins were added."
+    );
 
-   }
+    history.replaceState(
+      {},
+      document.title,
+      location.pathname
+    );
 
-   if(!data.ok){
+    return;
+  }
 
-     throw new Error(
-       safeMessage(data)||
-       "Payment was not verified."
-     );
 
-   }
+  try{
 
-   localStorage.removeItem(
-     "obitrend_pending_reference"
-   );
+    showMessage(
+      "VERIFYING FLUTTERWAVE PAYMENT..."
+    );
 
-   await refreshFootballAccount();
+    const headers =
+      await authHeaders();
 
-   history.replaceState(
-     {},
-     document.title,
-     location.pathname
-   );
+    headers["Content-Type"] =
+      "application/json";
 
-   alert(
-     "Payment verified successfully.\n\n"+
-     "Your OBITREND coins have been credited."
-   );
+    const response =
+      await fetch(
+        FOOTBALL_PAYMENTS,
+        {
+          method:"POST",
 
- }catch(error){
+          headers,
 
-   console.error(
-     "Payment verification:",
-     error
-   );
+          body:JSON.stringify({
+            action:"verify",
+            reference
+          }),
 
-   alert(
-     "Payment verification:\n\n"+
-     safeMessage(error)
-   );
+          cache:"no-store"
+        }
+      );
 
- }
+    const raw =
+      await response.text();
+
+    let data={};
+
+    if(raw){
+
+      try{
+
+        data =
+          JSON.parse(raw);
+
+      }catch(_e){
+
+        throw new Error(
+          "Payment verification returned invalid data."
+        );
+
+      }
+
+    }
+
+    if(!response.ok){
+
+      throw new Error(
+        data?.error ||
+        data?.message ||
+        `Payment verification failed (${response.status}).`
+      );
+
+    }
+
+    /*
+     * The server has already verified:
+     * - transaction reference
+     * - successful status
+     * - amount
+     * - currency
+     * - authenticated owner
+     *
+     * Only after that does Supabase credit the wallet.
+     */
+
+    if(
+      data.ok !== true
+    ){
+
+      if(
+        data.status === "pending"
+      ){
+
+        throw new Error(
+          "Flutterwave payment is still pending.\n\n" +
+          "No coins have been added yet."
+        );
+
+      }
+
+      throw new Error(
+        data?.error ||
+        "Payment was not verified."
+      );
+
+    }
+
+
+    try{
+
+      localStorage.removeItem(
+        "obitrend_pending_reference"
+      );
+
+    }catch(_e){}
+
+
+    /*
+     * Reload the authoritative account
+     * from Supabase.
+     */
+
+    await refreshFootballAccount();
+
+    window.OBITREND_PAYMENT_BUSY =
+      false;
+
+
+    /*
+     * Remove payment parameters from
+     * the browser address bar.
+     */
+
+    history.replaceState(
+      {},
+      document.title,
+      location.pathname
+    );
+
+
+    alert(
+      "Payment successful! 🎉\n\n" +
+      "Your OBITREND coins have been credited."
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "OBITREND FLUTTERWAVE VERIFICATION ERROR:",
+      error
+    );
+
+    window.OBITREND_PAYMENT_BUSY =
+      false;
+
+    alert(
+      "Payment Verification:\n\n" +
+      obitrendPaymentErrorMessage(error)
+    );
+
+  }
 
 }
+
+
+/* =====================================================
+   REAL WORLD
+===================================================== */
 
 /* =====================================================
    REAL WORLD
