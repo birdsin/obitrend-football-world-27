@@ -1,0 +1,13 @@
+{
+  "name": "obitrend-football-world-27",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OBITREND FOOTBALL WORLD 27",
+  "scripts": {
+    "check": "node --check virtual-ps5-base.js && node --check virtual-ps5.js && node --check multiplayer.js && node --check controls-step1.js",
+    "test": "node tests/smoke-test.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}
