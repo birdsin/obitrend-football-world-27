@@ -2846,26 +2846,18 @@ const FOOTBALL_COIN_PRODUCT_IDS = new Set([
 function cleanFootballProductId(value){
   let id = String(value ?? "").trim();
 
-  // Remove accidental JSON/string quotes
   if(
     (id.startsWith('"') && id.endsWith('"')) ||
     (id.startsWith("'") && id.endsWith("'"))
   ){
-    id = id.slice(1, -1).trim();
+    id = id.slice(1,-1).trim();
   }
-
-  // If the value itself is JSON encoded, decode it
-  try{
-    const parsed = JSON.parse(id);
-    if(typeof parsed === "string"){
-      id = parsed.trim();
-    }
-  }catch(e){}
 
   return id;
 }
 
 async function purchaseProduct(productId){
+
   if(paymentBusy) return;
 
   if(!authenticatedSession){
@@ -2875,11 +2867,14 @@ async function purchaseProduct(productId){
 
   const cleanId = cleanFootballProductId(productId);
 
-  console.log("OBITREND PAYMENT PRODUCT ID:", cleanId);
+  console.log(
+    "OBITREND PAYMENT PRODUCT ID:",
+    cleanId
+  );
 
   if(!FOOTBALL_COIN_PRODUCT_IDS.has(cleanId)){
     alert(
-      "Invalid coin package.\n\nProduct ID received:\n" +
+      "Invalid coin package.\n\nProduct ID:\n" +
       cleanId
     );
     return;
@@ -2888,19 +2883,24 @@ async function purchaseProduct(productId){
   paymentBusy = true;
 
   try{
+
     const headers = await authHeaders();
 
-    headers["Content-Type"] = "application/json";
+    headers["Content-Type"] =
+      "application/json";
 
-    const response = await fetch(FOOTBALL_PAYMENTS,{
-      method:"POST",
-      headers,
-      body:JSON.stringify({
-        action:"initialize",
-        productId:cleanId
-      }),
-      cache:"no-store"
-    });
+    const response = await fetch(
+      FOOTBALL_PAYMENTS,
+      {
+        method:"POST",
+        headers,
+        body:JSON.stringify({
+          action:"initialize",
+          productId:cleanId
+        }),
+        cache:"no-store"
+      }
+    );
 
     const raw = await response.text();
 
@@ -2922,8 +2922,11 @@ async function purchaseProduct(productId){
       );
     }
 
-    const paymentUrl = data.authorization_url;
-    const reference = data.reference;
+    const paymentUrl =
+      data.authorization_url;
+
+    const reference =
+      data.reference;
 
     if(!paymentUrl || !reference){
       throw new Error(
@@ -2936,7 +2939,8 @@ async function purchaseProduct(productId){
       reference
     );
 
-    window.location.href = paymentUrl;
+    window.location.href =
+      paymentUrl;
 
   }catch(error){
 
