@@ -43,8 +43,8 @@ async function loadPatchedEngine(){
   await load('match-setup.js?v=20260917k');
   await load('match-start-fix.js?v=20260917k');
   await load('match-loop-recovery.js?v=20260917k');
-  await load('controller-restore.js?v=20260917n');
-  console.log('[OBI] Original game interface restored; Stadium freeze + mobile controller visibility fix active');
+  await load('controller-restore.js?v=20260917o');
+  console.log('[OBI] Original game interface restored; Stadium freeze + independent mobile PS5 controller active');
  }catch(err){
   console.error('[OBI] game loader failed:',err);
   window.__obiGameLoaderError=err;
