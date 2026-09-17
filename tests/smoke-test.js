@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 const { execFileSync, spawn } = require('node:child_process');
-const files = ['virtual-ps5-base.js','virtual-ps5.js','real-players.js','real-squad-hub.js','multiplayer.js','real-gameplay.js','match-setup.js','club-squads.js','player-attributes.js','controls-step1.js'];
+const files = ['virtual-ps5-base.js','virtual-ps5.js','real-players.js','real-squad-hub.js','multiplayer.js','real-gameplay.js','match-setup.js','club-squads.js','player-attributes.js','substitutions.js','controls-step1.js'];
 for (const file of files) execFileSync(process.execPath,['--check',file],{stdio:'inherit'});
 const server=spawn(process.platform==='win32'?'python':'python3',['-m','http.server','4173','--bind','127.0.0.1'],{stdio:'ignore'});
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -25,6 +25,8 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
  if(!(await page.evaluate(()=>typeof window.OBITREND_APPLY_CLUBS==='function')))throw new Error('Club squad API missing');
  if(!(await page.evaluate(()=>Object.keys(window.OBITREND_CLUB_SQUADS||{}).length>=6)))throw new Error('Club squad catalog missing');
  if(!(await page.evaluate(()=>typeof window.OBITREND_PLAYER_PROFILE==='function')))throw new Error('Player attribute API missing');
+ if(!(await page.evaluate(()=>typeof window.OBITREND_SUBSTITUTIONS?.open==='function')))throw new Error('Substitution API missing');
+ if(!(await page.locator('#obiSubsBtn').count()))throw new Error('Bench button missing');
  await page.locator('#obiMatchSetupBtn').click();if(!(await page.locator('#obiMatchSetup.show').count()))throw new Error('Match Setup did not open');
  if(await page.locator('#obiMSHome option').count()<4)throw new Error('Team selector options missing');
  if(await page.locator('#obiMSHome .obiMSPlayer').count()!==11)throw new Error('Home XI should contain 11 players');
