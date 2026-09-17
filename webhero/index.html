@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
+<title>WEB HERO 27</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#05070c;font-family:Arial,Helvetica,sans-serif;touch-action:none}
+#game{position:fixed;inset:0;overflow:hidden;background:linear-gradient(to bottom,#071426 0%,#15375b 42%,#26313b 70%,#11151a 100%)}
+.sky{position:absolute;inset:0;background:radial-gradient(circle at 75% 18%,rgba(255,255,255,.22),transparent 15%),linear-gradient(#07152b,#163c60 55%,#27313a)}
+.sun{position:absolute;width:90px;height:90px;border-radius:50%;right:12%;top:12%;background:#ffd978;box-shadow:0 0 70px rgba(255,210,100,.55)}
+.city{position:absolute;left:0;right:0;bottom:25%;height:52%}
+.building{position:absolute;bottom:0;width:15%;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(255,255,255,.08),rgba(0,0,0,.4)),#252b35;border-top:2px solid rgba(255,255,255,.1)}
+.b1{left:0;height:62%}.b2{left:13%;height:86%;width:17%}.b3{left:29%;height:48%;width:13%}.b4{left:41%;height:78%;width:18%}.b5{left:58%;height:58%;width:14%}.b6{left:71%;height:90%;width:17%}.b7{left:88%;height:66%;width:16%}
+.windows{position:absolute;inset:12px;background:repeating-linear-gradient(to right,rgba(255,210,90,.65) 0 7px,transparent 7px 19px),repeating-linear-gradient(to bottom,rgba(255,220,110,.4) 0 8px,transparent 8px 22px);opacity:.65}
+.street{position:absolute;left:-10%;width:120%;bottom:0;height:27%;background:linear-gradient(to bottom,#34383e,#171a1e);transform:perspective(300px) rotateX(8deg);transform-origin:bottom}
+.road-line{position:absolute;left:0;right:0;top:45%;height:7px;background:repeating-linear-gradient(to right,#e6d77a 0 80px,transparent 80px 140px);opacity:.75}
+#hero{position:absolute;left:50%;bottom:29%;width:62px;height:125px;transform:translateX(-50%);z-index:20}
+.head{position:absolute;width:35px;height:35px;left:13px;top:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 3px,transparent 4px),linear-gradient(135deg,#b72235,#151820);border:2px solid #090b10}
+.body{position:absolute;left:10px;top:31px;width:42px;height:58px;border-radius:15px 15px 10px 10px;background:linear-gradient(90deg,#151820,#d32138 48%,#151820);border:2px solid #080a0e}
+.web-mark{position:absolute;left:13px;top:39px;width:36px;height:36px;opacity:.9}.web-mark:before,.web-mark:after{content:"";position:absolute;left:17px;top:0;width:2px;height:36px;background:#ddd}.web-mark:after{transform:rotate(90deg)}
+.arm{position:absolute;width:14px;height:48px;top:38px;background:#c52b3d;border:2px solid #080a0e;border-radius:10px}.arm.left{left:0;transform:rotate(22deg)}.arm.right{right:0;transform:rotate(-22deg)}
+.leg{position:absolute;width:17px;height:50px;top:84px;background:#171b23;border:2px solid #080a0e;border-radius:8px}.leg.left{left:11px}.leg.right{right:11px}
+.shadow{position:absolute;width:90px;height:22px;border-radius:50%;background:rgba(0,0,0,.45);left:50%;bottom:-12px;transform:translateX(-50%);filter:blur(5px)}
+#hud{position:absolute;left:15px;right:15px;top:calc(12px + env(safe-area-inset-top));z-index:100;display:flex;justify-content:space-between;align-items:flex-start}.panel{padding:9px 12px;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(5,8,13,.72);backdrop-filter:blur(10px);color:white;font-size:13px}.logo{font-weight:900;letter-spacing:1px}.logo span{color:#e12a43}.health{margin-top:5px;width:120px;height:7px;border-radius:10px;background:#343943;overflow:hidden}.health-fill{width:100%;height:100%;background:#e72e47}
+#controls{position:absolute;inset:0;z-index:200;pointer-events:none}#joystick{position:absolute;left:25px;bottom:35px;width:135px;height:135px;border-radius:50%;border:2px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);pointer-events:auto}#stick{position:absolute;width:60px;height:60px;left:37px;top:37px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.3)}
+.action{position:absolute;pointer-events:auto;border:1px solid rgba(255,255,255,.25);color:white;font-weight:bold;border-radius:50%;background:rgba(10,13,20,.78);backdrop-filter:blur(8px);box-shadow:0 8px 20px rgba(0,0,0,.35)}.action:active{transform:scale(.91)}#jump{right:38px;bottom:112px;width:70px;height:70px}#web{right:120px;bottom:48px;width:82px;height:82px;background:rgba(185,25,48,.72)}#attack{right:35px;bottom:25px;width:58px;height:58px}
+#webLine{position:absolute;width:4px;height:0;background:white;box-shadow:0 0 8px white;left:50%;bottom:50%;transform-origin:bottom center;display:none;z-index:15}
+#start{position:absolute;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle at center,rgba(190,30,50,.18),transparent 35%),rgba(2,4,8,.94);color:white}.start-title{font-size:42px;font-weight:1000;letter-spacing:3px;text-align:center}.start-title span{color:#e02a43}.start-sub{margin-top:8px;opacity:.7;font-size:13px;letter-spacing:2px}.start-button{margin-top:35px;padding:16px 45px;border:0;border-radius:14px;background:#d92540;color:white;font-size:16px;font-weight:900}.hint{margin-top:18px;font-size:11px;opacity:.55}
+@media(max-width:500px){.start-title{font-size:34px}}
+</style>
+</head>
+<body>
+<div id="game">
+<div class="sky"></div><div class="sun"></div>
+<div class="city"><div class="building b1"><div class="windows"></div></div><div class="building b2"><div class="windows"></div></div><div class="building b3"><div class="windows"></div></div><div class="building b4"><div class="windows"></div></div><div class="building b5"><div class="windows"></div></div><div class="building b6"><div class="windows"></div></div><div class="building b7"><div class="windows"></div></div></div>
+<div class="street"><div class="road-line"></div></div>
+<div id="webLine"></div>
+<div id="hero"><div class="head"></div><div class="body"></div><div class="web-mark"></div><div class="arm left"></div><div class="arm right"></div><div class="leg left"></div><div class="leg right"></div><div class="shadow"></div></div>
+<div id="hud"><div class="panel"><div class="logo">WEB <span>HERO</span> 27</div><div class="health"><div class="health-fill"></div></div></div><div class="panel">🪙 <span id="coins">0</span></div></div>
+<div id="controls"><div id="joystick"><div id="stick"></div></div><button class="action" id="jump">JUMP</button><button class="action" id="web">🕸️ WEB</button><button class="action" id="attack">HIT</button></div>
+<div id="start"><div class="start-title">WEB <span>HERO</span></div><div class="start-sub">CITY 27</div><button class="start-button" id="startButton">START GAME</button><div class="hint">Touch controls • Android optimized</div></div>
+</div>
+<script>
+'use strict';
+const hero=document.getElementById('hero'),joystick=document.getElementById('joystick'),stick=document.getElementById('stick'),jumpBtn=document.getElementById('jump'),webBtn=document.getElementById('web'),attackBtn=document.getElementById('attack'),start=document.getElementById('start'),startButton=document.getElementById('startButton'),webLine=document.getElementById('webLine'),coinsEl=document.getElementById('coins');
+let gameStarted=false,heroX=innerWidth/2,heroY=innerHeight*.69,vx=0,vy=0,joystickX=0,jumping=false,coins=0,joystickTouch=null;
+const gravity=.65,speed=4.2;
+function updateHero(){if(!gameStarted)return;vx+=joystickX*.55;vx*=.86;if(Math.abs(vx)>speed)vx=Math.sign(vx)*speed;if(jumping)vy+=gravity;heroX+=vx;heroY+=vy;const ground=innerHeight*.69;if(heroY>=ground){heroY=ground;vy=0;jumping=false}if(heroX<25){heroX=25;vx=0}if(heroX>innerWidth-25){heroX=innerWidth-25;vx=0}hero.style.left=heroX+'px';hero.style.bottom='auto';hero.style.top=heroY+'px';requestAnimationFrame(updateHero)}
+function jump(){if(gameStarted&&!jumping){jumping=true;vy=-12}}
+function attack(){if(!gameStarted)return;hero.style.filter='brightness(1.6)';setTimeout(()=>hero.style.filter='',120)}
+function shootWeb(){if(!gameStarted)return;webLine.style.display='block';webLine.style.height=Math.max(80,innerHeight*.35)+'px';webLine.style.left=heroX+'px';webLine.style.bottom='auto';webLine.style.top=(heroY+10)+'px';webLine.style.transform='rotate('+(vx>=0?-28:28)+'deg)';setTimeout(()=>webLine.style.display='none',700)}
+function moveJoystick(x,y){const r=joystick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy),max=42;if(d>max){dx=dx/d*max;dy=dy/d*max}stick.style.transform=`translate(${dx}px,${dy}px)`;joystickX=dx/max}
+function resetJoystick(){joystickTouch=null;joystickX=0;stick.style.transform='translate(0,0)'}
+joystick.addEventListener('touchstart',e=>{e.preventDefault();const t=e.changedTouches[0];joystickTouch=t.identifier;moveJoystick(t.clientX,t.clientY)},{passive:false});
+joystick.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joystickTouch)moveJoystick(t.clientX,t.clientY)},{passive:false});
+joystick.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joystickTouch)resetJoystick()},{passive:false});
+jumpBtn.addEventListener('touchstart',e=>{e.preventDefault();jump()},{passive:false});webBtn.addEventListener('touchstart',e=>{e.preventDefault();shootWeb()},{passive:false});attackBtn.addEventListener('touchstart',e=>{e.preventDefault();attack()},{passive:false});
+startButton.addEventListener('click',()=>{gameStarted=true;start.style.display='none';hero.style.left=heroX+'px';hero.style.top=heroY+'px';updateHero();setInterval(()=>{coins++;coinsEl.textContent=coins},5000)});
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+addEventListener('resize',()=>{if(!jumping){heroY=innerHeight*.69;hero.style.top=heroY+'px'}});
+</script>
+</body>
+</html>
