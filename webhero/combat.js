@@ -1,0 +1,18 @@
+(()=>{
+'use strict';
+const game=document.getElementById('game'),hero=document.getElementById('hero'),attack=document.getElementById('attack'),start=document.getElementById('start');
+if(!game||!hero||!attack)return;
+const style=document.createElement('style');
+style.textContent='.wh-combat{position:absolute;inset:0;z-index:30;pointer-events:none;overflow:hidden}.wh-enemy{position:absolute;width:48px;height:86px;transform:translate(-50%,-100%);transition:filter .08s,opacity .25s}.wh-enemy .e-head{position:absolute;left:9px;top:0;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#d7a07a,#5b3030);border:2px solid #11151b}.wh-enemy .e-body{position:absolute;left:5px;top:27px;width:38px;height:45px;border-radius:10px;background:linear-gradient(90deg,#20252c,#7c2632,#20252c);border:2px solid #11151b}.wh-enemy .e-arm{position:absolute;top:31px;width:11px;height:39px;border-radius:8px;background:#7d3138;border:2px solid #11151b}.wh-enemy .e-arm.l{left:-2px;transform:rotate(18deg)}.wh-enemy .e-arm.r{right:-2px;transform:rotate(-18deg)}.wh-enemy .e-hp{position:absolute;left:0;top:-14px;width:48px;height:5px;border-radius:5px;background:#252a31;overflow:hidden}.wh-enemy .e-hp i{display:block;width:100%;height:100%;background:#e83a4f}.wh-enemy.hit{filter:brightness(2);transform:translate(-50%,-100%) scale(1.06)}.wh-enemy.dead{opacity:0;pointer-events:none}.wh-combat-msg{position:absolute;left:50%;top:19%;transform:translateX(-50%);padding:8px 14px;border-radius:12px;background:rgba(8,10,15,.78);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:800;opacity:0;transition:opacity .15s}.wh-combat-msg.show{opacity:1}';
+document.head.appendChild(style);
+const layer=document.createElement('div');layer.className='wh-combat';game.appendChild(layer);
+const msg=document.createElement('div');msg.className='wh-combat-msg';msg.textContent='ENEMY HIT';layer.appendChild(msg);
+const enemies=[];let attackLock=false;
+function makeEnemy(i){const el=document.createElement('div');el.className='wh-enemy';el.innerHTML='<div class="e-hp"><i></i></div><div class="e-head"></div><div class="e-body"></div><div class="e-arm l"></div><div class="e-arm r"></div>';layer.appendChild(el);const e={el,x:12+i*22,y:66+(i%2)*4,hp:100,alive:true,dir:i%2?1:-1};enemies.push(e)}
+for(let i=0;i<4;i++)makeEnemy(i);
+function render(){for(const e of enemies){if(!e.alive)continue;e.x+=e.dir*.018;if(e.x>91){e.x=91;e.dir=-1}if(e.x<8){e.x=8;e.dir=1}e.el.style.left=e.x+'%';e.el.style.top=e.y+'%'}}
+function nearestEnemy(){let best=null,bd=Infinity;const hx=parseFloat(hero.style.left)||innerWidth/2,hy=parseFloat(hero.style.top)||innerHeight*.69;for(const e of enemies){if(!e.alive)continue;const ex=innerWidth*e.x/100,ey=innerHeight*e.y/100,d=Math.hypot(ex-hx,ey-hy);if(d<bd&&d<190){bd=d;best=e}}return best}
+function doAttack(){if(start&&start.style.display!=='none')return;if(attackLock)return;attackLock=true;hero.style.transform='translateX(-50%) scale(1.12)';setTimeout(()=>hero.style.transform='translateX(-50%)',110);const e=nearestEnemy();if(e){e.hp=Math.max(0,e.hp-34);e.el.querySelector('i').style.width=e.hp+'%';e.el.classList.add('hit');msg.classList.add('show');setTimeout(()=>e.el.classList.remove('hit'),100);setTimeout(()=>msg.classList.remove('show'),250);if(e.hp===0){e.alive=false;e.el.classList.add('dead');setTimeout(()=>{e.hp=100;e.el.querySelector('i').style.width='100%';e.el.classList.remove('dead');e.alive=true},1800)}}setTimeout(()=>attackLock=false,180)}
+attack.addEventListener('touchstart',e=>{e.preventDefault();doAttack()},{passive:false});
+setInterval(render,30);window.addEventListener('resize',render);render();
+})();
