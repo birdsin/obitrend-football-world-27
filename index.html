@@ -2724,118 +2724,246 @@ async function openStore(){
 }
 
 /* =====================================================
-   PAYMENT
+   SECURE COIN PURCHASE
+   CANONICAL PRODUCT-ID PROTECTION
 ===================================================== */
 
 let paymentBusy=false;
 
+const FOOTBALL_COIN_PRODUCT_IDS=new Set([
+  "obi_coins_100",
+  "obi_coins_550",
+  "obi_coins_1200",
+  "obi_coins_2500",
+  "obi_coins_6000",
+  "obi_coins_15000"
+]);
+
+function normalizeFootballProductId(value){
+
+  const raw=
+    String(value??"")
+      .trim()
+      .toLowerCase();
+
+  if(FOOTBALL_COIN_PRODUCT_IDS.has(raw))
+    return raw;
+
+  const aliases={
+    "100":
+      "obi_coins_100",
+
+    "100 coins":
+      "obi_coins_100",
+
+    "550":
+      "obi_coins_550",
+
+    "550 coins":
+      "obi_coins_550",
+
+    "500":
+      "obi_coins_550",
+
+    "500 coins":
+      "obi_coins_550",
+
+    "1200":
+      "obi_coins_1200",
+
+    "1200 coins":
+      "obi_coins_1200",
+
+    "1,200":
+      "obi_coins_1200",
+
+    "1,200 coins":
+      "obi_coins_1200",
+
+    "1000":
+      "obi_coins_1200",
+
+    "1000 coins":
+      "obi_coins_1200",
+
+    "2500":
+      "obi_coins_2500",
+
+    "2500 coins":
+      "obi_coins_2500",
+
+    "2,500":
+      "obi_coins_2500",
+
+    "2,500 coins":
+      "obi_coins_2500",
+
+    "5000":
+      "obi_coins_6000",
+
+    "5000 coins":
+      "obi_coins_6000",
+
+    "6000":
+      "obi_coins_6000",
+
+    "6000 coins":
+      "obi_coins_6000",
+
+    "6,000":
+      "obi_coins_6000",
+
+    "6,000 coins":
+      "obi_coins_6000",
+
+    "15000":
+      "obi_coins_15000",
+
+    "15000 coins":
+      "obi_coins_15000",
+
+    "15,000":
+      "obi_coins_15000",
+
+    "15,000 coins":
+      "obi_coins_15000"
+  };
+
+  return aliases[raw]||"";
+}
+
 async function purchaseProduct(productId){
 
- if(paymentBusy)
-   return;
+  if(paymentBusy)
+    return;
 
- if(!authenticatedSession){
+  if(!authenticatedSession){
 
-   openAuth();
+    openAuth();
 
-   return;
+    return;
 
- }
+  }
 
- if(!productId){
+  const canonicalProductId=
+    normalizeFootballProductId(
+      productId
+    );
 
-   alert(
-     "Invalid coin package."
-   );
+  if(!canonicalProductId){
 
-   return;
+    alert(
+      "Invalid coin package."
+    );
 
- }
+    console.error(
+      "Invalid football product:",
+      productId
+    );
 
- paymentBusy=true;
+    return;
 
- try{
+  }
 
-   const headers=
-     await authHeaders();
+  paymentBusy=true;
 
-   const response=
-     await fetch(
-       FOOTBALL_PAYMENTS,
-       {
-         method:"POST",
+  try{
 
-         headers,
+    /*
+      Always send the exact server product ID.
+    */
 
-         body:JSON.stringify({
-           action:"initialize",
-           productId
-         }),
+    const headers=
+      await authHeaders();
 
-         cache:"no-store"
-       }
-     );
+    const response=
+      await fetch(
+        FOOTBALL_PAYMENTS,
+        {
+          method:"POST",
 
-   const raw=
-     await response.text();
+          headers,
 
-   let data={};
+          body:JSON.stringify({
+            action:"initialize",
+            productId:
+              canonicalProductId
+          }),
 
-   try{
+          cache:"no-store"
+        }
+      );
 
-     data=
-       raw?
-       JSON.parse(raw):
-       {};
+    const raw=
+      await response.text();
 
-   }catch{
+    let data={};
 
-     throw new Error(
-       "Payment server returned an invalid response."
-     );
+    try{
 
-   }
+      data=
+        raw?
+        JSON.parse(raw):
+        {};
 
-   if(!response.ok){
+    }catch{
 
-     throw new Error(
-       safeMessage(data)
-     );
+      throw new Error(
+        "Payment server returned an invalid response."
+      );
 
-   }
+    }
 
-   const paymentUrl=
-     data.authorization_url;
+    if(!response.ok){
 
-   const reference=
-     data.reference;
+      throw new Error(
+        safeMessage(data)
+      );
 
-   if(!paymentUrl||!reference){
+    }
 
-     throw new Error(
-       "Paystack did not return a valid checkout."
-     );
+    const paymentUrl=
+      data.authorization_url;
 
-   }
+    const reference=
+      data.reference;
 
-   localStorage.setItem(
-     "obitrend_pending_reference",
-     reference
-   );
+    if(!paymentUrl||!reference){
 
-   location.href=
-     paymentUrl;
+      throw new Error(
+        "Paystack did not return a valid checkout."
+      );
 
- }catch(error){
+    }
 
-   paymentBusy=false;
+    localStorage.setItem(
+      "obitrend_pending_reference",
+      reference
+    );
 
-   alert(
-     "Payment Error:\n\n"+
-     safeMessage(error)
-   );
+    /*
+      Navigate only after the server has
+      successfully created the pending purchase.
+    */
 
- }
+    location.href=
+      paymentUrl;
+
+  }catch(error){
+
+    console.error(
+      "Coin payment:",
+      error
+    );
+
+    paymentBusy=false;
+
+    alert(
+      "Payment Error:\n\n"+
+      safeMessage(error)
+    );
+
+  }
 
 }
 
