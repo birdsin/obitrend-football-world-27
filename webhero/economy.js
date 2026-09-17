@@ -1,0 +1,18 @@
+(()=>{
+'use strict';
+const game=document.getElementById('game'),coinsEl=document.getElementById('coins'),start=document.getElementById('start');
+if(!game||!coinsEl)return;
+const style=document.createElement('style');
+style.textContent='.wh-economy{position:absolute;left:15px;bottom:180px;z-index:245;pointer-events:auto}.wh-econ-btn{padding:9px 12px;border:1px solid rgba(255,255,255,.18);border-radius:11px;background:rgba(5,8,13,.82);color:#fff;font-size:11px;font-weight:900}.wh-shop{position:absolute;left:0;bottom:44px;width:210px;padding:10px;border-radius:14px;background:rgba(5,8,13,.96);border:1px solid rgba(255,255,255,.15);display:none}.wh-shop.show{display:block}.wh-item{display:flex;justify-content:space-between;align-items:center;padding:9px;margin:4px 0;border-radius:9px;background:#151a22;color:#fff;font-size:11px}.wh-item button{border:0;border-radius:7px;padding:6px 8px;background:#ffd45a;color:#111;font-weight:900}.wh-econ-toast{position:absolute;left:50%;bottom:25%;transform:translateX(-50%);padding:10px 15px;border-radius:12px;background:rgba(5,8,13,.9);color:#fff;font-size:12px;font-weight:900;opacity:0;transition:opacity .15s;z-index:260}.wh-econ-toast.show{opacity:1}';
+document.head.appendChild(style);
+const box=document.createElement('div');box.className='wh-economy';box.innerHTML='<button class="wh-econ-btn" id="whEconBtn">UPGRADES / SHOP</button><div class="wh-shop" id="whShop"><div class="wh-item"><span>⚡ Speed Lv.2</span><button data-cost="250">250 🪙</button></div><div class="wh-item"><span>🕸️ Swing Lv.2</span><button data-cost="400">400 🪙</button></div><div class="wh-item"><span>👊 Power Lv.2</span><button data-cost="500">500 🪙</button></div></div>';game.appendChild(box);
+const toast=document.createElement('div');toast.className='wh-econ-toast';game.appendChild(toast);
+const shop=box.querySelector('#whShop');box.querySelector('#whEconBtn').addEventListener('click',()=>shop.classList.toggle('show'));
+let saved=Number(localStorage.getItem('wh_coins')||'0');
+if(saved>Number(coinsEl.textContent||0))coinsEl.textContent=saved;
+function save(){localStorage.setItem('wh_coins',coinsEl.textContent||'0')}
+function buy(btn){const cost=Number(btn.dataset.cost),coins=Number(coinsEl.textContent||0);if(coins<cost){toast.textContent='Not enough coins';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1000);return}coinsEl.textContent=coins-cost;save();btn.textContent='OWNED';btn.disabled=true;toast.textContent='UPGRADE PURCHASED';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1000)}
+box.querySelectorAll('.wh-item button').forEach(b=>b.addEventListener('click',()=>buy(b)));
+setInterval(()=>{if(start&&start.style.display!=='none')return;save()},2000);
+window.addEventListener('beforeunload',save);
+})();
