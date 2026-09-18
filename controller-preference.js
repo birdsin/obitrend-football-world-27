@@ -15,7 +15,7 @@ function openSettings(){
   s.id='obiSettingsPanel';
   s.innerHTML='<div class="obiSettingsCard"><div class="obiSettingsTitle">⚙️ SETTINGS</div><div class="obiSettingsSub">Choose how you want to control the match.</div><button class="obiSettingBtn" id="obiBluetoothBtn" type="button">🎮 BLUETOOTH CONTROLLER</button><button class="obiSettingBtn" id="obiTouchBtn" type="button">📱 TOUCH CONTROLS</button><button class="obiSettingClose" type="button">CLOSE</button></div>';
   document.body.appendChild(s);
-  s.querySelector('#obiBluetoothBtn').addEventListener('pointerdown',e=>{e.preventDefault();try{openController()}catch(_){}});
+  s.querySelector('#obiBluetoothBtn').addEventListener('pointerdown',e=>{e.preventDefault();s.style.display='none';try{openController()}catch(_){} });
   s.querySelector('#obiTouchBtn').addEventListener('pointerdown',e=>{e.preventDefault();s.remove();const g=game();if(g&&getComputedStyle(g).display!=='none'){setMode(selected());}});
   s.querySelector('.obiSettingClose').addEventListener('pointerdown',e=>{e.preventDefault();s.remove()});
  }
