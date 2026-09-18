@@ -53,6 +53,12 @@ public:
     float SpeedNormalized = 0.0f;
 
     UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    float TurnAmount = 0.0f;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    bool bMoving = false;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
     bool bActionActive = false;
 
 private:
