@@ -2,6 +2,7 @@
 
 #include "ObitrendMatchPlayerSpawner.h"
 #include "ObitrendRealisticPlayer.h"
+#include "ObitrendFootballInteractionComponent.h"
 #include "FootballBallActor.h"
 
 AObitrendMatchAIController::AObitrendMatchAIController()
@@ -16,38 +17,170 @@ void AObitrendMatchAIController::InitializeMatchAI(
     Spawner = InSpawner;
     Ball = InBall;
     DecisionAccumulator = 0.0f;
+    PossessionAccumulator = 0.0f;
+    ActionCooldown = 1.0f;
+}
+
+bool AObitrendMatchAIController::IsBallInRange(
+    const AObitrendRealisticPlayer* Player) const
+{
+    return Player && Ball &&
+        FVector::Dist2D(
+            Player->GetActorLocation(),
+            Ball->GetActorLocation()) <= 170.0f;
 }
 
 FVector AObitrendMatchAIController::GetFormationTarget(
     const AObitrendRealisticPlayer* Player) const
 {
-    if (!Player)
-    {
-        return FVector::ZeroVector;
-    }
+    if (!Player) return FVector::ZeroVector;
 
-    // Preserve the player's starting lane while allowing the formation
-    // to compress toward the current ball position.
     const FVector Current = Player->GetActorLocation();
-    const FVector BallLocation = Ball
-        ? Ball->GetActorLocation()
-        : Current;
+    const FVector BallLocation = Ball ? Ball->GetActorLocation() : Current;
 
     FVector Target = Current;
-    const float BallPull = 0.22f;
-
-    Target.Y += (BallLocation.Y - Current.Y) * BallPull;
+    Target.Y += (BallLocation.Y - Current.Y) * 0.22f;
 
     if (Player->Role == EObitrendPlayerRole::Attacker)
-    {
         Target.X += Player->bHomeTeam ? 260.0f : -260.0f;
-    }
     else if (Player->Role == EObitrendPlayerRole::Midfielder)
-    {
         Target.X += Player->bHomeTeam ? 90.0f : -90.0f;
-    }
 
     return Target;
+}
+
+void AObitrendMatchAIController::UpdatePossession(float DeltaSeconds)
+{
+    if (!Ball || !Spawner) return;
+
+    if (PossessingPlayer.IsValid() && IsBallInRange(PossessingPlayer.Get()))
+        return;
+
+    AObitrendRealisticPlayer* Candidate = nullptr;
+    float BestDistance = 190.0f;
+
+    for (AObitrendRealisticPlayer* Player : Spawner->SpawnedPlayers)
+    {
+        if (!IsValid(Player)) continue;
+
+        const float Distance =
+            FVector::Dist2D(Player->GetActorLocation(), Ball->GetActorLocation());
+
+        if (Distance < BestDistance)
+        {
+            BestDistance = Distance;
+            Candidate = Player;
+        }
+    }
+
+    if (Candidate && Candidate->BallInteraction)
+    {
+        if (Candidate->BallInteraction->ReceiveBall(Ball))
+        {
+            PossessingPlayer = Candidate;
+            PossessionAccumulator = 0.0f;
+            ActionCooldown = 0.65f;
+        }
+    }
+}
+
+void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
+{
+    AObitrendRealisticPlayer* Player = PossessingPlayer.Get();
+    if (!Player || !Ball || !Player->BallInteraction) return;
+
+    ActionCooldown -= DeltaSeconds;
+    if (ActionCooldown > 0.0f) return;
+
+    const FVector Goal =
+        Player->bHomeTeam
+        ? FVector(5250.0f, 0.0f, 100.0f)
+        : FVector(-5250.0f, 0.0f, 100.0f);
+
+    const float GoalDistance =
+        FVector::Dist2D(Player->GetActorLocation(), Goal);
+
+    TArray<AActor*> Teammates;
+    TArray<AActor*> Opponents;
+
+    for (AObitrendRealisticPlayer* Other : Spawner->SpawnedPlayers)
+    {
+        if (!IsValid(Other) || Other == Player) continue;
+
+        if (Other->bHomeTeam == Player->bHomeTeam)
+            Teammates.Add(Other);
+        else
+            Opponents.Add(Other);
+    }
+
+    AActor* BestTarget = nullptr;
+    float BestScore = -BIG_NUMBER;
+
+    for (AActor* Mate : Teammates)
+    {
+        const float Distance =
+            FVector::Dist2D(Player->GetActorLocation(), Mate->GetActorLocation());
+
+        if (Distance > 3600.0f || Distance < 300.0f) continue;
+
+        const FVector ToMate =
+            (Mate->GetActorLocation() - Player->GetActorLocation()).GetSafeNormal2D();
+
+        const FVector ToGoal =
+            (Goal - Player->GetActorLocation()).GetSafeNormal2D();
+
+        const float Forward = FVector::DotProduct(ToMate, ToGoal);
+        const float Score = Forward * 0.7f -
+            FMath::Clamp(Distance / 5000.0f, 0.0f, 1.0f) * 0.2f;
+
+        if (Score > BestScore)
+        {
+            BestScore = Score;
+            BestTarget = Mate;
+        }
+    }
+
+    if (GoalDistance < 2300.0f)
+    {
+        const FVector ShotDirection =
+            (Goal - Ball->GetActorLocation()).GetSafeNormal2D();
+
+        Player->BallInteraction->ShootBall(
+            ShotDirection,
+            FMath::Clamp(2500.0f - GoalDistance * 0.12f, 1500.0f, 2500.0f),
+            180.0f);
+
+        PossessingPlayer.Reset();
+        ActionCooldown = 1.0f;
+        return;
+    }
+
+    if (BestTarget && BestScore > 0.15f)
+    {
+        const FVector PassDirection =
+            (BestTarget->GetActorLocation() - Ball->GetActorLocation())
+            .GetSafeNormal2D();
+
+        Player->BallInteraction->PassBall(
+            PassDirection,
+            FMath::Clamp(
+                FVector::Dist2D(
+                    Player->GetActorLocation(),
+                    BestTarget->GetActorLocation()) * 0.45f,
+                650.0f,
+                1450.0f),
+            45.0f);
+
+        PossessingPlayer.Reset();
+        ActionCooldown = 0.85f;
+        return;
+    }
+
+    Player->BallInteraction->DribbleBall(
+        Player->GetActorForwardVector(),
+        Player->SprintSpeed * 0.72f);
+
+    ActionCooldown = 0.45f;
 }
 
 void AObitrendMatchAIController::UpdateTeam(
@@ -82,9 +215,7 @@ void AObitrendMatchAIController::UpdateTeam(
         FVector Target = GetFormationTarget(Player);
 
         if (Player == Closest && ClosestDistance < 2600.0f)
-        {
             Target = BallLocation;
-        }
 
         const FVector ToTarget =
             (Target - Player->GetActorLocation()).GetSafeNormal2D();
@@ -94,16 +225,13 @@ void AObitrendMatchAIController::UpdateTeam(
             const FVector Forward = Player->GetActorForwardVector();
             const FVector Right = Player->GetActorRightVector();
 
-            const FVector2D Input(
-                FVector::DotProduct(ToTarget, Forward),
-                FVector::DotProduct(ToTarget, Right));
+            Player->SetMovementInput(
+                FVector2D(
+                    FVector::DotProduct(ToTarget, Forward),
+                    FVector::DotProduct(ToTarget, Right)).GetSafeNormal());
 
-            Player->SetMovementInput(Input.GetSafeNormal());
-
-            const float DistanceToTarget =
-                FVector::Dist2D(Player->GetActorLocation(), Target);
-
-            Player->Sprint(DistanceToTarget > 700.0f);
+            Player->Sprint(
+                FVector::Dist2D(Player->GetActorLocation(), Target) > 700.0f);
         }
         else
         {
@@ -117,18 +245,17 @@ void AObitrendMatchAIController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
+    if (!Spawner || !Ball) return;
+
+    UpdatePossession(DeltaSeconds);
+
+    if (PossessingPlayer.IsValid())
+        ExecutePossessionAction(DeltaSeconds);
+
     DecisionAccumulator += DeltaSeconds;
-    if (DecisionAccumulator < 0.10f)
-    {
-        return;
-    }
+    if (DecisionAccumulator < 0.10f) return;
 
     DecisionAccumulator = 0.0f;
-
-    if (!Spawner || !Ball)
-    {
-        return;
-    }
 
     TArray<AObitrendRealisticPlayer*> Home;
     TArray<AObitrendRealisticPlayer*> Away;
@@ -137,14 +264,8 @@ void AObitrendMatchAIController::Tick(float DeltaSeconds)
     {
         if (!IsValid(Player)) continue;
 
-        if (Player->bHomeTeam)
-        {
-            Home.Add(Player);
-        }
-        else
-        {
-            Away.Add(Player);
-        }
+        if (Player->bHomeTeam) Home.Add(Player);
+        else Away.Add(Player);
     }
 
     UpdateTeam(Home, DeltaSeconds);
