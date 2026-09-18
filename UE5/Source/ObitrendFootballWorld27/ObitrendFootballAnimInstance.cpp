@@ -14,6 +14,10 @@ void UObitrendFootballAnimInstance::RefreshFootballAnimationData()
         TurnAmount = 0.0f;
         bMoving = false;
         bActionActive = false;
+        bSprint = false;
+        bStrafeLeft = false;
+        bStrafeRight = false;
+        bTurning = false;
         AnimationState = 0;
         return;
     }
@@ -26,6 +30,11 @@ void UObitrendFootballAnimInstance::RefreshFootballAnimationData()
     TurnAmount = Runtime->TurnAmount;
     bMoving = Runtime->bMoving;
     bActionActive = Runtime->bActionActive;
+    bSprint = Speed >= 520.0f;
+    bStrafeLeft = bMoving && Direction < -20.0f;
+    bStrafeRight = bMoving && Direction > 20.0f;
+    bTurning = bMoving && FMath::Abs(TurnAmount) > 0.12f;
+
     AnimationState =
         static_cast<uint8>(Runtime->GetAnimationState());
 }
