@@ -1,10 +1,23 @@
 #include "ObitrendRealisticPlayer.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "ObitrendPlayerAnimationStateComponent.h"
+#include "ObitrendFootballInteractionComponent.h"
+#include "ObitrendFootContactComponent.h"
+#include "ObitrendPlayerVisualComponent.h"
 
 AObitrendRealisticPlayer::AObitrendRealisticPlayer()
 {
     PrimaryActorTick.bCanEverTick = true;
+
+    AnimationState = CreateDefaultSubobject<UObitrendPlayerAnimationStateComponent>(
+        TEXT("AnimationState"));
+    BallInteraction = CreateDefaultSubobject<UObitrendFootballInteractionComponent>(
+        TEXT("BallInteraction"));
+    FootContact = CreateDefaultSubobject<UObitrendFootContactComponent>(
+        TEXT("FootContact"));
+    Visual = CreateDefaultSubobject<UObitrendPlayerVisualComponent>(
+        TEXT("Visual"));
 
     GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
     GetCharacterMovement()->MaxAcceleration = Acceleration;
@@ -20,11 +33,9 @@ void AObitrendRealisticPlayer::SetMovementInput(const FVector2D& Input)
 {
     DesiredInput = Input.GetClampedToMaxSize(1.0f);
 
-    const FVector Forward = FVector::ForwardVector;
-    const FVector Right = FVector::RightVector;
-
     const FVector Direction =
-        (Forward * DesiredInput.Y + Right * DesiredInput.X).GetClampedToMaxSize(1.0f);
+        (FVector::ForwardVector * DesiredInput.Y +
+         FVector::RightVector * DesiredInput.X).GetClampedToMaxSize(1.0f);
 
     AddMovementInput(Direction, 1.0f);
 }
@@ -48,12 +59,11 @@ void AObitrendRealisticPlayer::Tick(float DeltaSeconds)
         const FRotator TargetRotation =
             FlatVelocity.ToOrientationRotator();
 
-        const FRotator NewRotation = FMath::RInterpTo(
-            GetActorRotation(),
-            TargetRotation,
-            DeltaSeconds,
-            TurnResponsiveness);
-
-        SetActorRotation(NewRotation);
+        SetActorRotation(
+            FMath::RInterpTo(
+                GetActorRotation(),
+                TargetRotation,
+                DeltaSeconds,
+                TurnResponsiveness));
     }
 }
