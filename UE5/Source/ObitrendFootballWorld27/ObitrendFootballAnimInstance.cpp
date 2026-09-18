@@ -12,6 +12,9 @@ void UObitrendFootballAnimInstance::RefreshFootballAnimationData()
         SpeedNormalized = 0.0f;
         Direction = 0.0f;
         TurnAmount = 0.0f;
+        LocomotionBlend = 0.0f;
+        DirectionBlend = 0.0f;
+        StartStopBlend = 0.0f;
         bMoving = false;
         bActionActive = false;
         bSprint = false;
@@ -19,6 +22,8 @@ void UObitrendFootballAnimInstance::RefreshFootballAnimationData()
         bStrafeRight = false;
         bTurning = false;
         AnimationState = 0;
+        LocomotionMode = EObitrendLocomotionMode::Idle;
+        PreviousSpeed = 0.0f;
         return;
     }
 
@@ -30,10 +35,27 @@ void UObitrendFootballAnimInstance::RefreshFootballAnimationData()
     TurnAmount = Runtime->TurnAmount;
     bMoving = Runtime->bMoving;
     bActionActive = Runtime->bActionActive;
+
     bSprint = Speed >= 520.0f;
     bStrafeLeft = bMoving && Direction < -20.0f;
     bStrafeRight = bMoving && Direction > 20.0f;
     bTurning = bMoving && FMath::Abs(TurnAmount) > 0.12f;
+
+    if (Speed < 20.0f)
+        LocomotionMode = EObitrendLocomotionMode::Idle;
+    else if (Speed < 260.0f)
+        LocomotionMode = EObitrendLocomotionMode::Walk;
+    else if (Speed < 520.0f)
+        LocomotionMode = EObitrendLocomotionMode::Run;
+    else
+        LocomotionMode = EObitrendLocomotionMode::Sprint;
+
+    LocomotionBlend = FMath::Clamp(Speed / 720.0f, 0.0f, 1.0f);
+    DirectionBlend = FMath::Clamp(Direction / 90.0f, -1.0f, 1.0f);
+
+    const float SpeedDelta = Speed - PreviousSpeed;
+    StartStopBlend = FMath::Clamp(SpeedDelta / 180.0f, -1.0f, 1.0f);
+    PreviousSpeed = Speed;
 
     AnimationState =
         static_cast<uint8>(Runtime->GetAnimationState());
