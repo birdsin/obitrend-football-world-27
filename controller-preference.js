@@ -16,7 +16,6 @@ function openSettings(){
   s.innerHTML='<div class="obiSettingsCard"><div class="obiSettingsTitle">⚙️ SETTINGS</div><div class="obiSettingsSub">Bluetooth controller connection</div><button class="obiSettingBtn" id="obiBluetoothBtn" type="button">🎮 BLUETOOTH CONTROLLER</button><button class="obiSettingClose" type="button">CLOSE</button></div>';
   document.body.appendChild(s);
   s.querySelector('#obiBluetoothBtn').addEventListener('pointerdown',e=>{e.preventDefault();s.style.display='none';try{openController()}catch(_){} });
-  s.querySelector('#obiTouchBtn').remove();
   s.querySelector('.obiSettingClose').addEventListener('pointerdown',e=>{e.preventDefault();s.remove()});
  }
  s.style.display='flex';
@@ -51,11 +50,11 @@ function installSettingsStyle(){
 function installStyle(){
  if(document.getElementById('obiControllerPreferenceStyle'))return;
  const s=document.createElement('style');s.id='obiControllerPreferenceStyle';
- s.textContent=\`
+ s.textContent=`
 body.obi-controller-ps5 .controls{display:none!important}
 body.obi-controller-classic .controls{display:none!important}
 #obiTouchPadV3,#virtualPS5{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-\`;
+`;
  document.head.appendChild(s);
 }
 function ensurePicker(){return null}
