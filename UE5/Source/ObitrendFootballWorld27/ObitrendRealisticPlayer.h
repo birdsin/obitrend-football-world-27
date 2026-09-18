@@ -33,6 +33,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
     TObjectPtr<class UObitrendPlayerVisualComponent> Visual;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
+    TObjectPtr<class UObitrendAnimationRuntimeComponent> AnimationRuntime;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
     EObitrendPlayerRole Role = EObitrendPlayerRole::Midfielder;
 
@@ -57,6 +60,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
     float KickPower = 1500.0f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
+    float AnimationMaxSpeed = 720.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
+    float AnimationWalkSpeed = 260.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
+    float AnimationRunSpeed = 520.0f;
+
     UFUNCTION(BlueprintCallable, Category="Football|Player")
     void SetMovementInput(const FVector2D& Input);
 
@@ -64,6 +76,7 @@ public:
     void Sprint(bool bEnabled);
 
 protected:
+    virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
 
 private:
