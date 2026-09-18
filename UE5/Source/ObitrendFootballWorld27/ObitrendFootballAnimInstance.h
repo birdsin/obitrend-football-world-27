@@ -70,6 +70,18 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
     TEnumAsByte<uint8> AnimationState = 0;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Animation|Assets")
+    TObjectPtr<class UObitrendPlayerAnimationProfile> AnimationProfile;
+
+    UFUNCTION(BlueprintCallable, Category="Football|Animation|Assets")
+    void SetAnimationProfile(UObitrendPlayerAnimationProfile* InProfile) { AnimationProfile = InProfile; }
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UBlendSpace* GetLocomotionBlendSpace() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UBlendSpace* GetStrafeBlendSpace() const;
+
 protected:
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
