@@ -115,6 +115,21 @@ public:
     UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
     class UAnimSequence* GetGoalkeeperSaveAnimation() const;
 
+    UFUNCTION(BlueprintPure, Category="Football|Animation")
+    bool IsLocomotionState() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation")
+    bool IsBallActionState() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation")
+    float GetStartStopBlend() const { return StartStopBlend; }
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation")
+    float GetDirectionBlend() const { return DirectionBlend; }
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation")
+    float GetTurnAmount() const { return TurnAmount; }
+
 protected:
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
