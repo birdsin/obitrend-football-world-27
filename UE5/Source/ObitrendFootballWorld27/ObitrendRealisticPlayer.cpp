@@ -7,6 +7,7 @@
 #include "ObitrendPlayerVisualComponent.h"
 #include "ObitrendAnimationRuntimeComponent.h"
 #include "ObitrendFootballAnimInstance.h"
+#include "ObitrendPlayerAnimationProfile.h"
 
 AObitrendRealisticPlayer::AObitrendRealisticPlayer()
 {
@@ -42,6 +43,15 @@ void AObitrendRealisticPlayer::BeginPlay()
         GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
         GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
         GetMesh()->SetAnimInstanceClass(UObitrendFootballAnimInstance::StaticClass());
+
+        if (AnimationProfile)
+        {
+            if (UObitrendFootballAnimInstance* AnimInstance =
+                Cast<UObitrendFootballAnimInstance>(GetMesh()->GetAnimInstance()))
+            {
+                AnimInstance->SetAnimationProfile(AnimationProfile);
+            }
+        }
     }
 }
 
