@@ -2,6 +2,9 @@
 
 #include "ObitrendStadiumPrototype.h"
 #include "ObitrendCinematicCamera.h"
+#include "ObitrendMatchPlayerSpawner.h"
+#include "ObitrendMatchAIController.h"
+#include "FootballBallActor.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 
@@ -23,10 +26,40 @@ void AObitrendFootballGameMode::BeginPlay()
         FVector::ZeroVector,
         FRotator::ZeroRotator);
 
-    AObitrendCinematicCamera* Camera = World->SpawnActor<AObitrendCinematicCamera>(
-        AObitrendCinematicCamera::StaticClass(),
-        FVector::ZeroVector,
-        FRotator::ZeroRotator);
+    AObitrendMatchPlayerSpawner* Spawner =
+        World->SpawnActor<AObitrendMatchPlayerSpawner>(
+            AObitrendMatchPlayerSpawner::StaticClass(),
+            FVector::ZeroVector,
+            FRotator::ZeroRotator);
+
+    if (Spawner)
+    {
+        Spawner->PlayerClass = AObitrendRealisticPlayer::StaticClass();
+        Spawner->SpawnStartingXI();
+    }
+
+    AFootballBallActor* Ball =
+        World->SpawnActor<AFootballBallActor>(
+            AFootballBallActor::StaticClass(),
+            FVector(0.0f, 0.0f, 35.0f),
+            FRotator::ZeroRotator);
+
+    AObitrendMatchAIController* MatchAI =
+        World->SpawnActor<AObitrendMatchAIController>(
+            AObitrendMatchAIController::StaticClass(),
+            FVector::ZeroVector,
+            FRotator::ZeroRotator);
+
+    if (MatchAI)
+    {
+        MatchAI->InitializeMatchAI(Spawner, Ball);
+    }
+
+    AObitrendCinematicCamera* Camera =
+        World->SpawnActor<AObitrendCinematicCamera>(
+            AObitrendCinematicCamera::StaticClass(),
+            FVector::ZeroVector,
+            FRotator::ZeroRotator);
 
     if (Camera)
     {
