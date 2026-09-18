@@ -4,6 +4,15 @@
 #include "Animation/AnimInstance.h"
 #include "ObitrendFootballAnimInstance.generated.h"
 
+UENUM(BlueprintType)
+enum class EObitrendLocomotionMode : uint8
+{
+    Idle,
+    Walk,
+    Run,
+    Sprint
+};
+
 UCLASS(Blueprintable)
 class OBITRENDFOOTBALLWORLD27_API UObitrendFootballAnimInstance : public UAnimInstance
 {
@@ -12,6 +21,12 @@ class OBITRENDFOOTBALLWORLD27_API UObitrendFootballAnimInstance : public UAnimIn
 public:
     UFUNCTION(BlueprintCallable, Category="Football|Animation")
     void RefreshFootballAnimationData();
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation")
+    EObitrendLocomotionMode GetLocomotionMode() const
+    {
+        return LocomotionMode;
+    }
 
     UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
     float Speed = 0.0f;
@@ -24,6 +39,15 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
     float TurnAmount = 0.0f;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    float LocomotionBlend = 0.0f;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    float DirectionBlend = 0.0f;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    float StartStopBlend = 0.0f;
 
     UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
     bool bMoving = false;
@@ -48,4 +72,8 @@ public:
 
 protected:
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+private:
+    EObitrendLocomotionMode LocomotionMode = EObitrendLocomotionMode::Idle;
+    float PreviousSpeed = 0.0f;
 };
