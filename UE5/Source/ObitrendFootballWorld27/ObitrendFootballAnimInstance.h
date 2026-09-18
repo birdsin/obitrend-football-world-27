@@ -32,6 +32,18 @@ public:
     bool bActionActive = false;
 
     UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    bool bSprint = false;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    bool bStrafeLeft = false;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    bool bStrafeRight = false;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
+    bool bTurning = false;
+
+    UPROPERTY(BlueprintReadOnly, Category="Football|Animation")
     TEnumAsByte<uint8> AnimationState = 0;
 
 protected:
