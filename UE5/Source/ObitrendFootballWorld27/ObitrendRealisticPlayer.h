@@ -36,6 +36,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
     TObjectPtr<class UObitrendAnimationRuntimeComponent> AnimationRuntime;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Animation")
+    TObjectPtr<class UObitrendPlayerAnimationProfile> AnimationProfile;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
     EObitrendPlayerRole Role = EObitrendPlayerRole::Midfielder;
 
