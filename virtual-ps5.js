@@ -33,9 +33,8 @@ async function loadPatchedEngine(){
   await load('match-start-fix.js?v=20260917k');
   await load('match-loop-recovery.js?v=20260917k');
   await load('controller-restore.js?v=20260917o');
-  await load('mobile-touch-controller-v4.js?v=20260918c');
-  await load('controller-preference.js?v=20260918d');
-  console.log('[OBI] Original interface preserved; PS5 touch v4 active; Bluetooth remains in Settings');
+  await load('mobile-touch-controller-v4.js?v=20260918f');
+  console.log('[OBI] Original interface preserved; PS5 touch controller active');
  }catch(err){console.error('[OBI] game loader failed:',err);window.__obiGameLoaderError=err}
 })();
 })();
