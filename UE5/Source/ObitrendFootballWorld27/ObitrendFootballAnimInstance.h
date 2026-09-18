@@ -82,6 +82,39 @@ public:
     UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
     class UBlendSpace* GetStrafeBlendSpace() const;
 
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetIdleAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetWalkAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetRunAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetSprintAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetTurnAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetReceiveAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetDribbleAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetPassAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetShootAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetTackleAnimation() const;
+
+    UFUNCTION(BlueprintPure, Category="Football|Animation|Assets")
+    class UAnimSequence* GetGoalkeeperSaveAnimation() const;
+
 protected:
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
