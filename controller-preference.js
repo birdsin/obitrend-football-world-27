@@ -8,6 +8,19 @@ const KEY='obitrend-touch-controller';
 const CLASSIC='classic';
 const PS5='ps5';
 
+function openSettings(){
+ let s=document.getElementById('obiSettingsPanel');
+ if(!s){
+  s=document.createElement('div');
+  s.id='obiSettingsPanel';
+  s.innerHTML='<div class="obiSettingsCard"><div class="obiSettingsTitle">⚙️ SETTINGS</div><div class="obiSettingsSub">Choose how you want to control the match.</div><button class="obiSettingBtn" id="obiBluetoothBtn" type="button">🎮 BLUETOOTH CONTROLLER</button><button class="obiSettingBtn" id="obiTouchBtn" type="button">📱 TOUCH CONTROLS</button><button class="obiSettingClose" type="button">CLOSE</button></div>';
+  document.body.appendChild(s);
+  s.querySelector('#obiBluetoothBtn').addEventListener('pointerdown',e=>{e.preventDefault();try{openController()}catch(_){}});
+  s.querySelector('#obiTouchBtn').addEventListener('pointerdown',e=>{e.preventDefault();s.remove();const g=game();if(g&&getComputedStyle(g).display!=='none'){setMode(selected());}});
+  s.querySelector('.obiSettingClose').addEventListener('pointerdown',e=>{e.preventDefault();s.remove()});
+ }
+ s.style.display='flex';
+}
 function game(){return document.getElementById('game')}
 function isGameVisible(){
  const g=game();
@@ -23,6 +36,18 @@ function save(v){
  try{localStorage.setItem(KEY,v)}catch(_){}
 }
 
+function installSettingsStyle(){
+ if(document.getElementById('obiSettingsStyle'))return;
+ const s=document.createElement('style');s.id='obiSettingsStyle';
+ s.textContent=`
+#obiSettingsPanel{position:fixed;inset:0;z-index:1000005;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(12px);font-family:Arial,sans-serif}
+.obiSettingsCard{width:min(430px,92vw);padding:22px;border-radius:20px;background:#0c1018;border:1px solid rgba(255,255,255,.18);box-shadow:0 20px 70px #000b;text-align:center}
+.obiSettingsTitle{font-size:22px;font-weight:1000;margin-bottom:7px}.obiSettingsSub{font-size:10px;opacity:.62;margin-bottom:18px}
+.obiSettingBtn,.obiSettingClose{width:100%;height:48px;margin-top:9px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:#171e27;color:#fff;font-size:10px;font-weight:1000;touch-action:manipulation}
+.obiSettingBtn:first-of-type{background:#e3262e;border-color:#ff646a}.obiSettingClose{background:rgba(255,255,255,.08)}
+`;
+ document.head.appendChild(s);
+}
 function installStyle(){
  if(document.getElementById('obiControllerPreferenceStyle'))return;
  const s=document.createElement('style');
