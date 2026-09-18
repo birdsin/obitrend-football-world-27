@@ -93,3 +93,14 @@ UAnimSequence* UObitrendFootballAnimInstance::GetPassAnimation() const { return 
 UAnimSequence* UObitrendFootballAnimInstance::GetShootAnimation() const { return AnimationProfile ? AnimationProfile->Shoot.Get() : nullptr; }
 UAnimSequence* UObitrendFootballAnimInstance::GetTackleAnimation() const { return AnimationProfile ? AnimationProfile->Tackle.Get() : nullptr; }
 UAnimSequence* UObitrendFootballAnimInstance::GetGoalkeeperSaveAnimation() const { return AnimationProfile ? AnimationProfile->GoalkeeperSave.Get() : nullptr; }
+
+
+bool UObitrendFootballAnimInstance::IsLocomotionState() const
+{
+    return !bActionActive;
+}
+
+bool UObitrendFootballAnimInstance::IsBallActionState() const
+{
+    return bActionActive;
+}
