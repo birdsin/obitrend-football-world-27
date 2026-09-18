@@ -21,12 +21,21 @@ public:
         AObitrendMatchPlayerSpawner* InSpawner,
         AFootballBallActor* InBall);
 
+    UFUNCTION(BlueprintPure, Category="Football|AI")
+    AObitrendRealisticPlayer* GetPossessingPlayer() const
+    {
+        return PossessingPlayer.Get();
+    }
+
 protected:
     virtual void Tick(float DeltaSeconds) override;
 
 private:
     void UpdateTeam(TArray<AObitrendRealisticPlayer*>& Team, float DeltaSeconds);
+    void UpdatePossession(float DeltaSeconds);
+    void ExecutePossessionAction(float DeltaSeconds);
     FVector GetFormationTarget(const AObitrendRealisticPlayer* Player) const;
+    bool IsBallInRange(const AObitrendRealisticPlayer* Player) const;
 
     UPROPERTY()
     TObjectPtr<AObitrendMatchPlayerSpawner> Spawner;
@@ -34,5 +43,10 @@ private:
     UPROPERTY()
     TObjectPtr<AFootballBallActor> Ball;
 
+    UPROPERTY()
+    TWeakObjectPtr<AObitrendRealisticPlayer> PossessingPlayer;
+
     float DecisionAccumulator = 0.0f;
+    float PossessionAccumulator = 0.0f;
+    float ActionCooldown = 0.0f;
 };
