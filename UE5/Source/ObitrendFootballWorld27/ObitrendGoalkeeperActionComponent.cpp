@@ -2,6 +2,8 @@
 
 #include "GameFramework/Actor.h"
 #include "Components/PrimitiveComponent.h"
+#include "ObitrendRealisticPlayer.h"
+#include "ObitrendAnimationRuntimeComponent.h"
 
 UObitrendGoalkeeperActionComponent::UObitrendGoalkeeperActionComponent()
 {
@@ -99,5 +101,15 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
     }
 
     LastAction = Action;
+
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime)
+        {
+            EObitrendRuntimeAnimation Animation = EObitrendRuntimeAnimation::GoalkeeperSave;
+            Player->AnimationRuntime->SetAction(Animation);
+        }
+    }
+
     return true;
 }
