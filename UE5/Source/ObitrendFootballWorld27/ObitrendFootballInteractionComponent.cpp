@@ -3,6 +3,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ObitrendRealisticPlayer.h"
 
 UObitrendFootballInteractionComponent::UObitrendFootballInteractionComponent()
 {
@@ -27,6 +28,11 @@ bool UObitrendFootballInteractionComponent::ReceiveBall(AActor* BallActor)
     ControlledBall = BallActor;
     CurrentAction = EObitrendBallAction::Receive;
 
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime) Player->AnimationRuntime->SetAction(EObitrendRuntimeAnimation::Receive);
+    }
+
     if (UPrimitiveComponent* Primitive =
         Cast<UPrimitiveComponent>(BallActor->GetRootComponent()))
     {
@@ -50,6 +56,11 @@ bool UObitrendFootballInteractionComponent::DribbleBall(
 
     LastDribbleDirection = Direction.GetSafeNormal();
     CurrentAction = EObitrendBallAction::Dribble;
+
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime) Player->AnimationRuntime->SetAction(EObitrendRuntimeAnimation::Dribble);
+    }
 
     MoveControlledBall(
         GetOwner()->GetActorLocation() +
@@ -89,6 +100,14 @@ bool UObitrendFootballInteractionComponent::LaunchBall(
 
     AActor* Ball = ControlledBall;
     CurrentAction = Action;
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime)
+        {
+            Player->AnimationRuntime->SetAction(
+                Action == EObitrendBallAction::Shoot ? EObitrendRuntimeAnimation::Shoot : EObitrendRuntimeAnimation::Pass);
+        }
+    }
     ControlledBall = nullptr;
 
     if (UPrimitiveComponent* Primitive =
@@ -114,6 +133,10 @@ void UObitrendFootballInteractionComponent::ReleaseBall()
 {
     ControlledBall = nullptr;
     CurrentAction = EObitrendBallAction::None;
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime) Player->AnimationRuntime->ClearAction();
+    }
 }
 
 void UObitrendFootballInteractionComponent::MoveControlledBall(
