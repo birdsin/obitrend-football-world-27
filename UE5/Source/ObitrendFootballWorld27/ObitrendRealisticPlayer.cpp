@@ -84,6 +84,7 @@ void AObitrendRealisticPlayer::Tick(float DeltaSeconds)
 
     if (AnimationRuntime)
     {
+        const float PreviousDirection = AnimationRuntime->MovementDirection;
         float DirectionDegrees = 0.0f;
 
         if (!FlatVelocity.IsNearlyZero())
@@ -99,6 +100,11 @@ void AObitrendRealisticPlayer::Tick(float DeltaSeconds)
         }
 
         AnimationRuntime->UpdateLocomotion(Speed, DirectionDegrees);
+
+        if (Speed > 20.0f && FMath::Abs(DirectionDegrees - PreviousDirection) > 18.0f)
+        {
+            AnimationRuntime->SetAction(EObitrendRuntimeAnimation::Turn);
+        }
     }
 
     if (!FlatVelocity.IsNearlyZero())
