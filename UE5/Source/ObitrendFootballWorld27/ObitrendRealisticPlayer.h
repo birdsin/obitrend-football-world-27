@@ -37,6 +37,12 @@ public:
     EObitrendPlayerRole Role = EObitrendPlayerRole::Midfielder;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
+    int32 ShirtNumber = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
+    bool bHomeTeam = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
     float SprintSpeed = 720.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
