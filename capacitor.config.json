@@ -1,0 +1,9 @@
+{
+  "appId": "com.obitrend.webhero27",
+  "appName": "WEB HERO 27",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "backgroundColor": "#05070c"
+  }
+}
