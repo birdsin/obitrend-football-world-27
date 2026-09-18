@@ -1,4 +1,6 @@
 #include "ObitrendFootballAnimInstance.h"
+#include "ObitrendPlayerAnimationProfile.h"
+
 
 #include "ObitrendRealisticPlayer.h"
 #include "ObitrendAnimationRuntimeComponent.h"
@@ -65,4 +67,16 @@ void UObitrendFootballAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
     Super::NativeUpdateAnimation(DeltaSeconds);
     RefreshFootballAnimationData();
+}
+
+class UBlendSpace;
+
+UBlendSpace* UObitrendFootballAnimInstance::GetLocomotionBlendSpace() const
+{
+    return AnimationProfile ? AnimationProfile->LocomotionBlendSpace.Get() : nullptr;
+}
+
+UBlendSpace* UObitrendFootballAnimInstance::GetStrafeBlendSpace() const
+{
+    return AnimationProfile ? AnimationProfile->StrafeBlendSpace.Get() : nullptr;
 }
