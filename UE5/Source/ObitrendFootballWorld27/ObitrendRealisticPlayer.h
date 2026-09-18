@@ -21,6 +21,18 @@ class OBITRENDFOOTBALLWORLD27_API AObitrendRealisticPlayer : public ACharacter
 public:
     AObitrendRealisticPlayer();
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
+    TObjectPtr<class UObitrendPlayerAnimationStateComponent> AnimationState;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
+    TObjectPtr<class UObitrendFootballInteractionComponent> BallInteraction;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
+    TObjectPtr<class UObitrendFootContactComponent> FootContact;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
+    TObjectPtr<class UObitrendPlayerVisualComponent> Visual;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Player")
     EObitrendPlayerRole Role = EObitrendPlayerRole::Midfielder;
 
