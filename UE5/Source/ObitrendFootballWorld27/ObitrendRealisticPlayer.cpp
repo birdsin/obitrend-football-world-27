@@ -5,6 +5,7 @@
 #include "ObitrendFootballInteractionComponent.h"
 #include "ObitrendFootContactComponent.h"
 #include "ObitrendPlayerVisualComponent.h"
+#include "ObitrendAnimationRuntimeComponent.h"
 
 AObitrendRealisticPlayer::AObitrendRealisticPlayer()
 {
@@ -18,15 +19,28 @@ AObitrendRealisticPlayer::AObitrendRealisticPlayer()
         TEXT("FootContact"));
     Visual = CreateDefaultSubobject<UObitrendPlayerVisualComponent>(
         TEXT("Visual"));
+    AnimationRuntime = CreateDefaultSubobject<UObitrendAnimationRuntimeComponent>(
+        TEXT("AnimationRuntime"));
 
     GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
     GetCharacterMovement()->MaxAcceleration = Acceleration;
     GetCharacterMovement()->BrakingDecelerationWalking = Deceleration;
     GetCharacterMovement()->GroundFriction = 7.0f;
-    GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
-    GetCharacterMovement()->bOrientRotationToMovement = true;
+    GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+    GetCharacterMovement()->bOrientRotationToMovement = false;
 
     bUseControllerRotationYaw = false;
+}
+
+void AObitrendRealisticPlayer::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (GetMesh())
+    {
+        GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+        GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+    }
 }
 
 void AObitrendRealisticPlayer::SetMovementInput(const FVector2D& Input)
@@ -34,8 +48,8 @@ void AObitrendRealisticPlayer::SetMovementInput(const FVector2D& Input)
     DesiredInput = Input.GetClampedToMaxSize(1.0f);
 
     const FVector Direction =
-        (FVector::ForwardVector * DesiredInput.Y +
-         FVector::RightVector * DesiredInput.X).GetClampedToMaxSize(1.0f);
+        (FVector::ForwardVector * DesiredInput.X +
+         FVector::RightVector * DesiredInput.Y).GetClampedToMaxSize(1.0f);
 
     AddMovementInput(Direction, 1.0f);
 }
@@ -43,6 +57,7 @@ void AObitrendRealisticPlayer::SetMovementInput(const FVector2D& Input)
 void AObitrendRealisticPlayer::Sprint(bool bEnabled)
 {
     bSprintRequested = bEnabled;
+
     GetCharacterMovement()->MaxWalkSpeed =
         bSprintRequested ? SprintSpeed : SprintSpeed * 0.58f;
 }
@@ -53,11 +68,30 @@ void AObitrendRealisticPlayer::Tick(float DeltaSeconds)
 
     const FVector Velocity = GetVelocity();
     const FVector FlatVelocity(Velocity.X, Velocity.Y, 0.0f);
+    const float Speed = FlatVelocity.Size2D();
+
+    if (AnimationRuntime)
+    {
+        float DirectionDegrees = 0.0f;
+
+        if (!FlatVelocity.IsNearlyZero())
+        {
+            const FVector Direction = FlatVelocity.GetSafeNormal2D();
+            const FVector Forward = GetActorForwardVector();
+            const FVector Right = GetActorRightVector();
+
+            DirectionDegrees = FMath::RadiansToDegrees(
+                FMath::Atan2(
+                    FVector::DotProduct(Direction, Right),
+                    FVector::DotProduct(Direction, Forward)));
+        }
+
+        AnimationRuntime->UpdateLocomotion(Speed, DirectionDegrees);
+    }
 
     if (!FlatVelocity.IsNearlyZero())
     {
-        const FRotator TargetRotation =
-            FlatVelocity.ToOrientationRotator();
+        const FRotator TargetRotation = FlatVelocity.ToOrientationRotator();
 
         SetActorRotation(
             FMath::RInterpTo(
