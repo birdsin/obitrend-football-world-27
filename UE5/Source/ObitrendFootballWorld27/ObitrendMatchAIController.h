@@ -7,6 +7,8 @@
 class AObitrendMatchPlayerSpawner;
 class AObitrendRealisticPlayer;
 class AFootballBallActor;
+class UObitrendMatchRulesComponent;
+class UObitrendMatchFlowComponent;
 
 UCLASS()
 class OBITRENDFOOTBALLWORLD27_API AObitrendMatchAIController : public AActor
@@ -34,6 +36,9 @@ private:
     void UpdateTeam(TArray<AObitrendRealisticPlayer*>& Team, float DeltaSeconds);
     void UpdatePossession(float DeltaSeconds);
     void ExecutePossessionAction(float DeltaSeconds);
+    void HandleGoal(int32 ScoringTeam);
+    void ResetForKickoff();
+    void ResetBallToCenter();
     FVector GetFormationTarget(const AObitrendRealisticPlayer* Player) const;
     bool IsBallInRange(const AObitrendRealisticPlayer* Player) const;
 
@@ -42,6 +47,12 @@ private:
 
     UPROPERTY()
     TObjectPtr<AFootballBallActor> Ball;
+
+    UPROPERTY()
+    TObjectPtr<UObitrendMatchRulesComponent> MatchRules;
+
+    UPROPERTY()
+    TObjectPtr<UObitrendMatchFlowComponent> MatchFlow;
 
     UPROPERTY()
     TWeakObjectPtr<AObitrendRealisticPlayer> PossessingPlayer;
