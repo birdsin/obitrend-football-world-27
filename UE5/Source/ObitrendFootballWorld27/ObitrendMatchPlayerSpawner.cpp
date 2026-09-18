@@ -13,20 +13,19 @@ AObitrendMatchPlayerSpawner::BuildFormation(bool bHome) const
 {
     const float TeamDirection = bHome ? 1.0f : -1.0f;
 
-    // Approximate 4-3-3 starting shape in centimeters.
     const FVector Positions[] =
     {
-        FVector(-4700, 0, 100),       // GK
-        FVector(-3600, -2500, 100),    // RB
-        FVector(-3700, -850, 100),     // RCB
-        FVector(-3700, 850, 100),      // LCB
-        FVector(-3600, 2500, 100),     // LB
-        FVector(-2100, -1500, 100),    // RCM
-        FVector(-1900, 0, 100),         // CM
-        FVector(-2100, 1500, 100),      // LCM
-        FVector(-700, -2500, 100),      // RW
-        FVector(-500, 0, 100),          // ST
-        FVector(-700, 2500, 100)        // LW
+        FVector(-4700, 0, 100),
+        FVector(-3600, -2500, 100),
+        FVector(-3700, -850, 100),
+        FVector(-3700, 850, 100),
+        FVector(-3600, 2500, 100),
+        FVector(-2100, -1500, 100),
+        FVector(-1900, 0, 100),
+        FVector(-2100, 1500, 100),
+        FVector(-700, -2500, 100),
+        FVector(-500, 0, 100),
+        FVector(-700, 2500, 100)
     };
 
     TArray<FObitrendStartingPlayer> Result;
@@ -61,10 +60,8 @@ void AObitrendMatchPlayerSpawner::SpawnStartingXI()
 
     SpawnedPlayers.Reset();
 
-    const TArray<FObitrendStartingPlayer> Home =
-        BuildFormation(true);
-    const TArray<FObitrendStartingPlayer> Away =
-        BuildFormation(false);
+    const TArray<FObitrendStartingPlayer> Home = BuildFormation(true);
+    const TArray<FObitrendStartingPlayer> Away = BuildFormation(false);
 
     auto SpawnTeam = [this](const TArray<FObitrendStartingPlayer>& Players)
     {
@@ -82,6 +79,9 @@ void AObitrendMatchPlayerSpawner::SpawnStartingXI()
 
             if (Player)
             {
+                Player->ShirtNumber = Data.ShirtNumber;
+                Player->bHomeTeam = Data.bHomeTeam;
+
                 Player->Role =
                     Data.Position == TEXT("GK")
                     ? EObitrendPlayerRole::Goalkeeper
