@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "ObitrendRealisticPlayer.h"
+#include "ObitrendAnimationRuntimeComponent.h"
 
 UObitrendPlayerPhysicalInteractionComponent::UObitrendPlayerPhysicalInteractionComponent()
 {
@@ -48,6 +50,11 @@ bool UObitrendPlayerPhysicalInteractionComponent::Tackle(
     }
 
     LastAction = EObitrendPhysicalAction::Tackle;
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime)
+            Player->AnimationRuntime->SetAction(EObitrendRuntimeAnimation::Tackle);
+    }
     return true;
 }
 
@@ -86,6 +93,11 @@ bool UObitrendPlayerPhysicalInteractionComponent::ShoulderChallenge(
     }
 
     LastAction = EObitrendPhysicalAction::ShoulderChallenge;
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime)
+            Player->AnimationRuntime->SetAction(EObitrendRuntimeAnimation::ShoulderChallenge);
+    }
     return true;
 }
 
@@ -116,6 +128,11 @@ bool UObitrendPlayerPhysicalInteractionComponent::Intercept(AActor* BallActor)
             ContactDirection * 180.0f + FVector(0, 0, 25.0f));
 
         LastAction = EObitrendPhysicalAction::Intercept;
+        if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+        {
+            if (Player->AnimationRuntime)
+                Player->AnimationRuntime->SetAction(EObitrendRuntimeAnimation::Intercept);
+        }
         return true;
     }
 
