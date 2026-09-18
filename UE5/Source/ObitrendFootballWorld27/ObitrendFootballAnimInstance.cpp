@@ -80,3 +80,16 @@ UBlendSpace* UObitrendFootballAnimInstance::GetStrafeBlendSpace() const
 {
     return AnimationProfile ? AnimationProfile->StrafeBlendSpace.Get() : nullptr;
 }
+
+
+UAnimSequence* UObitrendFootballAnimInstance::GetIdleAnimation() const { return AnimationProfile ? AnimationProfile->Idle.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetWalkAnimation() const { return AnimationProfile ? AnimationProfile->Walk.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetRunAnimation() const { return AnimationProfile ? AnimationProfile->Run.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetSprintAnimation() const { return AnimationProfile ? AnimationProfile->Sprint.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetTurnAnimation() const { return AnimationProfile ? AnimationProfile->Turn.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetReceiveAnimation() const { return AnimationProfile ? AnimationProfile->Receive.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetDribbleAnimation() const { return AnimationProfile ? AnimationProfile->Dribble.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetPassAnimation() const { return AnimationProfile ? AnimationProfile->Pass.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetShootAnimation() const { return AnimationProfile ? AnimationProfile->Shoot.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetTackleAnimation() const { return AnimationProfile ? AnimationProfile->Tackle.Get() : nullptr; }
+UAnimSequence* UObitrendFootballAnimInstance::GetGoalkeeperSaveAnimation() const { return AnimationProfile ? AnimationProfile->GoalkeeperSave.Get() : nullptr; }
