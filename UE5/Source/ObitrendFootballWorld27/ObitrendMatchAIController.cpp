@@ -3,7 +3,10 @@
 #include "ObitrendMatchPlayerSpawner.h"
 #include "ObitrendRealisticPlayer.h"
 #include "ObitrendFootballInteractionComponent.h"
+#include "ObitrendMatchRulesComponent.h"
+#include "ObitrendMatchFlowComponent.h"
 #include "FootballBallActor.h"
+#include "Components/PrimitiveComponent.h"
 
 AObitrendMatchAIController::AObitrendMatchAIController()
 {
@@ -19,6 +22,16 @@ void AObitrendMatchAIController::InitializeMatchAI(
     DecisionAccumulator = 0.0f;
     PossessionAccumulator = 0.0f;
     ActionCooldown = 1.0f;
+
+    MatchRules = NewObject<UObitrendMatchRulesComponent>(this, TEXT("MatchRules"));
+    MatchFlow = NewObject<UObitrendMatchFlowComponent>(this, TEXT("MatchFlow"));
+
+    if (MatchRules) MatchRules->RegisterComponent();
+    if (MatchFlow)
+    {
+        MatchFlow->RegisterComponent();
+        MatchFlow->StartMatch();
+    }
 }
 
 bool AObitrendMatchAIController::IsBallInRange(
@@ -241,11 +254,76 @@ void AObitrendMatchAIController::UpdateTeam(
     }
 }
 
+void AObitrendMatchAIController::HandleGoal(int32 ScoringTeam)
+{
+    if (MatchRules) MatchRules->RegisterGoal(ScoringTeam);
+    if (MatchFlow) MatchFlow->RegisterGoal(ScoringTeam);
+
+    PossessingPlayer.Reset();
+    ActionCooldown = 4.0f;
+    PossessionAccumulator = 0.0f;
+
+    ResetBallToCenter();
+
+    if (Spawner)
+        Spawner->SpawnStartingXI();
+}
+
+void AObitrendMatchAIController::ResetBallToCenter()
+{
+    if (!Ball) return;
+
+    Ball->SetActorLocation(FVector(0.0f, 0.0f, 35.0f), false);
+
+    if (UPrimitiveComponent* Primitive =
+        Ball->FindComponentByClass<UPrimitiveComponent>())
+    {
+        Primitive->SetPhysicsLinearVelocity(FVector::ZeroVector);
+        Primitive->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+        Primitive->SetSimulatePhysics(true);
+        Primitive->WakeAllRigidBodies();
+    }
+}
+
+void AObitrendMatchAIController::ResetForKickoff()
+{
+    PossessingPlayer.Reset();
+    ActionCooldown = 0.8f;
+    PossessionAccumulator = 0.0f;
+    ResetBallToCenter();
+}
+
 void AObitrendMatchAIController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
     if (!Spawner || !Ball) return;
+
+    if (MatchFlow)
+    {
+        const EObitrendMatchPhase Phase = MatchFlow->GetPhase();
+
+        if (Phase == EObitrendMatchPhase::FullTime)
+            return;
+
+        if (Phase == EObitrendMatchPhase::HalfTime)
+            return;
+
+        if (MatchFlow->GetMatchMinute() < 90.0f &&
+            MatchFlow->GetMatchMinute() >= 45.0f &&
+            Phase == EObitrendMatchPhase::SecondHalf)
+        {
+            return;
+        }
+    }
+
+    int32 ScoringTeam = -1;
+    if (MatchRules &&
+        MatchRules->CheckGoal(Ball->GetActorLocation(), ScoringTeam))
+    {
+        HandleGoal(ScoringTeam);
+        return;
+    }
 
     UpdatePossession(DeltaSeconds);
 
