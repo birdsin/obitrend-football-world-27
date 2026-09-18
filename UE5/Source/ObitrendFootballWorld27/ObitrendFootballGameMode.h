@@ -11,4 +11,7 @@ class OBITRENDFOOTBALLWORLD27_API AObitrendFootballGameMode : public AGameModeBa
 
 public:
     AObitrendFootballGameMode();
+
+protected:
+    virtual void BeginPlay() override;
 };
