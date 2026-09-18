@@ -36,8 +36,12 @@ void UObitrendMatchFlowComponent::TickComponent(
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
     if (Phase == EObitrendMatchPhase::PreKickoff ||
-        Phase == EObitrendMatchPhase::HalfTime ||
         Phase == EObitrendMatchPhase::FullTime)
+    {
+        return;
+    }
+
+    if (Phase == EObitrendMatchPhase::HalfTime)
     {
         return;
     }
