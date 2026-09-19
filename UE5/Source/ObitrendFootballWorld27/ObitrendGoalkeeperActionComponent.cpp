@@ -160,6 +160,24 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
     const float NearTermProjectedRelativeY =
         ProjectedBall.Y - GoalCenter.Y;
 
+    // Also estimate the shot height at the goal plane. A keeper should not
+    // commit to a full lateral dive when the ball is clearly travelling over
+    // the reachable save window.
+    const float VerticalVelocity = BallVelocity.Z;
+    const float ProjectedGoalHeight =
+        BallLocation.Z +
+        VerticalVelocity * GoalPlaneTime;
+
+    const float KeeperReachHeight =
+        FMath::Clamp(
+            GetOwner()->GetActorLocation().Z +
+            620.0f,
+            GoalCenter.Z + 180.0f,
+            GoalCenter.Z + 620.0f);
+
+    const bool bLikelyAboveReach =
+        ProjectedGoalHeight > KeeperReachHeight;
+
     const float LateralSpeed =
         FMath::Abs(BallVelocity.Y);
 
@@ -187,6 +205,7 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
             DiveThreshold * 0.92f;
 
     if (bRequiresImmediateDive &&
+        !bLikelyAboveReach &&
         FMath::Abs(ProjectedRelativeY) > DiveThreshold &&
         LateralSpeed > 90.0f)
     {
