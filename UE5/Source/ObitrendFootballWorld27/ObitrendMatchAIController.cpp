@@ -359,6 +359,9 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
         ? BallCarrier->GetActorForwardVector()
         : CarrierVelocity;
 
+    const FVector CarrierLateral =
+        FVector::CrossProduct(FVector::UpVector, CarrierForward);
+
     AObitrendRealisticPlayer* ClosestDefender = nullptr;
     float ClosestDistance = BIG_NUMBER;
     AObitrendRealisticPlayer* SecondDefender = nullptr;
@@ -383,8 +386,16 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
 
         // Prefer defenders already positioned in the carrier's forward lane,
         // while still allowing a closer defender to challenge.
+        const float LateralLane =
+            FMath::Abs(FVector::DotProduct(ToCarrier, CarrierLateral));
+
+        const float LanePenalty =
+            LateralLane > 0.70f ? 0.96f : 1.0f;
+
         const float EffectiveDistance =
-            Distance * (1.0f + FMath::Max(0.0f, FrontPressure) * 0.10f);
+            Distance *
+            (1.0f + FMath::Max(0.0f, FrontPressure) * 0.10f) *
+            LanePenalty;
 
         if (EffectiveDistance < ClosestDistance)
         {
