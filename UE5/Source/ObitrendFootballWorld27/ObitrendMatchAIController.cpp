@@ -508,6 +508,29 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
                 FVector2D(0.52f, 1.0f),
                 NearestOpponentDistance);
 
+        // When pressure is closing from multiple directions, reduce the carry
+        // commitment so the player has a more believable chance to release the
+        // ball instead of running into a crowded area.
+        float ClosePressureCount = 0.0f;
+        for (AActor* Opponent : Opponents)
+        {
+            if (!IsValid(Opponent)) continue;
+
+            const float Distance =
+                FVector::Dist2D(
+                    Player->GetActorLocation(),
+                    Opponent->GetActorLocation());
+
+            if (Distance < 650.0f)
+                ClosePressureCount += 1.0f;
+        }
+
+        const float CrowdedAreaFactor =
+            FMath::Clamp(
+                1.0f - FMath::Max(0.0f, ClosePressureCount - 1.0f) * 0.16f,
+                0.58f,
+                1.0f);
+
         // Turn away from the nearest pressure when the carrier is crowded,
         // using a small lateral escape angle rather than an abrupt reversal.
         if (NearestOpponentDistance < 850.0f)
@@ -593,7 +616,8 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
 
         Player->BallInteraction->DribbleBall(
             CarryDirection,
-            Player->SprintSpeed * 0.78f * PressureFactor);
+            Player->SprintSpeed * 0.78f *
+            PressureFactor * CrowdedAreaFactor);
 
         ActionCooldown = 0.38f;
         return;
