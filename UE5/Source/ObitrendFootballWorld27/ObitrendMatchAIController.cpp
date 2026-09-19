@@ -493,11 +493,38 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
                         ? 1.0f
                         : -1.0f;
 
+                // Prefer the escape side that also keeps the ball carrier
+                // moving toward the attacking goal, avoiding blind sideways
+                // escapes when a forward lane remains available.
+                const FVector GoalDirection =
+                    (Goal - Player->GetActorLocation()).GetSafeNormal2D();
+                const FVector LeftEscape =
+                    (AwayFromPressure + EscapeLateral * 0.38f)
+                    .GetSafeNormal2D();
+                const FVector RightEscape =
+                    (AwayFromPressure - EscapeLateral * 0.38f)
+                    .GetSafeNormal2D();
+
+                const float LeftScore =
+                    FVector::DotProduct(LeftEscape, GoalDirection);
+                const float RightScore =
+                    FVector::DotProduct(RightEscape, GoalDirection);
+
+                const FVector GoalBiasedEscape =
+                    LeftScore >= RightScore ? LeftEscape : RightEscape;
+
+                const FVector PressureEscape =
+                    (AwayFromPressure +
+                     EscapeLateral * EscapeSide * 0.38f)
+                    .GetSafeNormal2D();
+
                 CarryDirection =
                     FMath::Lerp(
                         CarryDirection,
-                        (AwayFromPressure +
-                         EscapeLateral * EscapeSide * 0.38f)
+                        FMath::Lerp(
+                            PressureEscape,
+                            GoalBiasedEscape,
+                            0.35f)
                         .GetSafeNormal2D(),
                         FMath::Clamp(
                             (850.0f - NearestOpponentDistance) / 500.0f,
