@@ -33,6 +33,7 @@ AObitrendRealisticPlayer::AObitrendRealisticPlayer()
     GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
     GetCharacterMovement()->MaxAcceleration = Acceleration;
     GetCharacterMovement()->BrakingDecelerationWalking = Deceleration;
+    GetCharacterMovement()->BrakingDecelerationFalling = Deceleration * 0.35f;
     GetCharacterMovement()->GroundFriction = 7.0f;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
     GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -84,6 +85,13 @@ void AObitrendRealisticPlayer::Sprint(bool bEnabled)
 
     GetCharacterMovement()->MaxWalkSpeed =
         bSprintRequested ? SprintSpeed : SprintSpeed * 0.58f;
+
+    // Sprinting builds speed harder and takes slightly longer to settle;
+    // normal movement remains responsive for close control.
+    GetCharacterMovement()->MaxAcceleration =
+        bSprintRequested ? Acceleration * 0.88f : Acceleration * 1.08f;
+    GetCharacterMovement()->BrakingDecelerationWalking =
+        bSprintRequested ? Deceleration * 0.82f : Deceleration * 1.12f;
 }
 
 void AObitrendRealisticPlayer::Tick(float DeltaSeconds)
