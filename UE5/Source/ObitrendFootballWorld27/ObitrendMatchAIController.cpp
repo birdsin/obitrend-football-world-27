@@ -533,6 +533,13 @@ void AObitrendMatchAIController::UpdateTeam(
         BallDirection * BallSpeed * LookAheadTime +
         LateralAnticipation;
 
+    // Keep the anticipation point inside a realistic playable corridor so
+    // very fast balls cannot pull an entire team unnaturally out of shape.
+    const FVector SafeProjectedBallLocation(
+        FMath::Clamp(ProjectedBallLocation.X, -4700.0f, 4700.0f),
+        FMath::Clamp(ProjectedBallLocation.Y, -3150.0f, 3150.0f),
+        ProjectedBallLocation.Z);
+
     AObitrendRealisticPlayer* Closest = nullptr;
     float ClosestDistance = BIG_NUMBER;
 
@@ -541,7 +548,7 @@ void AObitrendMatchAIController::UpdateTeam(
         if (!IsValid(Player)) continue;
 
         const float Distance =
-            FVector::Dist2D(Player->GetActorLocation(), ProjectedBallLocation);
+            FVector::Dist2D(Player->GetActorLocation(), SafeProjectedBallLocation);
 
         if (Distance < ClosestDistance)
         {
@@ -557,7 +564,7 @@ void AObitrendMatchAIController::UpdateTeam(
         FVector Target = GetFormationTarget(Player);
 
         if (Player == Closest && ClosestDistance < 2600.0f)
-            Target = ProjectedBallLocation;
+            Target = SafeProjectedBallLocation;
 
         if (Player == Closest && ClosestDistance < 1400.0f)
         {
@@ -590,7 +597,7 @@ void AObitrendMatchAIController::UpdateTeam(
              Player->Role == EObitrendPlayerRole::Attacker))
         {
             const FVector SupportDirection =
-                (ProjectedBallLocation - Player->GetActorLocation()).GetSafeNormal2D();
+                (SafeProjectedBallLocation - Player->GetActorLocation()).GetSafeNormal2D();
 
             // Offset support runners slightly across the ball path so they
             // offer a usable passing lane instead of occupying the same lane
