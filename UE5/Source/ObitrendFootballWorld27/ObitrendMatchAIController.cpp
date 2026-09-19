@@ -264,7 +264,15 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
         const float ForwardDistance = FVector::DotProduct(ToOpponent, GoalDirection);
         const float LateralDistance = FMath::Abs(FVector::DotProduct(ToOpponent, LateralAxis));
 
-        if (ForwardDistance > 0.0f && LateralDistance <= 900.0f)
+        // The central lane is most relevant, but defenders slightly outside it
+        // still influence the carrier. Widen the corridor progressively with
+        // distance so the AI does not ignore an opponent closing from an angle.
+        const float LaneWidth = FMath::GetMappedRangeValueClamped(
+            FVector2D(0.0f, 2200.0f),
+            FVector2D(650.0f, 1050.0f),
+            FMath::Max(0.0f, ForwardDistance));
+
+        if (ForwardDistance > 0.0f && LateralDistance <= LaneWidth)
         {
             const float Distance = ToOpponent.Size2D();
             if (Distance < ForwardSpace)
