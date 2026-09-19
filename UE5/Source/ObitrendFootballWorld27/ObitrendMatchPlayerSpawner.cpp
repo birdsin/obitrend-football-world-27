@@ -71,11 +71,14 @@ void AObitrendMatchPlayerSpawner::SpawnStartingXI()
                 GetActorLocation() +
                 Data.FormationOffset * PitchScale;
 
+            // Face toward the opponent's half from the kickoff shape.
+            const float FacingYaw = Data.bHomeTeam ? 0.0f : 180.0f;
+
             AObitrendRealisticPlayer* Player =
                 GetWorld()->SpawnActor<AObitrendRealisticPlayer>(
                     PlayerClass,
                     Location,
-                    FRotator::ZeroRotator);
+                    FRotator(0.0f, FacingYaw, 0.0f));
 
             if (Player)
             {
