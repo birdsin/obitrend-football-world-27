@@ -499,10 +499,58 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
             const float LaneAlignment =
                 FVector::DotProduct(PlayerForward, ToTarget);
 
-            if (LaneAlignment > 0.20f)
+            // Only bias the carry toward a teammate when that lane is
+            // genuinely usable. Nearby defenders should keep the carrier
+            // from drifting directly into the receiver's pressure.
+            float ReceiverLanePressure = 0.0f;
+            for (AActor* Opponent : Opponents)
             {
+                if (!IsValid(Opponent)) continue;
+
+                const FVector ToOpponent =
+                    Opponent->GetActorLocation() - Player->GetActorLocation();
+
+                const float AlongLane =
+                    FVector::DotProduct(ToOpponent, ToTarget);
+
+                if (AlongLane < 0.0f || AlongLane > 1500.0f)
+                    continue;
+
+                const float SideOffset =
+                    FMath::Abs(FVector::DotProduct(
+                        ToOpponent,
+                        FVector::CrossProduct(FVector::UpVector, ToTarget)));
+
+                if (SideOffset > 500.0f)
+                    continue;
+
+                const float Pressure =
+                    FMath::Clamp(
+                        1.0f -
+                        FVector::Dist2D(
+                            Player->GetActorLocation(),
+                            Opponent->GetActorLocation()) / 1500.0f,
+                        0.0f,
+                        1.0f);
+
+                ReceiverLanePressure = FMath::Max(
+                    ReceiverLanePressure,
+                    Pressure);
+            }
+
+            if (LaneAlignment > 0.20f && ReceiverLanePressure < 0.72f)
+            {
+                const float LaneBlend =
+                    FMath::GetMappedRangeValueClamped(
+                        FVector2D(0.20f, 0.90f),
+                        FVector2D(0.12f, 0.30f),
+                        LaneAlignment);
+
                 CarryDirection =
-                    FMath::Lerp(PlayerForward, ToTarget, 0.28f)
+                    FMath::Lerp(
+                        CarryDirection,
+                        ToTarget,
+                        LaneBlend)
                     .GetSafeNormal2D();
             }
         }
