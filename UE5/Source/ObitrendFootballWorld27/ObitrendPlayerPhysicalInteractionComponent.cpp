@@ -138,12 +138,35 @@ bool UObitrendPlayerPhysicalInteractionComponent::Intercept(AActor* BallActor)
     if (UPrimitiveComponent* BallPrimitive =
         BallActor->FindComponentByClass<UPrimitiveComponent>())
     {
+        const FVector BallVelocity = BallPrimitive->GetPhysicsLinearVelocity();
+        const float IncomingSpeed = BallVelocity.Size2D();
+        const FVector BallTravelDirection = BallVelocity.GetSafeNormal2D();
+        const FVector ToPlayer =
+            (GetOwner()->GetActorLocation() - BallActor->GetActorLocation()).GetSafeNormal2D();
+
+        const float ApproachFactor = FMath::Clamp(
+            FVector::DotProduct(BallTravelDirection, ToPlayer),
+            0.0f,
+            1.0f);
+
+        const FVector SideDirection =
+            FVector::CrossProduct(FVector::UpVector, BallTravelDirection).GetSafeNormal();
+        const float SideDeflection =
+            FMath::Clamp(ApproachFactor * 95.0f, 0.0f, 95.0f);
+
+        const float DeflectionSpeed =
+            FMath::Clamp(150.0f + IncomingSpeed * 0.22f, 150.0f, 620.0f);
+
         const FVector ContactDirection =
-            (GetOwner()->GetActorLocation() - BallActor->GetActorLocation())
-            .GetSafeNormal2D();
+            FMath::Lerp(
+                ToPlayer,
+                BallTravelDirection * -1.0f,
+                0.35f * ApproachFactor).GetSafeNormal2D();
 
         BallPrimitive->SetPhysicsLinearVelocity(
-            ContactDirection * 180.0f + FVector(0, 0, 25.0f));
+            ContactDirection * DeflectionSpeed +
+            SideDirection * SideDeflection +
+            FVector(0, 0, FMath::Clamp(18.0f + IncomingSpeed * 0.025f, 18.0f, 70.0f)));
 
         LastAction = EObitrendPhysicalAction::Intercept;
         if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
