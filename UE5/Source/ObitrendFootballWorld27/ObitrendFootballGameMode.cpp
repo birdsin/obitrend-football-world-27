@@ -3,6 +3,7 @@
 #include "ObitrendStadiumPrototype.h"
 #include "ObitrendCinematicCamera.h"
 #include "ObitrendMatchPlayerSpawner.h"
+#include "ObitrendRealisticPlayer.h"
 #include "ObitrendMatchAIController.h"
 #include "FootballBallActor.h"
 #include "Engine/World.h"
