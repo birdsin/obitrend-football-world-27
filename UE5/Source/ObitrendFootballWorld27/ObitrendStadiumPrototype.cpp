@@ -1,6 +1,7 @@
 #include "ObitrendStadiumPrototype.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Components/PointLightComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Materials/Material.h"
 
@@ -171,6 +172,18 @@ void AObitrendStadiumPrototype::BuildStadium()
     {
         AddCylinder(Tower, FVector(85, 85, 2100));
         AddBox(Tower + FVector(0, 0, 2200), FVector(420, 90, 18));
+
+        // Stadium floodlights: broad dynamic pools of light for a more
+        // believable night-match foundation without changing the scene flow.
+        UPointLightComponent* Floodlight = NewObject<UPointLightComponent>(this);
+        Floodlight->SetMobility(EComponentMobility::Movable);
+        Floodlight->SetWorldLocation(Tower + FVector(0, 0, 2050));
+        Floodlight->SetIntensity(85000.0f);
+        Floodlight->SetAttenuationRadius(12500.0f);
+        Floodlight->SetSourceRadius(90.0f);
+        Floodlight->SetSoftSourceRadius(120.0f);
+        Floodlight->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+        Floodlight->RegisterComponent();
     }
 
     // Goal frames at both ends.
