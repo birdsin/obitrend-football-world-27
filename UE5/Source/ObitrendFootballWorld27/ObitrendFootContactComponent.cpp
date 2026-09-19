@@ -92,6 +92,16 @@ bool UObitrendFootContactComponent::TouchBall(
 
     Velocity.Z += GroundTouchLift;
 
+    // Apply the contact from the actual foot position so close control and touches
+    // respond to the player/ball geometry instead of only setting a free-flight velocity.
+    const FVector FootLocation = GetFootWorldLocation(Foot);
+    const FVector BallLocation = BallActor->GetActorLocation();
+    const FVector ContactNormal = (BallLocation - FootLocation).GetSafeNormal();
+    if (!ContactNormal.IsNearlyZero())
+    {
+        Velocity += ContactNormal * FMath::Min(Speed * 0.12f, 180.0f);
+    }
+
     BallPrimitive->SetPhysicsLinearVelocity(Velocity);
 
     const FVector SideAxis =
