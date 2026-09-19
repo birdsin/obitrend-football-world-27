@@ -34,6 +34,9 @@ bool UObitrendPlayerPhysicalInteractionComponent::Tackle(
     }
 
     const float ClampedStrength = FMath::Clamp(Strength, 0.25f, 1.0f);
+    const FVector RelativeVelocity = TargetPlayer->GetVelocity() - GetOwner()->GetVelocity();
+    const float ClosingSpeed = FVector::DotProduct(RelativeVelocity, (TargetPlayer->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal2D());
+    const float ContactFactor = FMath::Clamp(FMath::Abs(ClosingSpeed) / 700.0f, 0.35f, 1.0f);
     const FVector Direction =
         (TargetPlayer->GetActorLocation() - GetOwner()->GetActorLocation())
         .GetSafeNormal2D();
@@ -44,7 +47,7 @@ bool UObitrendPlayerPhysicalInteractionComponent::Tackle(
             TargetCharacter->GetCharacterMovement())
         {
             Movement->AddImpulse(
-                Direction * TackleImpulse * ClampedStrength,
+                Direction * TackleImpulse * ClampedStrength * ContactFactor,
                 true);
         }
     }
@@ -77,6 +80,9 @@ bool UObitrendPlayerPhysicalInteractionComponent::ShoulderChallenge(
     }
 
     const float ClampedStrength = FMath::Clamp(Strength, 0.2f, 1.0f);
+    const FVector RelativeVelocity = TargetPlayer->GetVelocity() - GetOwner()->GetVelocity();
+    const float ClosingSpeed = FMath::Abs(FVector::DotProduct(RelativeVelocity, (TargetPlayer->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal2D()));
+    const float ContactFactor = FMath::Clamp(ClosingSpeed / 700.0f, 0.35f, 1.0f);
     const FVector Direction =
         (TargetPlayer->GetActorLocation() - GetOwner()->GetActorLocation())
         .GetSafeNormal2D();
@@ -87,7 +93,7 @@ bool UObitrendPlayerPhysicalInteractionComponent::ShoulderChallenge(
             TargetCharacter->GetCharacterMovement())
         {
             Movement->AddImpulse(
-                Direction * TackleImpulse * 0.55f * ClampedStrength,
+                Direction * TackleImpulse * 0.55f * ClampedStrength * ContactFactor,
                 true);
         }
     }
