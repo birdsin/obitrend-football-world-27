@@ -153,10 +153,12 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
 
     const FVector BallLocation = Ball->GetActorLocation();
     const FVector BallVelocity = BallPrimitive->GetPhysicsLinearVelocity();
+    const float BallSpeed = BallVelocity.Size2D();
 
-    if (BallVelocity.Size2D() < 250.0f)
-        return;
-
+    // Goalkeeper positioning remains active even when the ball is rolling
+    // slowly or temporarily stationary. Save reactions still require enough
+    // ball speed, but the keeper should continuously maintain a sensible
+    // position inside the goal mouth.
     for (AObitrendRealisticPlayer* Player : Spawner->SpawnedPlayers)
     {
         if (!IsValid(Player) ||
@@ -200,6 +202,9 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
                 * FMath::Clamp(DistanceToTarget / 250.0f, 0.0f, 0.75f));
             Player->Sprint(false);
         }
+
+        if (BallSpeed < 250.0f)
+            continue;
 
         const EObitrendGoalkeeperAction Action =
             Player->GoalkeeperAction->EvaluateSave(Ball, GoalCenter, 732.0f);
