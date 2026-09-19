@@ -374,6 +374,9 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
         const FVector ToCarrier =
             (BallCarrier->GetActorLocation() - ClosestDefender->GetActorLocation())
             .GetSafeNormal2D();
+        const FVector CarrierVelocity =
+            BallCarrier->GetVelocity().GetSafeNormal2D();
+
         const float ApproachAlignment =
             FMath::Clamp(
                 FVector::DotProduct(
@@ -390,10 +393,24 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
                 FVector2D(0.55f, 1.0f),
                 ApproachAlignment);
 
+        // If the carrier is moving away quickly, reduce the commitment so the
+        // challenge behaves more like a realistic attempt to contain the run.
+        const float CarrierSeparation =
+            CarrierVelocity.IsNearlyZero()
+                ? 0.0f
+                : FVector::DotProduct(CarrierVelocity, ToCarrier);
+        const float ChaseFactor =
+            FMath::GetMappedRangeValueClamped(
+                FVector2D(-1.0f, 1.0f),
+                FVector2D(0.72f, 1.0f),
+                CarrierSeparation);
+
         const float PressureStrength =
             FMath::Clamp(
-                (0.58f + (115.0f - ClosestDistance) * 0.0025f) * AngleFactor,
-                0.30f,
+                (0.58f + (115.0f - ClosestDistance) * 0.0025f) *
+                AngleFactor *
+                ChaseFactor,
+                0.26f,
                 0.87f);
 
         if (ClosestDefender->PhysicalInteraction->Tackle(BallCarrier, PressureStrength))
