@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "ObitrendRealisticPlayer.h"
+#include "ObitrendAnimationRuntimeComponent.h"
 
 UObitrendFootContactComponent::UObitrendFootContactComponent()
 {
@@ -66,6 +68,15 @@ bool UObitrendFootContactComponent::TouchBall(
         Cast<UPrimitiveComponent>(BallActor->GetRootComponent());
 
     if (!BallPrimitive) return false;
+
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime)
+        {
+            Player->AnimationRuntime->SetAction(
+                EObitrendRuntimeAnimation::Dribble);
+        }
+    }
 
     const FVector Direction = ContactDirection.GetSafeNormal();
     const float Speed = FMath::Clamp(ContactSpeed, 0.0f, MaxContactSpeed);
