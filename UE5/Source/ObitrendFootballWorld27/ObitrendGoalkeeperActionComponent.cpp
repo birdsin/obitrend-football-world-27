@@ -109,7 +109,23 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
         ? BallActor->FindComponentByClass<UPrimitiveComponent>()->GetPhysicsLinearVelocity().Size2D()
         : 0.0f;
 
-    if (IncomingSpeed > CatchSpeedLimit * 1.55f && FVector::DotProduct(ToBall, GetOwner()->GetActorForwardVector()) > 0.35f)
+    // Fast shots aimed through the keeper's reachable body corridor are
+    // better punched clear than treated as routine catches.
+    const float KeeperForwardAlignment =
+        FVector::DotProduct(
+            ToBall,
+            GetOwner()->GetActorForwardVector());
+
+    const float ShotHeightAboveKeeper =
+        BallLocation.Z - GetOwner()->GetActorLocation().Z;
+
+    const bool bWithinPunchHeight =
+        ShotHeightAboveKeeper > 45.0f &&
+        ShotHeightAboveKeeper < 520.0f;
+
+    if (IncomingSpeed > CatchSpeedLimit * 1.55f &&
+        KeeperForwardAlignment > 0.35f &&
+        bWithinPunchHeight)
     {
         LastAction = EObitrendGoalkeeperAction::Punch;
         return LastAction;
