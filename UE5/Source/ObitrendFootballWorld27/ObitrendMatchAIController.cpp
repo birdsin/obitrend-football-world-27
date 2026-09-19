@@ -235,13 +235,14 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
                     0.0f,
                     1.0f);
 
-            // Use softer lateral movement when already aligned with the
-            // predicted target, preventing rapid side-to-side keeper jitter.
+            // Keep the keeper's response smooth. Large errors get a stronger
+            // correction, while small errors use a light input to settle on
+            // the target without oscillating.
             const float PositionInput =
-                FMath::Clamp(
-                    DistanceToTarget / 320.0f,
-                    0.10f,
-                    0.75f) *
+                FMath::GetMappedRangeValueClamped(
+                    FVector2D(20.0f, 420.0f),
+                    FVector2D(0.08f, 0.78f),
+                    DistanceToTarget) *
                 FMath::Lerp(0.55f, 1.0f, KeeperAlignment);
 
             Player->SetMovementInput(
