@@ -410,8 +410,29 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
 
     if (bHasRunningRoom)
     {
+        // Vary the carry direction toward the available attacking lane rather
+        // than always dribbling exactly along the player's facing direction.
+        FVector CarryDirection = PlayerForward;
+
+        if (BestTarget)
+        {
+            const FVector ToTarget =
+                (BestTarget->GetActorLocation() - Ball->GetActorLocation())
+                .GetSafeNormal2D();
+
+            const float LaneAlignment =
+                FVector::DotProduct(PlayerForward, ToTarget);
+
+            if (LaneAlignment > 0.20f)
+            {
+                CarryDirection =
+                    FMath::Lerp(PlayerForward, ToTarget, 0.28f)
+                    .GetSafeNormal2D();
+            }
+        }
+
         Player->BallInteraction->DribbleBall(
-            PlayerForward,
+            CarryDirection,
             Player->SprintSpeed * 0.78f);
 
         ActionCooldown = 0.38f;
