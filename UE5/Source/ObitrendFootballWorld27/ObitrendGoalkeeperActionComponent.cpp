@@ -177,8 +177,36 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
 
         if (Action == EObitrendGoalkeeperAction::DiveLeft || Action == EObitrendGoalkeeperAction::DiveRight)
         {
-            Player->LaunchCharacter(DiveDirection * 260.0f + FVector(0.0f, 0.0f, 85.0f), true, true);
-            DiveRecoveryTime = 0.72f;
+            const float IncomingSpeed =
+                BallActor->FindComponentByClass<UPrimitiveComponent>()
+                    ? BallActor->FindComponentByClass<UPrimitiveComponent>()->GetPhysicsLinearVelocity().Size2D()
+                    : 0.0f;
+
+            // Faster shots demand a longer, stronger dive while slower shots
+            // keep the keeper's movement compact and recoverable.
+            const float DiveDistance =
+                FMath::GetMappedRangeValueClamped(
+                    FVector2D(700.0f, 2800.0f),
+                    FVector2D(210.0f, 330.0f),
+                    IncomingSpeed);
+
+            const float DiveLift =
+                FMath::GetMappedRangeValueClamped(
+                    FVector2D(700.0f, 2800.0f),
+                    FVector2D(60.0f, 105.0f),
+                    IncomingSpeed);
+
+            Player->LaunchCharacter(
+                DiveDirection * DiveDistance +
+                FVector(0.0f, 0.0f, DiveLift),
+                true,
+                true);
+
+            DiveRecoveryTime =
+                FMath::GetMappedRangeValueClamped(
+                    FVector2D(700.0f, 2800.0f),
+                    FVector2D(0.62f, 0.88f),
+                    IncomingSpeed);
         }
     }
 
