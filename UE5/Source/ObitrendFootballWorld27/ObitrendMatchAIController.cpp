@@ -371,6 +371,9 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
     // unrealistically stack tackles on the same frame.
     if (ClosestDefender && ClosestDistance <= 115.0f)
     {
+        // Do not force a tackle while the carrier is already moving away from
+        // the defender at a sharp angle. This creates a more believable delay
+        // before the defender commits.
         const FVector ToCarrier =
             (BallCarrier->GetActorLocation() - ClosestDefender->GetActorLocation())
             .GetSafeNormal2D();
@@ -384,6 +387,19 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
                     ToCarrier),
                 -1.0f,
                 1.0f);
+
+        const FVector CarrierDirection =
+            BallCarrier->GetVelocity().GetSafeNormal2D();
+        const float CarrierEscapeAlignment =
+            CarrierDirection.IsNearlyZero()
+            ? 0.0f
+            : FVector::DotProduct(CarrierDirection, ToCarrier);
+
+        if (CarrierEscapeAlignment < -0.72f && ClosestDistance > 72.0f)
+        {
+            DefensiveActionCooldown = 0.12f;
+            return;
+        }
 
         // A defender approaching from behind should challenge less aggressively,
         // while a well-aligned front/side approach can commit more naturally.
