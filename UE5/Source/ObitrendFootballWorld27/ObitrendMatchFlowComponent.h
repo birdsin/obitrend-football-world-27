@@ -28,6 +28,9 @@ public:
     UFUNCTION(BlueprintCallable, Category="Football|Match")
     void RegisterGoal(int32 ScoringTeam);
 
+    UFUNCTION(BlueprintCallable, Category="Football|Match")
+    void StartSecondHalf();
+
     UFUNCTION(BlueprintPure, Category="Football|Match")
     EObitrendMatchPhase GetPhase() const { return Phase; }
 
