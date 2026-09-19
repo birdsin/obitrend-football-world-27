@@ -201,8 +201,29 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
             (Goal - Player->GetActorLocation()).GetSafeNormal2D();
 
         const float Forward = FVector::DotProduct(ToMate, ToGoal);
-        const float Score = Forward * 0.7f -
-            FMath::Clamp(Distance / 5000.0f, 0.0f, 1.0f) * 0.2f;
+
+        float NearestOpponentDistance = 5000.0f;
+        for (AActor* Opponent : Opponents)
+        {
+            if (!IsValid(Opponent)) continue;
+            NearestOpponentDistance = FMath::Min(
+                NearestOpponentDistance,
+                FVector::Dist2D(Mate->GetActorLocation(), Opponent->GetActorLocation()));
+        }
+
+        // Prefer forward options that are not immediately crowded, producing
+        // more believable passing decisions instead of always choosing the
+        // same forward-most teammate.
+        const float SpaceScore =
+            FMath::Clamp(NearestOpponentDistance / 1200.0f, 0.0f, 1.0f);
+        const float ForwardScore = (Forward + 1.0f) * 0.5f;
+        const float DistancePenalty =
+            FMath::Clamp(Distance / 5000.0f, 0.0f, 1.0f);
+
+        const float Score =
+            ForwardScore * 0.55f +
+            SpaceScore * 0.35f -
+            DistancePenalty * 0.10f;
 
         if (Score > BestScore)
         {
