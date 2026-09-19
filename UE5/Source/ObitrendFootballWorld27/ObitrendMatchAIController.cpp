@@ -439,11 +439,24 @@ void AObitrendMatchAIController::UpdateTeam(
 
         if (Player == Closest && ClosestDistance < 1400.0f)
         {
+            // At close range, intercept the ball's projected path rather than
+            // steering directly at its current center. This reduces late,
+            // robotic corrections on fast passes.
+            const float InterceptSpeed =
+                FMath::Max(Player->GetVelocity().Size2D(), 420.0f);
+            const float InterceptTime =
+                FMath::Clamp(ClosestDistance / InterceptSpeed, 0.08f, 0.38f);
+            const FVector InterceptTarget =
+                BallLocation +
+                BallVelocity.GetSafeNormal2D() *
+                BallSpeed *
+                InterceptTime;
+
             Target = FMath::VInterpTo(
                 Player->GetActorLocation(),
-                BallLocation,
+                InterceptTarget,
                 DeltaSeconds,
-                4.5f);
+                5.2f);
         }
 
         // Give nearby teammates a small supporting movement toward the ball
