@@ -4,6 +4,7 @@
 #include "ObitrendRealisticPlayer.h"
 #include "ObitrendFootballInteractionComponent.h"
 #include "ObitrendPlayerPhysicalInteractionComponent.h"
+#include "ObitrendGoalkeeperActionComponent.h"
 #include "ObitrendMatchRulesComponent.h"
 #include "ObitrendMatchFlowComponent.h"
 #include "FootballBallActor.h"
@@ -23,6 +24,7 @@ void AObitrendMatchAIController::InitializeMatchAI(
     DecisionAccumulator = 0.0f;
     PossessionAccumulator = 0.0f;
     ActionCooldown = 1.0f;
+    GoalkeeperActionCooldown = 0.0f;
 
     MatchRules = NewObject<UObitrendMatchRulesComponent>(this, TEXT("MatchRules"));
     MatchFlow = NewObject<UObitrendMatchFlowComponent>(this, TEXT("MatchFlow"));
@@ -94,6 +96,60 @@ void AObitrendMatchAIController::UpdatePossession(float DeltaSeconds)
             PossessingPlayer = Candidate;
             PossessionAccumulator = 0.0f;
             ActionCooldown = 0.65f;
+        }
+    }
+}
+
+void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
+{
+    if (!Spawner || !Ball || GoalkeeperActionCooldown > 0.0f)
+        return;
+
+    UPrimitiveComponent* BallPrimitive =
+        Ball->FindComponentByClass<UPrimitiveComponent>();
+
+    if (!BallPrimitive)
+        return;
+
+    const FVector BallLocation = Ball->GetActorLocation();
+    const FVector BallVelocity = BallPrimitive->GetPhysicsLinearVelocity();
+
+    if (BallVelocity.Size2D() < 250.0f)
+        return;
+
+    for (AObitrendRealisticPlayer* Player : Spawner->SpawnedPlayers)
+    {
+        if (!IsValid(Player) ||
+            Player->Role != EObitrendPlayerRole::Goalkeeper ||
+            !Player->GoalkeeperAction)
+        {
+            continue;
+        }
+
+        // Home defends the negative-X goal; away defends the positive-X goal.
+        const float GoalX = Player->bHomeTeam ? -5250.0f : 5250.0f;
+        const FVector GoalCenter(GoalX, 0.0f, 100.0f);
+        const FVector ToGoal = (GoalCenter - BallLocation).GetSafeNormal2D();
+
+        // Only react when the ball is actually travelling toward this keeper's goal.
+        if (FVector::DotProduct(BallVelocity.GetSafeNormal2D(), ToGoal) < 0.25f)
+            continue;
+
+        const float GoalDistance = FVector::Dist2D(BallLocation, GoalCenter);
+        if (GoalDistance > 5200.0f)
+            continue;
+
+        const EObitrendGoalkeeperAction Action =
+            Player->GoalkeeperAction->EvaluateSave(Ball, GoalCenter, 732.0f);
+
+        if (Action != EObitrendGoalkeeperAction::Ready)
+        {
+            if (Player->GoalkeeperAction->ExecuteSave(Ball, Action))
+            {
+                GoalkeeperActionCooldown = 0.65f;
+                PossessingPlayer.Reset();
+                break;
+            }
         }
     }
 }
@@ -261,8 +317,6 @@ void AObitrendMatchAIController::UpdateTeam(
         if (Player == Closest && ClosestDistance < 2600.0f)
             Target = BallLocation;
 
-        // Give the closest player a stronger ball-pressure run while
-        // keeping the rest of the team in formation.
         if (Player == Closest && ClosestDistance < 1400.0f)
         {
             Target = FMath::VInterpTo(
@@ -304,6 +358,7 @@ void AObitrendMatchAIController::HandleGoal(int32 ScoringTeam)
     PossessingPlayer.Reset();
     ActionCooldown = 4.0f;
     PossessionAccumulator = 0.0f;
+    GoalkeeperActionCooldown = 1.0f;
 
     ResetBallToCenter();
 
@@ -332,6 +387,7 @@ void AObitrendMatchAIController::ResetForKickoff()
     PossessingPlayer.Reset();
     ActionCooldown = 0.8f;
     PossessionAccumulator = 0.0f;
+    GoalkeeperActionCooldown = 0.8f;
     ResetBallToCenter();
 }
 
@@ -340,6 +396,9 @@ void AObitrendMatchAIController::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 
     if (!Spawner || !Ball) return;
+
+    GoalkeeperActionCooldown =
+        FMath::Max(0.0f, GoalkeeperActionCooldown - DeltaSeconds);
 
     if (MatchFlow)
     {
@@ -350,7 +409,6 @@ void AObitrendMatchAIController::Tick(float DeltaSeconds)
 
         if (Phase == EObitrendMatchPhase::HalfTime)
             return;
-
     }
 
     int32 ScoringTeam = -1;
@@ -361,6 +419,7 @@ void AObitrendMatchAIController::Tick(float DeltaSeconds)
         return;
     }
 
+    UpdateGoalkeeperActions(DeltaSeconds);
     UpdatePossession(DeltaSeconds);
 
     if (PossessingPlayer.IsValid())
