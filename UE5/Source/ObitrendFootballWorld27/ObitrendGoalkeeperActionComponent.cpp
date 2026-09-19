@@ -96,32 +96,79 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
         return LastAction;
     }
 
-    // React to the projected ball path, not only its current position.
-    // This gives the keeper a short anticipation window for fast shots.
+    // Anticipate where the shot will cross the goal plane instead of
+    // reacting only to the ball's current lateral position. This lets the
+    // keeper hold position for longer shots and commit earlier when the
+    // crossing point becomes urgent.
     const FVector FlatVelocity = BallVelocity.GetSafeNormal2D();
+
+    const float SignedGoalDistanceX =
+        GoalCenter.X - BallLocation.X;
+
+    const bool bBallTravelsTowardGoalPlane =
+        FMath::Abs(BallVelocity.X) > 80.0f &&
+        SignedGoalDistanceX * BallVelocity.X > 0.0f;
+
+    const float GoalPlaneTime =
+        bBallTravelsTowardGoalPlane
+        ? FMath::Clamp(
+            SignedGoalDistanceX / BallVelocity.X,
+            0.03f,
+            0.90f)
+        : 0.90f;
+
     const float AnticipationTime =
-        FMath::Clamp(
-            IncomingSpeed / 3200.0f,
-            0.05f,
-            0.22f);
+        FMath::Min(
+            GoalPlaneTime * 0.65f,
+            FMath::Clamp(
+                IncomingSpeed / 3200.0f,
+                0.05f,
+                0.22f));
 
     const FVector ProjectedBall =
         BallLocation +
         FlatVelocity * IncomingSpeed * AnticipationTime;
 
+    // Primary save target: the ball's predicted lateral crossing point at
+    // the defended goal line.
+    const float GoalLineProjectedY =
+        BallLocation.Y +
+        BallVelocity.Y * GoalPlaneTime;
+
     const float ProjectedRelativeY =
+        GoalLineProjectedY - GoalCenter.Y;
+
+    const float NearTermProjectedRelativeY =
         ProjectedBall.Y - GoalCenter.Y;
 
     const float LateralSpeed =
         FMath::Abs(BallVelocity.Y);
 
+    const float ReactionUrgency =
+        1.0f -
+        FMath::Clamp(
+            (GoalPlaneTime - 0.10f) / 0.65f,
+            0.0f,
+            1.0f);
+
     const float DiveThreshold =
-        GoalWidth * FMath::GetMappedRangeValueClamped(
+        GoalWidth *
+        FMath::GetMappedRangeValueClamped(
             FVector2D(350.0f, 1800.0f),
             FVector2D(0.26f, 0.18f),
-            IncomingSpeed);
+            IncomingSpeed) *
+        FMath::Lerp(
+            1.10f,
+            0.86f,
+            ReactionUrgency);
 
-    if (FMath::Abs(ProjectedRelativeY) > DiveThreshold &&
+    const bool bRequiresImmediateDive =
+        GoalPlaneTime <= 0.58f ||
+        FMath::Abs(NearTermProjectedRelativeY) >
+            DiveThreshold * 0.92f;
+
+    if (bRequiresImmediateDive &&
+        FMath::Abs(ProjectedRelativeY) > DiveThreshold &&
         LateralSpeed > 90.0f)
     {
         LastAction =
