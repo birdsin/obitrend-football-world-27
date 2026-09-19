@@ -64,6 +64,8 @@ private:
     TObjectPtr<AActor> ControlledBall;
 
     FVector LastDribbleDirection = FVector::ForwardVector;
+    float DribbleTouchAccumulator = 0.0f;
+    bool bLeftDribbleTouch = true;
 
     void MoveControlledBall(const FVector& TargetLocation);
     bool LaunchBall(const FVector& Direction, float Power, float Lift, EObitrendBallAction Action);
