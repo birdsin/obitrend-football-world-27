@@ -309,12 +309,6 @@ void AObitrendMatchAIController::Tick(float DeltaSeconds)
         if (Phase == EObitrendMatchPhase::HalfTime)
             return;
 
-        if (MatchFlow->GetMatchMinute() < 90.0f &&
-            MatchFlow->GetMatchMinute() >= 45.0f &&
-            Phase == EObitrendMatchPhase::SecondHalf)
-        {
-            return;
-        }
     }
 
     int32 ScoringTeam = -1;
