@@ -542,8 +542,24 @@ void AObitrendMatchAIController::UpdateTeam(
         {
             const FVector SupportDirection =
                 (ProjectedBallLocation - Player->GetActorLocation()).GetSafeNormal2D();
-            Target += SupportDirection * FMath::Clamp(
-                900.0f - TeammateBallDistance, 0.0f, 280.0f);
+
+            // Offset support runners slightly across the ball path so they
+            // offer a usable passing lane instead of occupying the same lane
+            // as the nearest player.
+            const FVector SupportLateral =
+                FVector::CrossProduct(FVector::UpVector, SupportDirection);
+            const float SupportOffset =
+                FMath::Clamp(
+                    (900.0f - TeammateBallDistance) * 0.16f,
+                    0.0f,
+                    70.0f);
+
+            Target +=
+                SupportDirection * FMath::Clamp(
+                    900.0f - TeammateBallDistance,
+                    0.0f,
+                    280.0f) +
+                SupportLateral * SupportOffset;
         }
 
         const FVector ToTarget =
