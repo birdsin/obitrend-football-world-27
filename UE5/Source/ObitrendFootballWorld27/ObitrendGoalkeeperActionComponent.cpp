@@ -96,6 +96,24 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
         return false;
     }
 
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (Player->AnimationRuntime)
+        {
+            Player->AnimationRuntime->SetAction(EObitrendRuntimeAnimation::GoalkeeperSave);
+        }
+
+        const FVector BallLocation = BallActor->GetActorLocation();
+        FVector DiveDirection = (BallLocation - Player->GetActorLocation()).GetSafeNormal2D();
+        if (Action == EObitrendGoalkeeperAction::DiveLeft) DiveDirection = FVector(0.0f, -1.0f, 0.0f);
+        if (Action == EObitrendGoalkeeperAction::DiveRight) DiveDirection = FVector(0.0f, 1.0f, 0.0f);
+
+        if (Action == EObitrendGoalkeeperAction::DiveLeft || Action == EObitrendGoalkeeperAction::DiveRight)
+        {
+            Player->LaunchCharacter(DiveDirection * 260.0f + FVector(0.0f, 0.0f, 85.0f), true, true);
+        }
+    }
+
     const FVector AwayFromKeeper =
         (BallActor->GetActorLocation() - GetOwner()->GetActorLocation())
         .GetSafeNormal2D();
