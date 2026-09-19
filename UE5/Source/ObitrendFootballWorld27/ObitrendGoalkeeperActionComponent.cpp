@@ -50,6 +50,15 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
         return LastAction;
     }
 
+    // Do not start another save while the keeper is still recovering from
+    // the previous dive. This prevents chained dives and animation/physics
+    // overlap when a shot remains near the goal after the first save.
+    if (DiveRecoveryTime > 0.0f)
+    {
+        LastAction = EObitrendGoalkeeperAction::Ready;
+        return LastAction;
+    }
+
     const FVector BallLocation = BallActor->GetActorLocation();
 
     if (UPrimitiveComponent* BallPrimitive = BallActor->FindComponentByClass<UPrimitiveComponent>())
@@ -218,24 +227,44 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
         }
 
         const FVector BallLocation = BallActor->GetActorLocation();
-        FVector DiveDirection = (BallLocation - Player->GetActorLocation()).GetSafeNormal2D();
-        if (Action == EObitrendGoalkeeperAction::DiveLeft) DiveDirection = FVector(0.0f, -1.0f, 0.0f);
-        if (Action == EObitrendGoalkeeperAction::DiveRight) DiveDirection = FVector(0.0f, 1.0f, 0.0f);
+        const FVector ToBall =
+            (BallLocation - Player->GetActorLocation()).GetSafeNormal2D();
 
-        if (Action == EObitrendGoalkeeperAction::DiveLeft || Action == EObitrendGoalkeeperAction::DiveRight)
+        // Keep the requested dive side, but blend in a small component toward
+        // the actual shot. This avoids perfectly sideways "arcade" dives and
+        // gives the keeper a more natural reach toward the ball.
+        FVector DiveSide =
+            Action == EObitrendGoalkeeperAction::DiveLeft
+            ? FVector(0.0f, -1.0f, 0.0f)
+            : FVector(0.0f, 1.0f, 0.0f);
+
+        FVector DiveDirection =
+            (DiveSide * 0.82f + ToBall * 0.18f).GetSafeNormal2D();
+
+        if (Action == EObitrendGoalkeeperAction::DiveLeft ||
+            Action == EObitrendGoalkeeperAction::DiveRight)
         {
             const float IncomingSpeed =
                 BallActor->FindComponentByClass<UPrimitiveComponent>()
                     ? BallActor->FindComponentByClass<UPrimitiveComponent>()->GetPhysicsLinearVelocity().Size2D()
                     : 0.0f;
 
-            // Faster shots demand a longer, stronger dive while slower shots
-            // keep the keeper's movement compact and recoverable.
+            const float BallDistance =
+                FVector::Dist2D(
+                    Player->GetActorLocation(),
+                    BallLocation);
+
+            // Faster or farther shots require a stronger reach. Keep the
+            // range bounded so the keeper does not launch unrealistically.
             const float DiveDistance =
                 FMath::GetMappedRangeValueClamped(
                     FVector2D(700.0f, 2800.0f),
                     FVector2D(210.0f, 330.0f),
-                    IncomingSpeed);
+                    IncomingSpeed) +
+                FMath::Clamp(
+                    BallDistance * 0.035f,
+                    0.0f,
+                    55.0f);
 
             const float DiveLift =
                 FMath::GetMappedRangeValueClamped(
