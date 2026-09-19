@@ -251,6 +251,30 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
                     FVector::DotProduct(ToKeeperTarget, Right)).GetSafeNormal()
                 * PositionInput);
             Player->Sprint(false);
+
+            // Keep the goalkeeper's body naturally oriented toward the ball
+            // while repositioning. Interpolate the turn so the keeper does
+            // not snap between lateral targets.
+            const FVector LookDirection =
+                (BallLocation - Player->GetActorLocation()).GetSafeNormal2D();
+
+            if (!LookDirection.IsNearlyZero())
+            {
+                const FRotator DesiredRotation =
+                    FRotationMatrix::MakeFromX(LookDirection).Rotator();
+
+                const FRotator SmoothRotation =
+                    FMath::RInterpTo(
+                        Player->GetActorRotation(),
+                        FRotator(
+                            0.0f,
+                            DesiredRotation.Yaw,
+                            0.0f),
+                        DeltaSeconds,
+                        5.5f);
+
+                Player->SetActorRotation(SmoothRotation);
+            }
         }
 
         // Positioning is independent of save reaction: a keeper can
