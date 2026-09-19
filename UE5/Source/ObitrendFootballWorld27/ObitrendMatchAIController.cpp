@@ -230,6 +230,17 @@ void AObitrendMatchAIController::UpdateTeam(
         if (Player == Closest && ClosestDistance < 2600.0f)
             Target = BallLocation;
 
+        // Give the closest player a stronger ball-pressure run while
+        // keeping the rest of the team in formation.
+        if (Player == Closest && ClosestDistance < 1400.0f)
+        {
+            Target = FMath::VInterpTo(
+                Player->GetActorLocation(),
+                BallLocation,
+                DeltaSeconds,
+                4.5f);
+        }
+
         const FVector ToTarget =
             (Target - Player->GetActorLocation()).GetSafeNormal2D();
 
