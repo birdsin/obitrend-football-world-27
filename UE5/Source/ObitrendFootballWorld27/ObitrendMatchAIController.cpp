@@ -1047,12 +1047,23 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
             (ContainmentTarget - SecondDefender->GetActorLocation())
             .GetSafeNormal2D();
 
+        // Containment should slow as the defender reaches the support lane,
+        // avoiding overshoot and the unnatural "magnet" effect around the
+        // ball carrier.
+        const float TargetDistance =
+            FVector::Dist2D(
+                SecondDefender->GetActorLocation(),
+                ContainmentTarget);
+
+        const float ContainmentInput =
+            FMath::Clamp(
+                TargetDistance / 260.0f,
+                0.12f,
+                0.68f);
+
         SecondDefender->AddMovementInput(
             ToContainment,
-            FMath::Clamp(
-                SecondDistance / 360.0f,
-                0.22f,
-                0.68f));
+            ContainmentInput);
 
         if (SecondDistance <= 145.0f)
         {
