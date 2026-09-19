@@ -203,7 +203,26 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
                 -300.0f,
                 300.0f);
 
-        const FVector KeeperTarget(GoalX, DesiredY, Player->GetActorLocation().Z);
+        // Let the keeper take a small, controlled step off the goal line
+        // when the ball enters the defensive third. The closer the ball is
+        // to goal, the more useful this depth positioning becomes.
+        const float GoalLineDistance =
+            Player->bHomeTeam
+            ? BallLocation.X - GoalX
+            : GoalX - BallLocation.X;
+
+        const float DesiredDepth =
+            FMath::Clamp(
+                GoalLineDistance * 0.12f,
+                0.0f,
+                360.0f);
+
+        const float KeeperX =
+            Player->bHomeTeam
+            ? GoalX + DesiredDepth
+            : GoalX - DesiredDepth;
+
+        const FVector KeeperTarget(KeeperX, DesiredY, Player->GetActorLocation().Z);
         const FVector ToKeeperTarget =
             (KeeperTarget - Player->GetActorLocation()).GetSafeNormal2D();
 
