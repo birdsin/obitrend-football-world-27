@@ -173,6 +173,32 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
     {
         SaveDirection = FVector(0, 1, 0);
     }
+    else if (Action == EObitrendGoalkeeperAction::Parry)
+    {
+        // Deflect saves away from the keeper while adding a controlled
+        // sideways component based on the incoming shot. This produces
+        // more believable parries instead of sending every save straight
+        // back along the same line.
+        const FVector IncomingDirection =
+            BallPrimitive->GetPhysicsLinearVelocity().GetSafeNormal2D();
+
+        const FVector SideDirection =
+            FVector::CrossProduct(FVector::UpVector, IncomingDirection)
+            .GetSafeNormal2D();
+
+        const float KeeperSide =
+            FVector::DotProduct(
+                GetOwner()->GetActorRightVector().GetSafeNormal2D(),
+                AwayFromKeeper);
+
+        const float SideSign =
+            KeeperSide >= 0.0f ? 1.0f : -1.0f;
+
+        SaveDirection =
+            (AwayFromKeeper +
+             SideDirection * SideSign * 0.38f)
+            .GetSafeNormal2D();
+    }
 
     if (Action == EObitrendGoalkeeperAction::Catch)
     {
