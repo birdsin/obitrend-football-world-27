@@ -259,6 +259,10 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
         return;
 
     AObitrendRealisticPlayer* BallCarrier = PossessingPlayer.Get();
+    AObitrendRealisticPlayer* ClosestDefender = nullptr;
+    float ClosestDistance = BIG_NUMBER;
+    AObitrendRealisticPlayer* SecondDefender = nullptr;
+    float SecondDistance = BIG_NUMBER;
 
     for (AObitrendRealisticPlayer* Player : Spawner->SpawnedPlayers)
     {
@@ -272,14 +276,42 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
         const float Distance =
             FVector::Dist2D(Player->GetActorLocation(), BallCarrier->GetActorLocation());
 
-        if (Distance <= 115.0f)
+        if (Distance < ClosestDistance)
         {
-            Player->PhysicalInteraction->Tackle(BallCarrier, 0.72f);
+            SecondDefender = ClosestDefender;
+            SecondDistance = ClosestDistance;
+            ClosestDefender = Player;
+            ClosestDistance = Distance;
         }
-        else if (Distance <= 180.0f)
+        else if (Distance < SecondDistance)
         {
-            Player->PhysicalInteraction->ShoulderChallenge(BallCarrier, 0.48f);
+            SecondDefender = Player;
+            SecondDistance = Distance;
         }
+    }
+
+    // Keep the nearest defender as the active challenger so defenders do not
+    // unrealistically stack tackles on the same frame.
+    if (ClosestDefender && ClosestDistance <= 115.0f)
+    {
+        const float PressureStrength =
+            FMath::Clamp(0.58f + (115.0f - ClosestDistance) * 0.0025f, 0.58f, 0.87f);
+        ClosestDefender->PhysicalInteraction->Tackle(BallCarrier, PressureStrength);
+    }
+    else if (ClosestDefender && ClosestDistance <= 180.0f)
+    {
+        const float PressureStrength =
+            FMath::Clamp(0.36f + (180.0f - ClosestDistance) * 0.0018f, 0.36f, 0.58f);
+        ClosestDefender->PhysicalInteraction->ShoulderChallenge(BallCarrier, PressureStrength);
+    }
+
+    // A second defender can provide support only when close enough, without
+    // triggering a simultaneous full tackle.
+    if (SecondDefender && SecondDistance <= 145.0f)
+    {
+        const float SupportStrength =
+            FMath::Clamp(0.22f + (145.0f - SecondDistance) * 0.0012f, 0.22f, 0.38f);
+        SecondDefender->PhysicalInteraction->ShoulderChallenge(BallCarrier, SupportStrength);
     }
 }
 
