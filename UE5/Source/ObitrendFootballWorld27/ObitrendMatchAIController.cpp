@@ -183,7 +183,26 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
 
         // Keep the goalkeeper naturally aligned with the ball's lateral
         // position while remaining inside the goal mouth.
-        const float DesiredY = FMath::Clamp(BallLocation.Y * 0.42f, -300.0f, 300.0f);
+        // Bias the keeper toward the ball's lateral position, but also
+        // toward the predicted crossing point when the ball is travelling
+        // quickly across the face of goal.
+        const float BallLateralVelocity = BallVelocity.Y;
+        const float PositionLookAhead =
+            FMath::Clamp(
+                BallSpeed / 2600.0f,
+                0.0f,
+                0.65f);
+
+        const float PredictedY =
+            BallLocation.Y +
+            BallLateralVelocity * PositionLookAhead;
+
+        const float DesiredY =
+            FMath::Clamp(
+                PredictedY * 0.42f,
+                -300.0f,
+                300.0f);
+
         const FVector KeeperTarget(GoalX, DesiredY, Player->GetActorLocation().Z);
         const FVector ToKeeperTarget =
             (KeeperTarget - Player->GetActorLocation()).GetSafeNormal2D();
