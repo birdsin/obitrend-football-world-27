@@ -126,9 +126,12 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
         }
     }
 
+    const FVector BallLocation = BallActor->GetActorLocation();
+    const FVector KeeperLocation = GetOwner()->GetActorLocation();
     const FVector AwayFromKeeper =
-        (BallActor->GetActorLocation() - GetOwner()->GetActorLocation())
-        .GetSafeNormal2D();
+        (BallLocation - KeeperLocation).GetSafeNormal2D();
+    const float IncomingSpeed = BallPrimitive->GetPhysicsLinearVelocity().Size2D();
+    const float DeflectionPower = FMath::Clamp(650.0f + IncomingSpeed * 0.18f, 650.0f, 1050.0f);
 
     FVector SaveDirection = AwayFromKeeper;
 
@@ -156,7 +159,7 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
     else
     {
         BallPrimitive->SetPhysicsLinearVelocity(
-            SaveDirection * 750.0f + FVector(0, 0, 90.0f));
+            SaveDirection * DeflectionPower + FVector(0, 0, FMath::Clamp(70.0f + IncomingSpeed * 0.05f, 70.0f, 160.0f)));
     }
 
     LastAction = Action;
