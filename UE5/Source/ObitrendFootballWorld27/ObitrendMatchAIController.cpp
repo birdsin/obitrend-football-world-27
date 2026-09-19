@@ -92,25 +92,44 @@ void AObitrendMatchAIController::UpdatePossession(float DeltaSeconds)
 
     if (Candidate && Candidate->BallInteraction)
     {
-        // Require the player to be moving reasonably toward the ball before
-        // claiming possession. This avoids instantaneous magnetic possession
-        // when a player merely passes within the receive radius.
+        // Judge the receive using both movement direction and incoming ball
+        // speed. A fast ball should not be magnetically claimed from behind;
+        // the receiver needs to be moving into or across its path.
         const FVector ToBall =
             (Ball->GetActorLocation() - Candidate->GetActorLocation())
             .GetSafeNormal2D();
         const FVector CandidateVelocity =
             Candidate->GetVelocity().GetSafeNormal2D();
+        const FVector BallVelocity =
+            Ball->GetVelocity().GetSafeNormal2D();
+
         const float ReceiveAlignment =
             CandidateVelocity.IsNearlyZero()
             ? 1.0f
             : FVector::DotProduct(CandidateVelocity, ToBall);
 
-        if (ReceiveAlignment > -0.20f &&
+        const float BallApproachAlignment =
+            BallVelocity.IsNearlyZero()
+            ? 1.0f
+            : FVector::DotProduct(BallVelocity, ToBall);
+
+        const float BallSpeed =
+            Ball->GetVelocity().Size2D();
+
+        const float ReceiveThreshold =
+            BallSpeed > 1100.0f ? -0.02f : -0.20f;
+
+        const bool bCleanApproach =
+            ReceiveAlignment > ReceiveThreshold ||
+            BallApproachAlignment < -0.35f;
+
+        if (bCleanApproach &&
             Candidate->BallInteraction->ReceiveBall(Ball))
         {
             PossessingPlayer = Candidate;
             PossessionAccumulator = 0.0f;
-            ActionCooldown = 0.65f;
+            ActionCooldown =
+                BallSpeed > 1100.0f ? 0.78f : 0.65f;
         }
     }
 }
