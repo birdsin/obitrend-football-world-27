@@ -22,4 +22,10 @@ private:
     FVector EndLocation;
     FRotator StartRotation;
     FRotator EndRotation;
+
+    UPROPERTY()
+    TObjectPtr<class AFootballBallActor> Ball;
+
+    FVector BroadcastLocation;
+    FRotator BroadcastRotation;
 };
