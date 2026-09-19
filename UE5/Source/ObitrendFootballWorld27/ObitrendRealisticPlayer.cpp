@@ -8,6 +8,8 @@
 #include "ObitrendAnimationRuntimeComponent.h"
 #include "ObitrendFootballAnimInstance.h"
 #include "ObitrendPlayerAnimationProfile.h"
+#include "ObitrendPlayerPhysicalInteractionComponent.h"
+#include "ObitrendGoalkeeperActionComponent.h"
 
 AObitrendRealisticPlayer::AObitrendRealisticPlayer()
 {
@@ -23,6 +25,10 @@ AObitrendRealisticPlayer::AObitrendRealisticPlayer()
         TEXT("Visual"));
     AnimationRuntime = CreateDefaultSubobject<UObitrendAnimationRuntimeComponent>(
         TEXT("AnimationRuntime"));
+    PhysicalInteraction = CreateDefaultSubobject<UObitrendPlayerPhysicalInteractionComponent>(
+        TEXT("PhysicalInteraction"));
+    GoalkeeperAction = CreateDefaultSubobject<UObitrendGoalkeeperActionComponent>(
+        TEXT("GoalkeeperAction"));
 
     GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
     GetCharacterMovement()->MaxAcceleration = Acceleration;
