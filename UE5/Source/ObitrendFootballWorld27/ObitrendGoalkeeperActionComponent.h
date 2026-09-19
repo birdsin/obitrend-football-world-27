@@ -43,6 +43,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Goalkeeper")
     float CatchSpeedLimit = 900.0f;
 
+protected:
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 private:
     EObitrendGoalkeeperAction LastAction = EObitrendGoalkeeperAction::Ready;
+    float DiveRecoveryTime = 0.0f;
 };
