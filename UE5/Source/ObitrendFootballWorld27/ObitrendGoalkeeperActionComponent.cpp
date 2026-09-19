@@ -176,6 +176,19 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
     const float NearTermProjectedRelativeY =
         ProjectedBall.Y - GoalCenter.Y;
 
+    // Judge the final reach from the keeper's actual lateral position, not
+    // only from the centre of the goal. This makes near-post and far-post
+    // reactions more believable when the keeper is already shifted across
+    // the goal mouth.
+    const float KeeperRelativeY =
+        GetOwner()->GetActorLocation().Y - GoalCenter.Y;
+
+    const float KeeperRelativeProjectedY =
+        ProjectedRelativeY - KeeperRelativeY;
+
+    const float KeeperRelativeNearTermY =
+        NearTermProjectedRelativeY - KeeperRelativeY;
+
     // Also estimate the shot height at the goal plane. A keeper should not
     // commit to a full lateral dive when the ball is clearly travelling over
     // the reachable save window.
@@ -217,16 +230,16 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
 
     const bool bRequiresImmediateDive =
         GoalPlaneTime <= 0.58f ||
-        FMath::Abs(NearTermProjectedRelativeY) >
+        FMath::Abs(KeeperRelativeNearTermY) >
             DiveThreshold * 0.92f;
 
     if (bRequiresImmediateDive &&
         !bLikelyAboveReach &&
-        FMath::Abs(ProjectedRelativeY) > DiveThreshold &&
+        FMath::Abs(KeeperRelativeProjectedY) > DiveThreshold &&
         LateralSpeed > 90.0f)
     {
         LastAction =
-            ProjectedRelativeY < 0.0f
+            KeeperRelativeProjectedY < 0.0f
             ? EObitrendGoalkeeperAction::DiveLeft
             : EObitrendGoalkeeperAction::DiveRight;
         return LastAction;
