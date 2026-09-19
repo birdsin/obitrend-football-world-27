@@ -30,25 +30,5 @@ void UObitrendPlayerVisualComponent::ApplyRealisticVisuals()
 void UObitrendPlayerVisualComponent::BeginPlay()
 {
     Super::BeginPlay();
-
-    ACharacter* Character = Cast<ACharacter>(GetOwner());
-    if (!Character) return;
-
-    USkeletalMeshComponent* Mesh = Character->GetMesh();
-    if (!Mesh) return;
-
-    if (RealisticBodyMesh)
-    {
-        Mesh->SetSkeletalMesh(RealisticBodyMesh);
-    }
-
-    if (KitMaterial && Mesh->GetNumMaterials() > 0)
-    {
-        Mesh->SetMaterial(0, KitMaterial);
-    }
-
-    if (AnimationInstance)
-    {
-        Mesh->SetAnimInstanceClass(AnimationInstance->GetClass());
-    }
+    ApplyRealisticVisuals();
 }
