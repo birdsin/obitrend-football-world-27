@@ -295,13 +295,41 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
 
     if (GoalDistance < 2300.0f)
     {
-        const FVector ShotDirection =
+        const FVector ToGoal =
             (Goal - Ball->GetActorLocation()).GetSafeNormal2D();
+
+        // Favor a shot when the player has a reasonably open body angle.
+        // From a sharp angle, bias the target toward the far side of the goal
+        // instead of producing identical straight-on attempts.
+        const FVector PlayerForward =
+            Player->GetActorForwardVector().GetSafeNormal2D();
+        const float ShotAngle =
+            FVector::DotProduct(PlayerForward, ToGoal);
+
+        const float GoalSide =
+            FMath::Clamp(
+                FVector::DotProduct(
+                    Player->GetActorRightVector().GetSafeNormal2D(),
+                    ToGoal),
+                -1.0f,
+                1.0f);
+
+        const FVector FarPostOffset =
+            FVector(0.0f, GoalSide >= 0.0f ? -260.0f : 260.0f, 85.0f);
+
+        const FVector ShotTarget =
+            Goal +
+            ((ShotAngle < 0.55f)
+                ? FarPostOffset
+                : FVector::ZeroVector);
+
+        const FVector ShotDirection =
+            (ShotTarget - Ball->GetActorLocation()).GetSafeNormal2D();
 
         Player->BallInteraction->ShootBall(
             ShotDirection,
             FMath::Clamp(2500.0f - GoalDistance * 0.12f, 1500.0f, 2500.0f),
-            180.0f);
+            ShotAngle < 0.55f ? 145.0f : 180.0f);
 
         PossessingPlayer.Reset();
         ActionCooldown = 1.0f;
