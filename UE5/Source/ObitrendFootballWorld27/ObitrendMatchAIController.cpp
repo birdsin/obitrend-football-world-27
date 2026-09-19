@@ -232,30 +232,10 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
     const float GoalDistance =
         FVector::Dist2D(Player->GetActorLocation(), Goal);
 
-    // Carry the ball more naturally when there is open space ahead. This
-    // avoids making every possession resolve immediately into a pass or shot.
-    float ForwardSpace = 0.0f;
-    const FVector PlayerForward =
-        Player->GetActorForwardVector().GetSafeNormal2D();
-
-    for (AActor* Opponent : Opponents)
-    {
-        if (!IsValid(Opponent)) continue;
-
-        const FVector ToOpponent =
-            Opponent->GetActorLocation() - Player->GetActorLocation();
-        const float ForwardDistance =
-            FVector::DotProduct(ToOpponent, PlayerForward);
-
-        if (ForwardDistance > 0.0f)
-        {
-            ForwardSpace = FMath::Max(
-                ForwardSpace,
-                FVector::Dist2D(
-                    Player->GetActorLocation(),
-                    Opponent->GetActorLocation()));
-        }
-    }
+    // Carry the ball more naturally when there is open space ahead.
+    // ForwardSpace is calculated after the opponent list is built so the
+    // decision uses the nearest meaningful defender, not the farthest one.
+    float ForwardSpace = 2200.0f;
 
     TArray<AActor*> Teammates;
     TArray<AActor*> Opponents;
@@ -268,6 +248,28 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
             Teammates.Add(Other);
         else
             Opponents.Add(Other);
+    }
+
+    const FVector PlayerLocation = Player->GetActorLocation();
+    const FVector PlayerForward = Player->GetActorForwardVector().GetSafeNormal2D();
+    const FVector GoalDirection = (Goal - PlayerLocation).GetSafeNormal2D();
+    const FVector LateralAxis = FVector::CrossProduct(FVector::UpVector, GoalDirection);
+
+    ForwardSpace = 2200.0f;
+    for (AActor* Opponent : Opponents)
+    {
+        if (!IsValid(Opponent)) continue;
+
+        const FVector ToOpponent = Opponent->GetActorLocation() - PlayerLocation;
+        const float ForwardDistance = FVector::DotProduct(ToOpponent, GoalDirection);
+        const float LateralDistance = FMath::Abs(FVector::DotProduct(ToOpponent, LateralAxis));
+
+        if (ForwardDistance > 0.0f && LateralDistance <= 900.0f)
+        {
+            const float Distance = ToOpponent.Size2D();
+            if (Distance < ForwardSpace)
+                ForwardSpace = Distance;
+        }
     }
 
     AActor* BestTarget = nullptr;
