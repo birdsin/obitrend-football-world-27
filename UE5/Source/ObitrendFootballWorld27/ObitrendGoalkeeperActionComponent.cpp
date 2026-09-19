@@ -2,12 +2,41 @@
 
 #include "GameFramework/Actor.h"
 #include "Components/PrimitiveComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "ObitrendRealisticPlayer.h"
 #include "ObitrendAnimationRuntimeComponent.h"
 
 UObitrendGoalkeeperActionComponent::UObitrendGoalkeeperActionComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UObitrendGoalkeeperActionComponent::TickComponent(
+    float DeltaTime,
+    ELevelTick TickType,
+    FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    if (DiveRecoveryTime <= 0.0f) return;
+
+    DiveRecoveryTime -= DeltaTime;
+
+    if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
+    {
+        if (UCharacterMovementComponent* Movement = Player->GetCharacterMovement())
+        {
+            // Bleed off the dive impulse smoothly instead of letting the keeper
+            // slide or snap back unnaturally after the save.
+            Movement->Velocity.X = FMath::FInterpTo(Movement->Velocity.X, 0.0f, DeltaTime, 7.0f);
+            Movement->Velocity.Y = FMath::FInterpTo(Movement->Velocity.Y, 0.0f, DeltaTime, 7.0f);
+        }
+
+        if (DiveRecoveryTime <= 0.0f && Player->AnimationRuntime)
+        {
+            Player->AnimationRuntime->ClearAction();
+        }
+    }
 }
 
 EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
@@ -123,6 +152,7 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
         if (Action == EObitrendGoalkeeperAction::DiveLeft || Action == EObitrendGoalkeeperAction::DiveRight)
         {
             Player->LaunchCharacter(DiveDirection * 260.0f + FVector(0.0f, 0.0f, 85.0f), true, true);
+            DiveRecoveryTime = 0.72f;
         }
     }
 
