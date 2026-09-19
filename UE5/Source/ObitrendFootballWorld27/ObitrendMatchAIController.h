@@ -36,6 +36,7 @@ private:
     void UpdateTeam(TArray<AObitrendRealisticPlayer*>& Team, float DeltaSeconds);
     void UpdatePossession(float DeltaSeconds);
     void UpdateDefensivePressure(float DeltaSeconds);
+    void UpdateGoalkeeperActions(float DeltaSeconds);
     void ExecutePossessionAction(float DeltaSeconds);
     void HandleGoal(int32 ScoringTeam);
     void ResetForKickoff();
@@ -61,4 +62,5 @@ private:
     float DecisionAccumulator = 0.0f;
     float PossessionAccumulator = 0.0f;
     float ActionCooldown = 0.0f;
+    float GoalkeeperActionCooldown = 0.0f;
 };
