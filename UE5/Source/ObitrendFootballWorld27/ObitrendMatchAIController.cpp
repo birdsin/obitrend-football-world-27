@@ -304,6 +304,14 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
         return;
 
     AObitrendRealisticPlayer* BallCarrier = PossessingPlayer.Get();
+
+    // Shape pressure around the carrier's current attacking direction so
+    // defenders close space without all converging on the same point.
+    const FVector CarrierVelocity = BallCarrier->GetVelocity().GetSafeNormal2D();
+    const FVector CarrierForward = CarrierVelocity.IsNearlyZero()
+        ? BallCarrier->GetActorForwardVector()
+        : CarrierVelocity;
+
     AObitrendRealisticPlayer* ClosestDefender = nullptr;
     float ClosestDistance = BIG_NUMBER;
     AObitrendRealisticPlayer* SecondDefender = nullptr;
@@ -321,7 +329,17 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
         const float Distance =
             FVector::Dist2D(Player->GetActorLocation(), BallCarrier->GetActorLocation());
 
-        if (Distance < ClosestDistance)
+        const FVector ToCarrier =
+            (BallCarrier->GetActorLocation() - Player->GetActorLocation()).GetSafeNormal2D();
+        const float FrontPressure =
+            FMath::Clamp(FVector::DotProduct(ToCarrier, CarrierForward), -1.0f, 1.0f);
+
+        // Prefer defenders already positioned in the carrier's forward lane,
+        // while still allowing a closer defender to challenge.
+        const float EffectiveDistance =
+            Distance * (1.0f + FMath::Max(0.0f, FrontPressure) * 0.10f);
+
+        if (EffectiveDistance < ClosestDistance)
         {
             SecondDefender = ClosestDefender;
             SecondDistance = ClosestDistance;
