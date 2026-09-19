@@ -36,6 +36,12 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
     TObjectPtr<class UObitrendAnimationRuntimeComponent> AnimationRuntime;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
+    TObjectPtr<class UObitrendPlayerPhysicalInteractionComponent> PhysicalInteraction;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Football|Player")
+    TObjectPtr<class UObitrendGoalkeeperActionComponent> GoalkeeperAction;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Football|Animation")
     TObjectPtr<class UObitrendPlayerAnimationProfile> AnimationProfile;
 
