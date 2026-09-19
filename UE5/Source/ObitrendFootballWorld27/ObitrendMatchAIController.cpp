@@ -710,6 +710,59 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
         const FVector PassDirection =
             (LeadLocation - Ball->GetActorLocation()).GetSafeNormal2D();
 
+        // Check the actual passing corridor. A defender close to the line
+        // should make the AI hesitate instead of repeatedly passing through
+        // an opponent's body.
+        const FVector PassStart = Ball->GetActorLocation();
+        const FVector PassEnd = LeadLocation;
+        const FVector PassVector = PassEnd - PassStart;
+        const float PassLength = PassVector.Size2D();
+
+        bool bPassLaneBlocked = false;
+        if (PassLength > 120.0f)
+        {
+            const FVector PassDirection3D = PassVector.GetSafeNormal2D();
+
+            for (AActor* Opponent : Opponents)
+            {
+                if (!IsValid(Opponent)) continue;
+
+                const FVector ToOpponent =
+                    Opponent->GetActorLocation() - PassStart;
+
+                const float AlongPass =
+                    FVector::DotProduct(ToOpponent, PassDirection3D);
+
+                if (AlongPass <= 90.0f || AlongPass >= PassLength - 90.0f)
+                    continue;
+
+                const FVector ClosestPoint =
+                    PassStart + PassDirection3D * AlongPass;
+
+                const float LaneDistance =
+                    FVector::Dist2D(
+                        Opponent->GetActorLocation(),
+                        ClosestPoint);
+
+                if (LaneDistance < 105.0f)
+                {
+                    bPassLaneBlocked = true;
+                    break;
+                }
+            }
+        }
+
+        if (bPassLaneBlocked)
+        {
+            // Keep possession and allow the existing dribble/escape logic to
+            // choose another action rather than forcing a blocked pass.
+            Player->BallInteraction->DribbleBall(
+                Player->GetActorForwardVector(),
+                Player->SprintSpeed * 0.62f);
+            ActionCooldown = 0.42f;
+            return;
+        }
+
         const float LeadDistance =
             FVector::Dist2D(
                 Player->GetActorLocation(),
