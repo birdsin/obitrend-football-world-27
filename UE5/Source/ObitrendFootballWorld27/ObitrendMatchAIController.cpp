@@ -754,10 +754,62 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
 
         if (bPassLaneBlocked)
         {
-            // Keep possession and allow the existing dribble/escape logic to
-            // choose another action rather than forcing a blocked pass.
+            // A blocked lane should not always trigger a forward dribble.
+            // First turn away from the blocking defender, then carry at a
+            // controlled speed to protect the ball.
+            AActor* BlockingOpponent = nullptr;
+            float BlockingDistance = BIG_NUMBER;
+
+            for (AActor* Opponent : Opponents)
+            {
+                if (!IsValid(Opponent)) continue;
+
+                const float Distance =
+                    FVector::Dist2D(
+                        Opponent->GetActorLocation(),
+                        Player->GetActorLocation());
+
+                if (Distance < BlockingDistance)
+                {
+                    const FVector ToOpponent =
+                        Opponent->GetActorLocation() - Player->GetActorLocation();
+
+                    const float ForwardToBlocker =
+                        FVector::DotProduct(
+                            ToOpponent,
+                            Player->GetActorForwardVector().GetSafeNormal2D());
+
+                    if (ForwardToBlocker > 0.0f && Distance < 900.0f)
+                    {
+                        BlockingOpponent = Opponent;
+                        BlockingDistance = Distance;
+                    }
+                }
+            }
+
+            FVector EscapeDirection =
+                Player->GetActorForwardVector().GetSafeNormal2D();
+
+            if (BlockingOpponent)
+            {
+                const FVector AwayFromPressure =
+                    (Player->GetActorLocation() -
+                     BlockingOpponent->GetActorLocation())
+                    .GetSafeNormal2D();
+
+                const FVector GoalDirection =
+                    (Goal - Player->GetActorLocation()).GetSafeNormal2D();
+
+                EscapeDirection =
+                    FMath::Lerp(
+                        AwayFromPressure,
+                        GoalDirection,
+                        0.35f)
+                    .GetSafeNormal2D();
+            }
+
             Player->BallInteraction->DribbleBall(
-                Player->GetActorForwardVector(),
+                EscapeDirection,
                 Player->SprintSpeed * 0.62f);
             ActionCooldown = 0.42f;
             return;
