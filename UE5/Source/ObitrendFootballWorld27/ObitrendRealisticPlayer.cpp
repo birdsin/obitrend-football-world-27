@@ -37,6 +37,12 @@ AObitrendRealisticPlayer::AObitrendRealisticPlayer()
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
     GetCharacterMovement()->bOrientRotationToMovement = false;
 
+    // Give nearby players a small amount of reciprocal avoidance so
+    // defensive lines and attacking runs do not collapse into each other.
+    GetCharacterMovement()->bUseRVOAvoidance = true;
+    GetCharacterMovement()->AvoidanceConsiderationRadius = 180.0f;
+    GetCharacterMovement()->AvoidanceWeight = 0.65f;
+
     bUseControllerRotationYaw = false;
 }
 
