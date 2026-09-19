@@ -96,10 +96,36 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
         return LastAction;
     }
 
-    if (FMath::Abs(Relative.Y) > GoalWidth * 0.32f)
+    // React to the projected ball path, not only its current position.
+    // This gives the keeper a short anticipation window for fast shots.
+    const FVector FlatVelocity = BallVelocity.GetSafeNormal2D();
+    const float AnticipationTime =
+        FMath::Clamp(
+            IncomingSpeed / 3200.0f,
+            0.05f,
+            0.22f);
+
+    const FVector ProjectedBall =
+        BallLocation +
+        FlatVelocity * IncomingSpeed * AnticipationTime;
+
+    const float ProjectedRelativeY =
+        ProjectedBall.Y - GoalCenter.Y;
+
+    const float LateralSpeed =
+        FMath::Abs(BallVelocity.Y);
+
+    const float DiveThreshold =
+        GoalWidth * FMath::GetMappedRangeValueClamped(
+            FVector2D(350.0f, 1800.0f),
+            FVector2D(0.26f, 0.18f),
+            IncomingSpeed);
+
+    if (FMath::Abs(ProjectedRelativeY) > DiveThreshold &&
+        LateralSpeed > 90.0f)
     {
         LastAction =
-            Relative.Y < 0.0f
+            ProjectedRelativeY < 0.0f
             ? EObitrendGoalkeeperAction::DiveLeft
             : EObitrendGoalkeeperAction::DiveRight;
         return LastAction;
