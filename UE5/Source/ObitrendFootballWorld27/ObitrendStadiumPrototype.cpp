@@ -93,6 +93,47 @@ void AObitrendStadiumPrototype::BuildStadium()
     // Halfway line and centre circle approximation.
     AddBox(FVector(0, 0, LineZ + 1), FVector(LineW, 3400, 4));
 
+    // Professional pitch markings: penalty areas, six-yard boxes and spot markers.
+    const float MarkZ = LineZ + 2.0f;
+    const float BoxDepth = 1650.0f;
+    const float BoxWidth = 2010.0f;
+    const float SixDepth = 550.0f;
+    const float SixWidth = 920.0f;
+
+    for (const float XSign : {-1.0f, 1.0f})
+    {
+        const float GoalX = XSign * 5250.0f;
+        const float BoxX = GoalX - XSign * BoxDepth;
+
+        AddBox(FVector(BoxX, -BoxWidth, MarkZ), FVector(BoxDepth, LineW, 4));
+        AddBox(FVector(BoxX,  BoxWidth, MarkZ), FVector(BoxDepth, LineW, 4));
+        AddBox(FVector(GoalX - XSign * BoxDepth, 0, MarkZ), FVector(LineW, BoxWidth, 4));
+
+        const float SixX = GoalX - XSign * SixDepth;
+        AddBox(FVector(SixX, -SixWidth, MarkZ), FVector(SixDepth, LineW, 4));
+        AddBox(FVector(SixX,  SixWidth, MarkZ), FVector(SixDepth, LineW, 4));
+        AddBox(FVector(GoalX - XSign * SixDepth, 0, MarkZ), FVector(LineW, SixWidth, 4));
+
+        AddCylinder(FVector(GoalX - XSign * 1100.0f, 0, MarkZ + 1.0f), FVector(18, 18, 3));
+    }
+
+    // Center spot and a segmented center circle.
+    AddCylinder(FVector(0, 0, MarkZ + 1.0f), FVector(18, 18, 3));
+
+    const int32 CircleSegments = 48;
+    const float CircleRadius = 915.0f;
+    for (int32 Segment = 0; Segment < CircleSegments; ++Segment)
+    {
+        const float A0 = (2.0f * PI * Segment) / CircleSegments;
+        const float A1 = (2.0f * PI * (Segment + 1)) / CircleSegments;
+        const FVector P0(FMath::Cos(A0) * CircleRadius, FMath::Sin(A0) * CircleRadius, MarkZ);
+        const FVector P1(FMath::Cos(A1) * CircleRadius, FMath::Sin(A1) * CircleRadius, MarkZ);
+        const FVector Mid = (P0 + P1) * 0.5f;
+        const FVector Delta = P1 - P0;
+        const float Length = Delta.Size2D() * 0.5f;
+        AddBox(Mid, FVector(Length, LineW, 4), FRotator(0.0f, FMath::RadiansToDegrees(FMath::Atan2(Delta.Y, Delta.X)), 0.0f));
+    }
+
     // Four-tier surrounding stands.
     const float StandBase = 3550.0f;
     for (int32 Tier = 0; Tier < 4; ++Tier)
