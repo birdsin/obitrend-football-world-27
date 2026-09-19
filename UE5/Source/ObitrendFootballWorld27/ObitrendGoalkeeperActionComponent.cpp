@@ -32,9 +32,19 @@ void UObitrendGoalkeeperActionComponent::TickComponent(
             Movement->Velocity.Y = FMath::FInterpTo(Movement->Velocity.Y, 0.0f, DeltaTime, 7.0f);
         }
 
-        if (DiveRecoveryTime <= 0.0f && Player->AnimationRuntime)
+        // Keep locomotion from fighting the recovery impulse. The keeper should
+        // finish the save motion first, then return to normal positioning.
+        Player->SetMovementInput(FVector2D::ZeroVector);
+        Player->Sprint(false);
+
+        if (DiveRecoveryTime <= 0.0f)
         {
-            Player->AnimationRuntime->ClearAction();
+            if (Player->AnimationRuntime)
+            {
+                Player->AnimationRuntime->ClearAction();
+            }
+
+            LastAction = EObitrendGoalkeeperAction::Ready;
         }
     }
 }
