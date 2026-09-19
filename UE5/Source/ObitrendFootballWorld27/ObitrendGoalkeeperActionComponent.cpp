@@ -256,12 +256,24 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
 
     if (Action == EObitrendGoalkeeperAction::Catch)
     {
+        // Secure the ball slightly above the keeper's body center and in
+        // front of the chest, with a small height adjustment based on the
+        // incoming shot speed.
+        const float CatchHeight =
+            FMath::GetMappedRangeValueClamped(
+                FVector2D(250.0f, 1600.0f),
+                FVector2D(72.0f, 108.0f),
+                IncomingSpeed);
+
+        const FVector CatchLocation =
+            GetOwner()->GetActorLocation() +
+            GetOwner()->GetActorForwardVector() * 58.0f +
+            FVector(0.0f, 0.0f, CatchHeight);
+
         BallPrimitive->SetPhysicsLinearVelocity(FVector::ZeroVector);
         BallPrimitive->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
         BallPrimitive->SetActorLocation(
-            GetOwner()->GetActorLocation() +
-            GetOwner()->GetActorForwardVector() * 55.0f +
-            FVector(0.0f, 0.0f, 85.0f),
+            CatchLocation,
             false,
             nullptr,
             ETeleportType::TeleportPhysics);
