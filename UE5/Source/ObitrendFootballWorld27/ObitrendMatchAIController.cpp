@@ -403,9 +403,27 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
                 Player->GetActorLocation(),
                 LeadLocation);
 
+        // Slow the pass slightly into a receiver moving toward the ball and
+        // add a little more pace when the receiver is running away into space.
+        const FVector ToLead =
+            (LeadLocation - Player->GetActorLocation()).GetSafeNormal2D();
+        const float ReceiverRunAlignment =
+            ReceiverVelocity.IsNearlyZero()
+            ? 0.0f
+            : FVector::DotProduct(ReceiverVelocity.GetSafeNormal2D(), ToLead);
+
+        const float PaceMultiplier =
+            FMath::Clamp(
+                1.0f + ReceiverRunAlignment * 0.12f,
+                0.90f,
+                1.12f);
+
         Player->BallInteraction->PassBall(
             PassDirection,
-            FMath::Clamp(LeadDistance * 0.45f, 650.0f, 1450.0f),
+            FMath::Clamp(
+                LeadDistance * 0.45f * PaceMultiplier,
+                650.0f,
+                1450.0f),
             45.0f);
 
         PossessingPlayer.Reset();
