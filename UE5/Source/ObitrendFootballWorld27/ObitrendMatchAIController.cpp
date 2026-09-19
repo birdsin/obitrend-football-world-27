@@ -412,6 +412,15 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
     {
         // Scan the forward corridor for defensive pressure so the carrier can
         // choose a nearby open lane before committing to the run.
+        const float TeammateLaneBonus =
+            BestTarget ? FMath::Clamp(
+                1.0f -
+                FVector::Dist2D(
+                    Player->GetActorLocation(),
+                    BestTarget->GetActorLocation()) / 1800.0f,
+                0.0f,
+                0.35f) : 0.0f;
+
         const FVector GoalDirection =
             (Goal - Player->GetActorLocation()).GetSafeNormal2D();
         const FVector GoalLateral =
@@ -456,7 +465,7 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
         const float PreferredLaneSign =
             LeftLanePressure < RightLanePressure ? -1.0f : 1.0f;
 
-        if (FMath::Abs(LeftLanePressure - RightLanePressure) > 0.12f)
+        if (FMath::Abs(LeftLanePressure - RightLanePressure) > (0.12f - TeammateLaneBonus * 0.08f))
         {
             const FVector OpenLane =
                 (GoalDirection +
