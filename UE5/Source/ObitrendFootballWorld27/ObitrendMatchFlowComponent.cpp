@@ -14,6 +14,16 @@ void UObitrendMatchFlowComponent::StartMatch()
     Phase = EObitrendMatchPhase::FirstHalf;
 }
 
+void UObitrendMatchFlowComponent::StartSecondHalf()
+{
+    if (Phase == EObitrendMatchPhase::HalfTime)
+    {
+        Phase = EObitrendMatchPhase::SecondHalf;
+        MatchMinute = 45.0f;
+        GoalPause = 0.0f;
+    }
+}
+
 void UObitrendMatchFlowComponent::RegisterGoal(int32 ScoringTeam)
 {
     if (Phase != EObitrendMatchPhase::FirstHalf &&
