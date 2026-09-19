@@ -214,11 +214,26 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
             const float DistanceToTarget =
                 FVector::Dist2D(Player->GetActorLocation(), KeeperTarget);
 
+            const float KeeperAlignment =
+                FMath::Clamp(
+                    FVector::DotProduct(Forward, ToKeeperTarget),
+                    0.0f,
+                    1.0f);
+
+            // Use softer lateral movement when already aligned with the
+            // predicted target, preventing rapid side-to-side keeper jitter.
+            const float PositionInput =
+                FMath::Clamp(
+                    DistanceToTarget / 320.0f,
+                    0.10f,
+                    0.75f) *
+                FMath::Lerp(0.55f, 1.0f, KeeperAlignment);
+
             Player->SetMovementInput(
                 FVector2D(
                     FVector::DotProduct(ToKeeperTarget, Forward),
                     FVector::DotProduct(ToKeeperTarget, Right)).GetSafeNormal()
-                * FMath::Clamp(DistanceToTarget / 250.0f, 0.0f, 0.75f));
+                * PositionInput);
             Player->Sprint(false);
         }
 
