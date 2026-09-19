@@ -271,18 +271,32 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
 
     if (BestTarget && BestScore > 0.15f)
     {
+        // Lead the receiver slightly according to their current movement so
+        // passes arrive into space instead of always targeting the player's
+        // current feet. The lead is capped to keep short passes controllable.
+        const FVector ReceiverVelocity =
+            BestTarget->GetVelocity().GetClampedToMaxSize2D(900.0f);
+        const float ReceiverDistance =
+            FVector::Dist2D(
+                Player->GetActorLocation(),
+                BestTarget->GetActorLocation());
+        const float PassTravelTime =
+            FMath::Clamp(ReceiverDistance / 1150.0f, 0.18f, 0.85f);
+        const FVector LeadLocation =
+            BestTarget->GetActorLocation() +
+            ReceiverVelocity * PassTravelTime * 0.42f;
+
         const FVector PassDirection =
-            (BestTarget->GetActorLocation() - Ball->GetActorLocation())
-            .GetSafeNormal2D();
+            (LeadLocation - Ball->GetActorLocation()).GetSafeNormal2D();
+
+        const float LeadDistance =
+            FVector::Dist2D(
+                Player->GetActorLocation(),
+                LeadLocation);
 
         Player->BallInteraction->PassBall(
             PassDirection,
-            FMath::Clamp(
-                FVector::Dist2D(
-                    Player->GetActorLocation(),
-                    BestTarget->GetActorLocation()) * 0.45f,
-                650.0f,
-                1450.0f),
+            FMath::Clamp(LeadDistance * 0.45f, 650.0f, 1450.0f),
             45.0f);
 
         PossessingPlayer.Reset();
