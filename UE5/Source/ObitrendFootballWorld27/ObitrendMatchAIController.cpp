@@ -92,7 +92,21 @@ void AObitrendMatchAIController::UpdatePossession(float DeltaSeconds)
 
     if (Candidate && Candidate->BallInteraction)
     {
-        if (Candidate->BallInteraction->ReceiveBall(Ball))
+        // Require the player to be moving reasonably toward the ball before
+        // claiming possession. This avoids instantaneous magnetic possession
+        // when a player merely passes within the receive radius.
+        const FVector ToBall =
+            (Ball->GetActorLocation() - Candidate->GetActorLocation())
+            .GetSafeNormal2D();
+        const FVector CandidateVelocity =
+            Candidate->GetVelocity().GetSafeNormal2D();
+        const float ReceiveAlignment =
+            CandidateVelocity.IsNearlyZero()
+            ? 1.0f
+            : FVector::DotProduct(CandidateVelocity, ToBall);
+
+        if (ReceiveAlignment > -0.20f &&
+            Candidate->BallInteraction->ReceiveBall(Ball))
         {
             PossessingPlayer = Candidate;
             PossessionAccumulator = 0.0f;
