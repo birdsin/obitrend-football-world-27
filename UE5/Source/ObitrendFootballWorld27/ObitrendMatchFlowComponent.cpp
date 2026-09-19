@@ -11,6 +11,7 @@ void UObitrendMatchFlowComponent::StartMatch()
     HomeScore = 0;
     AwayScore = 0;
     GoalPause = 0.0f;
+    HalfTimePause = 0.0f;
     Phase = EObitrendMatchPhase::FirstHalf;
 }
 
@@ -21,6 +22,7 @@ void UObitrendMatchFlowComponent::StartSecondHalf()
         Phase = EObitrendMatchPhase::SecondHalf;
         MatchMinute = 45.0f;
         GoalPause = 0.0f;
+        HalfTimePause = 0.0f;
     }
 }
 
@@ -53,6 +55,11 @@ void UObitrendMatchFlowComponent::TickComponent(
 
     if (Phase == EObitrendMatchPhase::HalfTime)
     {
+        HalfTimePause += DeltaTime;
+        if (HalfTimePause >= 4.0f)
+        {
+            StartSecondHalf();
+        }
         return;
     }
 
@@ -68,6 +75,7 @@ void UObitrendMatchFlowComponent::TickComponent(
         MatchMinute >= 45.0f)
     {
         Phase = EObitrendMatchPhase::HalfTime;
+        HalfTimePause = 0.0f;
         return;
     }
 
