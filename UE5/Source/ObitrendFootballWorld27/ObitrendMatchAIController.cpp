@@ -371,15 +371,59 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
     // unrealistically stack tackles on the same frame.
     if (ClosestDefender && ClosestDistance <= 115.0f)
     {
+        const FVector ToCarrier =
+            (BallCarrier->GetActorLocation() - ClosestDefender->GetActorLocation())
+            .GetSafeNormal2D();
+        const float ApproachAlignment =
+            FMath::Clamp(
+                FVector::DotProduct(
+                    ClosestDefender->GetActorForwardVector(),
+                    ToCarrier),
+                -1.0f,
+                1.0f);
+
+        // A defender approaching from behind should challenge less aggressively,
+        // while a well-aligned front/side approach can commit more naturally.
+        const float AngleFactor =
+            FMath::GetMappedRangeValueClamped(
+                FVector2D(-1.0f, 1.0f),
+                FVector2D(0.55f, 1.0f),
+                ApproachAlignment);
+
         const float PressureStrength =
-            FMath::Clamp(0.58f + (115.0f - ClosestDistance) * 0.0025f, 0.58f, 0.87f);
+            FMath::Clamp(
+                (0.58f + (115.0f - ClosestDistance) * 0.0025f) * AngleFactor,
+                0.30f,
+                0.87f);
+
         if (ClosestDefender->PhysicalInteraction->Tackle(BallCarrier, PressureStrength))
             DefensiveActionCooldown = 0.32f;
     }
     else if (ClosestDefender && ClosestDistance <= 180.0f)
     {
+        const FVector ToCarrier =
+            (BallCarrier->GetActorLocation() - ClosestDefender->GetActorLocation())
+            .GetSafeNormal2D();
+        const float ApproachAlignment =
+            FMath::Clamp(
+                FVector::DotProduct(
+                    ClosestDefender->GetActorForwardVector(),
+                    ToCarrier),
+                -1.0f,
+                1.0f);
+
+        const float AngleFactor =
+            FMath::GetMappedRangeValueClamped(
+                FVector2D(-1.0f, 1.0f),
+                FVector2D(0.65f, 1.0f),
+                ApproachAlignment);
+
         const float PressureStrength =
-            FMath::Clamp(0.36f + (180.0f - ClosestDistance) * 0.0018f, 0.36f, 0.58f);
+            FMath::Clamp(
+                (0.36f + (180.0f - ClosestDistance) * 0.0018f) * AngleFactor,
+                0.22f,
+                0.58f);
+
         if (ClosestDefender->PhysicalInteraction->ShoulderChallenge(BallCarrier, PressureStrength))
             DefensiveActionCooldown = 0.24f;
     }
