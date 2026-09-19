@@ -92,16 +92,15 @@ void AObitrendMatchAIController::UpdatePossession(float DeltaSeconds)
 
     if (Candidate && Candidate->BallInteraction)
     {
-        // Judge the receive using both movement direction and incoming ball
-        // speed. A fast ball should not be magnetically claimed from behind;
-        // the receiver needs to be moving into or across its path.
-        const FVector ToBall =
-            (Ball->GetActorLocation() - Candidate->GetActorLocation())
-            .GetSafeNormal2D();
-        const FVector CandidateVelocity =
-            Candidate->GetVelocity().GetSafeNormal2D();
-        const FVector BallVelocity =
-            Ball->GetVelocity().GetSafeNormal2D();
+        // Fast passes are received from the ball's travel corridor rather than
+        // by an instantaneous radius check. This gives the receiver a small
+        // body-control window before possession is established.
+        const FVector CandidateLocation = Candidate->GetActorLocation();
+        const FVector BallLocation = Ball->GetActorLocation();
+        const FVector ToBall = (BallLocation - CandidateLocation).GetSafeNormal2D();
+        const FVector CandidateVelocity = Candidate->GetVelocity().GetSafeNormal2D();
+        const FVector BallVelocity = Ball->GetVelocity().GetSafeNormal2D();
+        const float BallSpeed = Ball->GetVelocity().Size2D();
 
         const float ReceiveAlignment =
             CandidateVelocity.IsNearlyZero()
@@ -113,15 +112,22 @@ void AObitrendMatchAIController::UpdatePossession(float DeltaSeconds)
             ? 1.0f
             : FVector::DotProduct(BallVelocity, ToBall);
 
-        const float BallSpeed =
-            Ball->GetVelocity().Size2D();
+        const float SideAlignment =
+            BallVelocity.IsNearlyZero()
+            ? 0.0f
+            : FMath::Abs(FVector::DotProduct(
+                FVector::CrossProduct(FVector::UpVector, BallVelocity),
+                ToBall));
 
         const float ReceiveThreshold =
             BallSpeed > 1100.0f ? -0.02f : -0.20f;
 
+        const bool bBallArrivingAcrossBody =
+            BallApproachAlignment < -0.20f || SideAlignment > 0.55f;
+
         const bool bCleanApproach =
             ReceiveAlignment > ReceiveThreshold ||
-            BallApproachAlignment < -0.35f;
+            bBallArrivingAcrossBody;
 
         if (bCleanApproach &&
             Candidate->BallInteraction->ReceiveBall(Ball))
