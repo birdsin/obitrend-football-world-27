@@ -599,23 +599,29 @@ void AObitrendMatchAIController::UpdateTeam(
             const FVector SupportDirection =
                 (SafeProjectedBallLocation - Player->GetActorLocation()).GetSafeNormal2D();
 
-            // Offset support runners slightly across the ball path so they
-            // offer a usable passing lane instead of occupying the same lane
-            // as the nearest player.
+            // Offset support runners across the ball path so they create
+            // separate passing lanes instead of clustering around the ball.
             const FVector SupportLateral =
                 FVector::CrossProduct(FVector::UpVector, SupportDirection);
+
+            const float TeamSide =
+                Player->bHomeTeam ? 1.0f : -1.0f;
+
+            const float RoleOffset =
+                Player->Role == EObitrendPlayerRole::Attacker ? 85.0f : 55.0f;
+
             const float SupportOffset =
                 FMath::Clamp(
                     (900.0f - TeammateBallDistance) * 0.16f,
                     0.0f,
-                    70.0f);
+                    RoleOffset);
 
             Target +=
                 SupportDirection * FMath::Clamp(
                     900.0f - TeammateBallDistance,
                     0.0f,
                     280.0f) +
-                SupportLateral * SupportOffset;
+                SupportLateral * SupportOffset * TeamSide;
         }
 
         const FVector ToTarget =
