@@ -140,6 +140,28 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
         if (GoalDistance > 5200.0f)
             continue;
 
+        // Keep the goalkeeper naturally aligned with the ball's lateral
+        // position while remaining inside the goal mouth.
+        const float DesiredY = FMath::Clamp(BallLocation.Y * 0.42f, -300.0f, 300.0f);
+        const FVector KeeperTarget(GoalX, DesiredY, Player->GetActorLocation().Z);
+        const FVector ToKeeperTarget =
+            (KeeperTarget - Player->GetActorLocation()).GetSafeNormal2D();
+
+        if (!ToKeeperTarget.IsNearlyZero())
+        {
+            const FVector Forward = Player->GetActorForwardVector();
+            const FVector Right = Player->GetActorRightVector();
+            const float DistanceToTarget =
+                FVector::Dist2D(Player->GetActorLocation(), KeeperTarget);
+
+            Player->SetMovementInput(
+                FVector2D(
+                    FVector::DotProduct(ToKeeperTarget, Forward),
+                    FVector::DotProduct(ToKeeperTarget, Right)).GetSafeNormal()
+                * FMath::Clamp(DistanceToTarget / 250.0f, 0.0f, 0.75f));
+            Player->Sprint(false);
+        }
+
         const EObitrendGoalkeeperAction Action =
             Player->GoalkeeperAction->EvaluateSave(Ball, GoalCenter, 732.0f);
 
