@@ -35,6 +35,7 @@ protected:
 private:
     void UpdateTeam(TArray<AObitrendRealisticPlayer*>& Team, float DeltaSeconds);
     void UpdatePossession(float DeltaSeconds);
+    void UpdateDefensivePressure(float DeltaSeconds);
     void ExecutePossessionAction(float DeltaSeconds);
     void HandleGoal(int32 ScoringTeam);
     void ResetForKickoff();
