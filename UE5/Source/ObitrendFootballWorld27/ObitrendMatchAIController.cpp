@@ -1068,6 +1068,11 @@ void AObitrendMatchAIController::ResetForKickoff()
     ActionCooldown = 0.8f;
     PossessionAccumulator = 0.0f;
     GoalkeeperActionCooldown = 0.8f;
+
+    // Clear defensive pressure state at every restart so the first few
+    // seconds of a kickoff are not influenced by the previous possession.
+    DefensiveActionCooldown = 0.45f;
+
     ResetBallToCenter();
 }
 
