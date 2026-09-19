@@ -118,13 +118,17 @@ bool UObitrendFootballInteractionComponent::LaunchBall(
     {
         Primitive->SetSimulatePhysics(true);
 
+            const FVector FlatDirection = Direction.GetSafeNormal2D();
         const FVector LaunchVelocity =
-            Direction.GetSafeNormal() * Power +
-            FVector::UpVector * Lift;
+            FlatDirection * Power + FVector::UpVector * Lift;
 
         Primitive->SetPhysicsLinearVelocity(LaunchVelocity);
+
+        // Give passes and shots directional spin instead of a fixed spin axis.
+        const FVector SideAxis = FVector::CrossProduct(FVector::UpVector, FlatDirection).GetSafeNormal();
+        const float SpinStrength = Power * (Action == EObitrendBallAction::Shoot ? 0.55f : 0.32f);
         Primitive->AddAngularImpulseInRadians(
-            FVector(0.0f, 0.0f, Power * 0.45f),
+            SideAxis * SpinStrength + FVector::UpVector * (Power * 0.12f),
             NAME_None,
             true);
     }
