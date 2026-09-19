@@ -1016,13 +1016,56 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
             DefensiveActionCooldown = 0.24f;
     }
 
-    // A second defender can provide support only when close enough, without
-    // triggering a simultaneous full tackle.
-    if (SecondDefender && SecondDistance <= 145.0f)
+    // A second defender provides containment rather than immediately
+    // colliding with the carrier. The support defender shades the carrier's
+    // escape side and only uses a light shoulder challenge when close enough.
+    if (SecondDefender && SecondDistance <= 520.0f)
     {
-        const float SupportStrength =
-            FMath::Clamp(0.22f + (145.0f - SecondDistance) * 0.0012f, 0.22f, 0.38f);
-        SecondDefender->PhysicalInteraction->ShoulderChallenge(BallCarrier, SupportStrength);
+        const FVector ToCarrier =
+            (BallCarrier->GetActorLocation() - SecondDefender->GetActorLocation())
+            .GetSafeNormal2D();
+
+        const float SupportLaneAlignment =
+            FVector::DotProduct(ToCarrier, CarrierLateral);
+
+        const float DesiredSide =
+            SupportLaneAlignment >= 0.0f ? 1.0f : -1.0f;
+
+        const FVector ContainmentDirection =
+            (CarrierForward +
+             CarrierLateral * DesiredSide * 0.42f)
+            .GetSafeNormal2D();
+
+        const float ContainmentDistance =
+            FMath::Clamp(SecondDistance - 135.0f, 0.0f, 385.0f);
+
+        const FVector ContainmentTarget =
+            BallCarrier->GetActorLocation() -
+            ContainmentDirection * ContainmentDistance;
+
+        const FVector ToContainment =
+            (ContainmentTarget - SecondDefender->GetActorLocation())
+            .GetSafeNormal2D();
+
+        SecondDefender->AddMovementInput(
+            ToContainment,
+            FMath::Clamp(
+                SecondDistance / 360.0f,
+                0.22f,
+                0.68f));
+
+        if (SecondDistance <= 145.0f)
+        {
+            const float SupportStrength =
+                FMath::Clamp(
+                    0.20f + (145.0f - SecondDistance) * 0.0010f,
+                    0.20f,
+                    0.34f);
+
+            SecondDefender->PhysicalInteraction->ShoulderChallenge(
+                BallCarrier,
+                SupportStrength);
+        }
     }
 }
 
