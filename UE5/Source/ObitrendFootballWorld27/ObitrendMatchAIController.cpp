@@ -298,15 +298,50 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
         const FVector ToGoal =
             (Goal - Ball->GetActorLocation()).GetSafeNormal2D();
 
-        // Favor a shot when the player has a reasonably open body angle.
-        // From a sharp angle, bias the target toward the far side of the goal
-        // instead of producing identical straight-on attempts.
+        // Choose the target from the player's current body angle and the
+        // goalkeeper's likely lateral position rather than always aiming at
+        // the center of the goal.
         const FVector PlayerForward =
             Player->GetActorForwardVector().GetSafeNormal2D();
         const float ShotAngle =
             FVector::DotProduct(PlayerForward, ToGoal);
 
-        const float GoalSide =
+        AObitrendRealisticPlayer* OpposingGoalkeeper = nullptr;
+        float KeeperDistance = BIG_NUMBER;
+
+        for (AActor* Opponent : Opponents)
+        {
+            AObitrendRealisticPlayer* OpponentPlayer =
+                Cast<AObitrendRealisticPlayer>(Opponent);
+
+            if (!IsValid(OpponentPlayer) ||
+                OpponentPlayer->Role != EObitrendPlayerRole::Goalkeeper)
+                continue;
+
+            const float DistanceToShot =
+                FVector::Dist2D(
+                    OpponentPlayer->GetActorLocation(),
+                    Ball->GetActorLocation());
+
+            if (DistanceToShot < KeeperDistance)
+            {
+                KeeperDistance = DistanceToShot;
+                OpposingGoalkeeper = OpponentPlayer;
+            }
+        }
+
+        float KeeperSide = 0.0f;
+        if (OpposingGoalkeeper)
+        {
+            KeeperSide =
+                FMath::Clamp(
+                    (OpposingGoalkeeper->GetActorLocation().Y - Ball->GetActorLocation().Y)
+                    / 650.0f,
+                    -1.0f,
+                    1.0f);
+        }
+
+        const float BodySide =
             FMath::Clamp(
                 FVector::DotProduct(
                     Player->GetActorRightVector().GetSafeNormal2D(),
@@ -314,21 +349,28 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
                 -1.0f,
                 1.0f);
 
-        const FVector FarPostOffset =
-            FVector(0.0f, GoalSide >= 0.0f ? -260.0f : 260.0f, 85.0f);
+        const float AimSide =
+            FMath::Clamp(
+                -KeeperSide * 0.65f +
+                BodySide * 0.35f,
+                -1.0f,
+                1.0f);
+
+        const FVector GoalAimOffset =
+            FVector(0.0f, AimSide * 300.0f, ShotAngle < 0.55f ? 75.0f : 40.0f);
 
         const FVector ShotTarget =
-            Goal +
-            ((ShotAngle < 0.55f)
-                ? FarPostOffset
-                : FVector::ZeroVector);
+            Goal + GoalAimOffset;
 
         const FVector ShotDirection =
             (ShotTarget - Ball->GetActorLocation()).GetSafeNormal2D();
 
         Player->BallInteraction->ShootBall(
             ShotDirection,
-            FMath::Clamp(2500.0f - GoalDistance * 0.12f, 1500.0f, 2500.0f),
+            FMath::Clamp(
+                2500.0f - GoalDistance * 0.12f,
+                1500.0f,
+                2500.0f),
             ShotAngle < 0.55f ? 145.0f : 180.0f);
 
         PossessingPlayer.Reset();
