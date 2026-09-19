@@ -116,19 +116,33 @@ bool UObitrendFootballInteractionComponent::LaunchBall(
     if (UPrimitiveComponent* Primitive =
         Cast<UPrimitiveComponent>(Ball->GetRootComponent()))
     {
+        const FVector FlatDirection = Direction.GetSafeNormal2D();
+        const FVector KickOrigin =
+            GetOwner()->GetActorLocation() +
+            FlatDirection * 58.0f +
+            FVector::UpVector * 22.0f;
+
+        // Release the ball just ahead of the player's body before enabling
+        // physics, so the kick begins from a believable foot-level contact point.
+        Ball->SetActorLocation(
+            KickOrigin,
+            false,
+            nullptr,
+            ETeleportType::TeleportPhysics);
+
         Primitive->SetSimulatePhysics(true);
 
-            const FVector FlatDirection = Direction.GetSafeNormal2D();
+        const float ReleaseSpeed = Power * (Action == EObitrendBallAction::Shoot ? 1.0f : 0.96f);
         const FVector LaunchVelocity =
-            FlatDirection * Power + FVector::UpVector * Lift;
+            FlatDirection * ReleaseSpeed + FVector::UpVector * Lift;
 
         Primitive->SetPhysicsLinearVelocity(LaunchVelocity);
 
         // Give passes and shots directional spin instead of a fixed spin axis.
         const FVector SideAxis = FVector::CrossProduct(FVector::UpVector, FlatDirection).GetSafeNormal();
-        const float SpinStrength = Power * (Action == EObitrendBallAction::Shoot ? 0.55f : 0.32f);
+        const float SpinStrength = ReleaseSpeed * (Action == EObitrendBallAction::Shoot ? 0.55f : 0.32f);
         Primitive->AddAngularImpulseInRadians(
-            SideAxis * SpinStrength + FVector::UpVector * (Power * 0.12f),
+            SideAxis * SpinStrength + FVector::UpVector * (ReleaseSpeed * 0.12f),
             NAME_None,
             true);
     }
