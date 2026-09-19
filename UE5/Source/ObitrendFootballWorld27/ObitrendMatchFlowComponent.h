@@ -53,4 +53,5 @@ private:
     EObitrendMatchPhase Phase = EObitrendMatchPhase::PreKickoff;
     float MatchMinute = 0.0f;
     float GoalPause = 0.0f;
+    float HalfTimePause = 0.0f;
 };
