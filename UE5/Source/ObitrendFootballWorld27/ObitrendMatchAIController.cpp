@@ -431,9 +431,29 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
             }
         }
 
+        // Slow the carry slightly when an opponent is close so the carrier
+        // protects possession instead of blindly sprinting into pressure.
+        float NearestOpponentDistance = 2200.0f;
+        for (AActor* Opponent : Opponents)
+        {
+            if (!IsValid(Opponent)) continue;
+
+            NearestOpponentDistance = FMath::Min(
+                NearestOpponentDistance,
+                FVector::Dist2D(
+                    Player->GetActorLocation(),
+                    Opponent->GetActorLocation()));
+        }
+
+        const float PressureFactor =
+            FMath::GetMappedRangeValueClamped(
+                FVector2D(450.0f, 1400.0f),
+                FVector2D(0.52f, 1.0f),
+                NearestOpponentDistance);
+
         Player->BallInteraction->DribbleBall(
             CarryDirection,
-            Player->SprintSpeed * 0.78f);
+            Player->SprintSpeed * 0.78f * PressureFactor);
 
         ActionCooldown = 0.38f;
         return;
