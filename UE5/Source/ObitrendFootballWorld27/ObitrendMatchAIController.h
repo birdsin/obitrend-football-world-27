@@ -63,4 +63,5 @@ private:
     float PossessionAccumulator = 0.0f;
     float ActionCooldown = 0.0f;
     float GoalkeeperActionCooldown = 0.0f;
+    float DefensiveActionCooldown = 0.0f;
 };
