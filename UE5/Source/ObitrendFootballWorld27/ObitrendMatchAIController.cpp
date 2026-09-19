@@ -387,6 +387,15 @@ void AObitrendMatchAIController::UpdateTeam(
     if (!Ball) return;
 
     const FVector BallLocation = Ball->GetActorLocation();
+    const FVector BallVelocity = Ball->GetVelocity();
+    const float BallSpeed = BallVelocity.Size2D();
+
+    // Give players a short look-ahead so they can move toward where a
+    // rolling/passed ball is heading rather than reacting one frame late.
+    const float LookAheadTime =
+        FMath::Clamp(BallSpeed / 1800.0f, 0.08f, 0.42f);
+    const FVector ProjectedBallLocation =
+        BallLocation + BallVelocity.GetSafeNormal2D() * BallSpeed * LookAheadTime;
 
     AObitrendRealisticPlayer* Closest = nullptr;
     float ClosestDistance = BIG_NUMBER;
@@ -396,7 +405,7 @@ void AObitrendMatchAIController::UpdateTeam(
         if (!IsValid(Player)) continue;
 
         const float Distance =
-            FVector::Dist2D(Player->GetActorLocation(), BallLocation);
+            FVector::Dist2D(Player->GetActorLocation(), ProjectedBallLocation);
 
         if (Distance < ClosestDistance)
         {
@@ -412,7 +421,7 @@ void AObitrendMatchAIController::UpdateTeam(
         FVector Target = GetFormationTarget(Player);
 
         if (Player == Closest && ClosestDistance < 2600.0f)
-            Target = BallLocation;
+            Target = ProjectedBallLocation;
 
         if (Player == Closest && ClosestDistance < 1400.0f)
         {
@@ -432,7 +441,7 @@ void AObitrendMatchAIController::UpdateTeam(
              Player->Role == EObitrendPlayerRole::Attacker))
         {
             const FVector SupportDirection =
-                (BallLocation - Player->GetActorLocation()).GetSafeNormal2D();
+                (ProjectedBallLocation - Player->GetActorLocation()).GetSafeNormal2D();
             Target += SupportDirection * FMath::Clamp(
                 900.0f - TeammateBallDistance, 0.0f, 280.0f);
         }
