@@ -530,10 +530,18 @@ void AObitrendMatchAIController::UpdateTeam(
             const float Alignment =
                 FMath::Max(0.0f, FVector::DotProduct(Forward, ToTarget));
 
-            // Ease acceleration near the destination and avoid the robotic
-            // full-speed-to-zero transition.
-            const float DesiredInputMagnitude =
+            // Modulate the approach speed using distance and heading. Players
+            // should brake earlier when arriving at an angle instead of
+            // running at full input and snapping into formation.
+            const float HeadingBrake =
+                FMath::Lerp(0.58f, 1.0f, Alignment);
+            const float DistanceInput =
                 FMath::Clamp(TargetDistance / 650.0f, 0.22f, 1.0f);
+            const float DesiredInputMagnitude =
+                FMath::Clamp(
+                    DistanceInput * HeadingBrake,
+                    0.18f,
+                    1.0f);
 
             Player->SetMovementInput(
                 FVector2D(
@@ -541,8 +549,12 @@ void AObitrendMatchAIController::UpdateTeam(
                     FVector::DotProduct(ToTarget, Right)).GetSafeNormal()
                     * DesiredInputMagnitude);
 
-            Player->Sprint(
-                TargetDistance > 700.0f && Alignment > -0.15f);
+            const bool bCanSprint =
+                TargetDistance > 700.0f &&
+                Alignment > 0.15f &&
+                !Player->GetVelocity().IsNearlyZero(30.0f);
+
+            Player->Sprint(bCanSprint);
         }
         else
         {
