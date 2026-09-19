@@ -383,6 +383,20 @@ void AObitrendMatchAIController::UpdateTeam(
                 4.5f);
         }
 
+        // Give nearby teammates a small supporting movement toward the ball
+        // while keeping the rest of the formation intact.
+        const float TeammateBallDistance =
+            FVector::Dist2D(Player->GetActorLocation(), BallLocation);
+        if (Player != Closest && TeammateBallDistance < 900.0f &&
+            (Player->Role == EObitrendPlayerRole::Midfielder ||
+             Player->Role == EObitrendPlayerRole::Attacker))
+        {
+            const FVector SupportDirection =
+                (BallLocation - Player->GetActorLocation()).GetSafeNormal2D();
+            Target += SupportDirection * FMath::Clamp(
+                900.0f - TeammateBallDistance, 0.0f, 280.0f);
+        }
+
         const FVector ToTarget =
             (Target - Player->GetActorLocation()).GetSafeNormal2D();
 
