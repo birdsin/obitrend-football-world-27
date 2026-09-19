@@ -410,9 +410,66 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
 
     if (bHasRunningRoom)
     {
-        // Vary the carry direction toward the available attacking lane rather
-        // than always dribbling exactly along the player's facing direction.
+        // Scan the forward corridor for defensive pressure so the carrier can
+        // choose a nearby open lane before committing to the run.
+        const FVector GoalDirection =
+            (Goal - Player->GetActorLocation()).GetSafeNormal2D();
+        const FVector GoalLateral =
+            FVector::CrossProduct(FVector::UpVector, GoalDirection);
+
+        float LeftLanePressure = 0.0f;
+        float RightLanePressure = 0.0f;
+
+        for (AActor* Opponent : Opponents)
+        {
+            if (!IsValid(Opponent)) continue;
+
+            const FVector ToOpponent =
+                Opponent->GetActorLocation() -
+                Player->GetActorLocation();
+
+            const float ForwardDistance =
+                FVector::DotProduct(ToOpponent, GoalDirection);
+
+            if (ForwardDistance < 0.0f || ForwardDistance > 1500.0f)
+                continue;
+
+            const float LateralDistance =
+                FVector::DotProduct(ToOpponent, GoalLateral);
+
+            const float Pressure =
+                FMath::Clamp(
+                    1.0f - FVector::Dist2D(
+                        Player->GetActorLocation(),
+                        Opponent->GetActorLocation()) / 1500.0f,
+                    0.0f,
+                    1.0f);
+
+            if (LateralDistance >= 0.0f)
+                RightLanePressure = FMath::Max(RightLanePressure, Pressure);
+            else
+                LeftLanePressure = FMath::Max(LeftLanePressure, Pressure);
+        }
+
         FVector CarryDirection = PlayerForward;
+
+        const float PreferredLaneSign =
+            LeftLanePressure < RightLanePressure ? -1.0f : 1.0f;
+
+        if (FMath::Abs(LeftLanePressure - RightLanePressure) > 0.12f)
+        {
+            const FVector OpenLane =
+                (GoalDirection +
+                 GoalLateral * PreferredLaneSign * 0.34f)
+                .GetSafeNormal2D();
+
+            CarryDirection =
+                FMath::Lerp(
+                    PlayerForward,
+                    OpenLane,
+                    0.24f)
+                .GetSafeNormal2D();
+        }
 
         if (BestTarget)
         {
