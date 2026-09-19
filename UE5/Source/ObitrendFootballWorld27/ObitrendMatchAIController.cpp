@@ -3,6 +3,7 @@
 #include "ObitrendMatchPlayerSpawner.h"
 #include "ObitrendRealisticPlayer.h"
 #include "ObitrendFootballInteractionComponent.h"
+#include "ObitrendPlayerPhysicalInteractionComponent.h"
 #include "ObitrendMatchRulesComponent.h"
 #include "ObitrendMatchFlowComponent.h"
 #include "FootballBallActor.h"
@@ -196,6 +197,36 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
     ActionCooldown = 0.45f;
 }
 
+void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
+{
+    if (!Spawner || !PossessingPlayer.IsValid())
+        return;
+
+    AObitrendRealisticPlayer* BallCarrier = PossessingPlayer.Get();
+
+    for (AObitrendRealisticPlayer* Player : Spawner->SpawnedPlayers)
+    {
+        if (!IsValid(Player) || Player == BallCarrier ||
+            Player->bHomeTeam == BallCarrier->bHomeTeam ||
+            !Player->PhysicalInteraction)
+        {
+            continue;
+        }
+
+        const float Distance =
+            FVector::Dist2D(Player->GetActorLocation(), BallCarrier->GetActorLocation());
+
+        if (Distance <= 115.0f)
+        {
+            Player->PhysicalInteraction->Tackle(BallCarrier, 0.72f);
+        }
+        else if (Distance <= 180.0f)
+        {
+            Player->PhysicalInteraction->ShoulderChallenge(BallCarrier, 0.48f);
+        }
+    }
+}
+
 void AObitrendMatchAIController::UpdateTeam(
     TArray<AObitrendRealisticPlayer*>& Team,
     float DeltaSeconds)
@@ -333,7 +364,10 @@ void AObitrendMatchAIController::Tick(float DeltaSeconds)
     UpdatePossession(DeltaSeconds);
 
     if (PossessingPlayer.IsValid())
+    {
         ExecutePossessionAction(DeltaSeconds);
+        UpdateDefensivePressure(DeltaSeconds);
+    }
 
     DecisionAccumulator += DeltaSeconds;
     if (DecisionAccumulator < 0.10f) return;
