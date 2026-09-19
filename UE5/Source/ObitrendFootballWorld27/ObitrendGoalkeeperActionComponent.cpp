@@ -45,6 +45,18 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
     const FVector Relative = BallLocation - GoalCenter;
 
     const FVector ToBall = (BallLocation - GetOwner()->GetActorLocation()).GetSafeNormal2D();
+    const FVector BallVelocity = BallActor->FindComponentByClass<UPrimitiveComponent>()
+        ? BallActor->FindComponentByClass<UPrimitiveComponent>()->GetPhysicsLinearVelocity()
+        : FVector::ZeroVector;
+    const FVector ToGoal = (GoalCenter - BallLocation).GetSafeNormal2D();
+
+    // Do not trigger a save for a ball moving away from the defended goal.
+    if (FVector::DotProduct(BallVelocity.GetSafeNormal2D(), ToGoal) < 0.15f)
+    {
+        LastAction = EObitrendGoalkeeperAction::Ready;
+        return LastAction;
+    }
+
     const float IncomingSpeed = BallActor->FindComponentByClass<UPrimitiveComponent>()
         ? BallActor->FindComponentByClass<UPrimitiveComponent>()->GetPhysicsLinearVelocity().Size2D()
         : 0.0f;
@@ -132,6 +144,14 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
     if (Action == EObitrendGoalkeeperAction::Catch)
     {
         BallPrimitive->SetPhysicsLinearVelocity(FVector::ZeroVector);
+        BallPrimitive->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+        BallPrimitive->SetActorLocation(
+            GetOwner()->GetActorLocation() +
+            GetOwner()->GetActorForwardVector() * 55.0f +
+            FVector(0.0f, 0.0f, 85.0f),
+            false,
+            nullptr,
+            ETeleportType::TeleportPhysics);
     }
     else
     {
