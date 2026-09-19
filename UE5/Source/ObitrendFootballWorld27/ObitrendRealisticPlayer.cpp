@@ -117,12 +117,18 @@ void AObitrendRealisticPlayer::Tick(float DeltaSeconds)
     {
         const FRotator TargetRotation = FlatVelocity.ToOrientationRotator();
 
+        // Reduce rotation response at higher speed so sprinting players do not
+        // snap toward the new direction like a kinematic pawn.
+        const float Speed01 = FMath::Clamp(Speed / SprintSpeed, 0.0f, 1.0f);
+        const float DynamicTurnResponsiveness =
+            FMath::Lerp(TurnResponsiveness * 1.35f, TurnResponsiveness * 0.62f, Speed01);
+
         SetActorRotation(
             FMath::RInterpTo(
                 GetActorRotation(),
                 TargetRotation,
                 DeltaSeconds,
-                TurnResponsiveness));
+                DynamicTurnResponsiveness));
     }
 
     if (GetCharacterMovement()->IsMovingOnGround() && Speed < 18.0f && AnimationRuntime)
