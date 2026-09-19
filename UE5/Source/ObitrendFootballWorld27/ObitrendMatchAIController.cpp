@@ -452,8 +452,20 @@ void AObitrendMatchAIController::UpdateTeam(
     // rolling/passed ball is heading rather than reacting one frame late.
     const float LookAheadTime =
         FMath::Clamp(BallSpeed / 1800.0f, 0.08f, 0.42f);
+
+    // Add a small amount of lateral anticipation from the ball's current
+    // trajectory. This helps players meet angled passes instead of chasing
+    // the ball from behind.
+    const FVector BallDirection = BallVelocity.GetSafeNormal2D();
+    const FVector LateralAnticipation =
+        FVector::CrossProduct(FVector::UpVector, BallDirection) *
+        FMath::Clamp(BallSpeed / 2400.0f, 0.0f, 1.0f) *
+        28.0f;
+
     const FVector ProjectedBallLocation =
-        BallLocation + BallVelocity.GetSafeNormal2D() * BallSpeed * LookAheadTime;
+        BallLocation +
+        BallDirection * BallSpeed * LookAheadTime +
+        LateralAnticipation;
 
     AObitrendRealisticPlayer* Closest = nullptr;
     float ClosestDistance = BIG_NUMBER;
