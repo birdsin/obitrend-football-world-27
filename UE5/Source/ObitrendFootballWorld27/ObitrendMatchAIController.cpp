@@ -232,6 +232,31 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
     const float GoalDistance =
         FVector::Dist2D(Player->GetActorLocation(), Goal);
 
+    // Carry the ball more naturally when there is open space ahead. This
+    // avoids making every possession resolve immediately into a pass or shot.
+    float ForwardSpace = 0.0f;
+    const FVector PlayerForward =
+        Player->GetActorForwardVector().GetSafeNormal2D();
+
+    for (AActor* Opponent : Opponents)
+    {
+        if (!IsValid(Opponent)) continue;
+
+        const FVector ToOpponent =
+            Opponent->GetActorLocation() - Player->GetActorLocation();
+        const float ForwardDistance =
+            FVector::DotProduct(ToOpponent, PlayerForward);
+
+        if (ForwardDistance > 0.0f)
+        {
+            ForwardSpace = FMath::Max(
+                ForwardSpace,
+                FVector::Dist2D(
+                    Player->GetActorLocation(),
+                    Opponent->GetActorLocation()));
+        }
+    }
+
     TArray<AActor*> Teammates;
     TArray<AActor*> Opponents;
 
@@ -375,6 +400,21 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
 
         PossessingPlayer.Reset();
         ActionCooldown = 1.0f;
+        return;
+    }
+
+    const bool bHasRunningRoom =
+        ForwardSpace > 1050.0f &&
+        BestScore < 0.62f &&
+        GoalDistance > 2300.0f;
+
+    if (bHasRunningRoom)
+    {
+        Player->BallInteraction->DribbleBall(
+            PlayerForward,
+            Player->SprintSpeed * 0.78f);
+
+        ActionCooldown = 0.38f;
         return;
     }
 
