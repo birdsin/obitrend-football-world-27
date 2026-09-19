@@ -173,10 +173,6 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
         const FVector GoalCenter(GoalX, 0.0f, 100.0f);
         const FVector ToGoal = (GoalCenter - BallLocation).GetSafeNormal2D();
 
-        // Only react when the ball is actually travelling toward this keeper's goal.
-        if (FVector::DotProduct(BallVelocity.GetSafeNormal2D(), ToGoal) < 0.25f)
-            continue;
-
         const float GoalDistance = FVector::Dist2D(BallLocation, GoalCenter);
         if (GoalDistance > 5200.0f)
             continue;
@@ -256,7 +252,15 @@ void AObitrendMatchAIController::UpdateGoalkeeperActions(float DeltaSeconds)
             Player->Sprint(false);
         }
 
-        if (BallSpeed < 250.0f)
+        // Positioning is independent of save reaction: a keeper can
+        // adjust while the ball is moving away, sideways, or slowly. Only
+        // commit to a save when the ball is actually travelling toward goal.
+        const float GoalApproach =
+            FVector::DotProduct(
+                BallVelocity.GetSafeNormal2D(),
+                ToGoal);
+
+        if (BallSpeed < 250.0f || GoalApproach < 0.25f)
             continue;
 
         const EObitrendGoalkeeperAction Action =
