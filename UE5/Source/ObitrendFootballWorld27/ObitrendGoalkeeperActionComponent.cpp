@@ -277,6 +277,11 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
             false,
             nullptr,
             ETeleportType::TeleportPhysics);
+
+        // Keep the secured ball attached to the keeper's immediate control
+        // point for the remainder of the save action instead of letting
+        // physics immediately separate it from the hands/chest area.
+        LastAction = EObitrendGoalkeeperAction::Catch;
     }
     else
     {
