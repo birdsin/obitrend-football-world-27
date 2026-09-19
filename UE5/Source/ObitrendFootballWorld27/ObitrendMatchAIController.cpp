@@ -451,6 +451,62 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
                 FVector2D(0.52f, 1.0f),
                 NearestOpponentDistance);
 
+        // Turn away from the nearest pressure when the carrier is crowded,
+        // using a small lateral escape angle rather than an abrupt reversal.
+        if (NearestOpponentDistance < 850.0f)
+        {
+            AActor* PressureOpponent = nullptr;
+            float PressureDistance = BIG_NUMBER;
+
+            for (AActor* Opponent : Opponents)
+            {
+                if (!IsValid(Opponent)) continue;
+
+                const float Distance =
+                    FVector::Dist2D(
+                        Player->GetActorLocation(),
+                        Opponent->GetActorLocation());
+
+                if (Distance < PressureDistance)
+                {
+                    PressureDistance = Distance;
+                    PressureOpponent = Opponent;
+                }
+            }
+
+            if (PressureOpponent)
+            {
+                const FVector AwayFromPressure =
+                    (Player->GetActorLocation() -
+                     PressureOpponent->GetActorLocation())
+                    .GetSafeNormal2D();
+
+                const FVector EscapeLateral =
+                    FVector::CrossProduct(
+                        FVector::UpVector,
+                        AwayFromPressure);
+
+                const float EscapeSide =
+                    FVector::DotProduct(
+                        EscapeLateral,
+                        CarryDirection) >= 0.0f
+                        ? 1.0f
+                        : -1.0f;
+
+                CarryDirection =
+                    FMath::Lerp(
+                        CarryDirection,
+                        (AwayFromPressure +
+                         EscapeLateral * EscapeSide * 0.38f)
+                        .GetSafeNormal2D(),
+                        FMath::Clamp(
+                            (850.0f - NearestOpponentDistance) / 500.0f,
+                            0.0f,
+                            0.65f))
+                    .GetSafeNormal2D();
+            }
+        }
+
         Player->BallInteraction->DribbleBall(
             CarryDirection,
             Player->SprintSpeed * 0.78f * PressureFactor);
