@@ -124,4 +124,12 @@ void AObitrendRealisticPlayer::Tick(float DeltaSeconds)
                 DeltaSeconds,
                 TurnResponsiveness));
     }
+
+    if (GetCharacterMovement()->IsMovingOnGround() && Speed < 18.0f && AnimationRuntime)
+    {
+        if (AnimationRuntime->GetAnimationState() == EObitrendRuntimeAnimation::Turn)
+        {
+            AnimationRuntime->ClearAction();
+        }
+    }
 }
