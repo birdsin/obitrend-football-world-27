@@ -27,6 +27,8 @@ bool UObitrendFootballInteractionComponent::ReceiveBall(AActor* BallActor)
 
     ControlledBall = BallActor;
     CurrentAction = EObitrendBallAction::Receive;
+    DribbleTouchAccumulator = 0.0f;
+    bLeftDribbleTouch = true;
 
     if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
     {
@@ -55,6 +57,7 @@ bool UObitrendFootballInteractionComponent::DribbleBall(
     if (!HasBallInControl()) return false;
 
     LastDribbleDirection = Direction.GetSafeNormal();
+    DribbleTouchAccumulator = 0.0f;
     CurrentAction = EObitrendBallAction::Dribble;
 
     if (AObitrendRealisticPlayer* Player = Cast<AObitrendRealisticPlayer>(GetOwner()))
@@ -161,13 +164,38 @@ void UObitrendFootballInteractionComponent::TickComponent(
 
     if (!HasBallInControl()) return;
 
+    DribbleTouchAccumulator += DeltaTime;
+
+    const float SpeedFactor = FMath::Clamp(
+        GetOwner()->GetVelocity().Size2D() / 650.0f,
+        0.0f,
+        1.0f);
+
+    // Alternate the ball between the two foot lanes to avoid a rigid,
+    // body-centered follow and create a more natural close-control rhythm.
+    const float TouchInterval = FMath::Lerp(0.24f, 0.14f, SpeedFactor);
+    if (DribbleTouchAccumulator >= TouchInterval)
+    {
+        DribbleTouchAccumulator = 0.0f;
+        bLeftDribbleTouch = !bLeftDribbleTouch;
+    }
+
+    const FVector Forward = LastDribbleDirection.IsNearlyZero()
+        ? GetOwner()->GetActorForwardVector()
+        : LastDribbleDirection;
+
+    const FVector Right = GetOwner()->GetActorRightVector();
+    const float SideOffset = bLeftDribbleTouch ? -32.0f : 32.0f;
+    const float Lead = FMath::Lerp(72.0f, 112.0f, SpeedFactor);
+
     const FVector Desired =
         GetOwner()->GetActorLocation() +
-        GetOwner()->GetActorForwardVector() * DribbleDistance +
+        Forward * Lead +
+        Right * SideOffset +
         FVector(0, 0, 35);
 
     const FVector Current = ControlledBall->GetActorLocation();
 
     MoveControlledBall(
-        FMath::VInterpTo(Current, Desired, DeltaTime, 14.0f));
+        FMath::VInterpTo(Current, Desired, DeltaTime, 18.0f));
 }
