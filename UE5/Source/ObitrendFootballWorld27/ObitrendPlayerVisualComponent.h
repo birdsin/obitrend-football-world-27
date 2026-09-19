@@ -10,6 +10,8 @@ class OBITRENDFOOTBALLWORLD27_API UObitrendPlayerVisualComponent : public UActor
     GENERATED_BODY()
 
 public:
+    virtual void BeginPlay() override;
+
     UFUNCTION(BlueprintCallable, Category="Visual")
     void ApplyRealisticVisuals();
 
