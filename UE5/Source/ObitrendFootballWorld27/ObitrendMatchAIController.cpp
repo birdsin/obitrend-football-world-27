@@ -405,13 +405,24 @@ void AObitrendMatchAIController::UpdateTeam(
             const FVector Forward = Player->GetActorForwardVector();
             const FVector Right = Player->GetActorRightVector();
 
+            const float TargetDistance =
+                FVector::Dist2D(Player->GetActorLocation(), Target);
+            const float Alignment =
+                FMath::Max(0.0f, FVector::DotProduct(Forward, ToTarget));
+
+            // Ease acceleration near the destination and avoid the robotic
+            // full-speed-to-zero transition.
+            const float DesiredInputMagnitude =
+                FMath::Clamp(TargetDistance / 650.0f, 0.22f, 1.0f);
+
             Player->SetMovementInput(
                 FVector2D(
                     FVector::DotProduct(ToTarget, Forward),
-                    FVector::DotProduct(ToTarget, Right)).GetSafeNormal());
+                    FVector::DotProduct(ToTarget, Right)).GetSafeNormal()
+                    * DesiredInputMagnitude);
 
             Player->Sprint(
-                FVector::Dist2D(Player->GetActorLocation(), Target) > 700.0f);
+                TargetDistance > 700.0f && Alignment > -0.15f);
         }
         else
         {
