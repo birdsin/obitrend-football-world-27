@@ -240,8 +240,53 @@ bool UObitrendGoalkeeperActionComponent::ExecuteSave(
     }
     else
     {
-        BallPrimitive->SetPhysicsLinearVelocity(
-            SaveDirection * DeflectionPower + FVector(0, 0, FMath::Clamp(70.0f + IncomingSpeed * 0.05f, 70.0f, 160.0f)));
+        // Punches should clear the danger zone rather than behave like a
+        // normal parry. Add lift and a stronger lateral component so the ball
+        // travels away from the goal mouth.
+        if (Action == EObitrendGoalkeeperAction::Punch)
+        {
+            const FVector PunchSide =
+                FVector::CrossProduct(
+                    FVector::UpVector,
+                    BallPrimitive->GetPhysicsLinearVelocity().GetSafeNormal2D())
+                .GetSafeNormal2D();
+
+            const float SideSign =
+                FVector::DotProduct(
+                    PunchSide,
+                    GetOwner()->GetActorRightVector().GetSafeNormal2D()) >= 0.0f
+                    ? 1.0f
+                    : -1.0f;
+
+            SaveDirection =
+                (SaveDirection + PunchSide * SideSign * 0.55f)
+                .GetSafeNormal2D();
+
+            BallPrimitive->SetPhysicsLinearVelocity(
+                SaveDirection * FMath::Clamp(
+                    DeflectionPower * 1.12f,
+                    780.0f,
+                    1250.0f) +
+                FVector(
+                    0.0f,
+                    0.0f,
+                    FMath::Clamp(
+                        120.0f + IncomingSpeed * 0.075f,
+                        120.0f,
+                        240.0f)));
+        }
+        else
+        {
+            BallPrimitive->SetPhysicsLinearVelocity(
+                SaveDirection * DeflectionPower +
+                FVector(
+                    0.0f,
+                    0.0f,
+                    FMath::Clamp(
+                        70.0f + IncomingSpeed * 0.05f,
+                        70.0f,
+                        160.0f)));
+        }
     }
 
     LastAction = Action;
