@@ -10,6 +10,9 @@ class OBITRENDFOOTBALLWORLD27_API UObitrendPlayerVisualComponent : public UActor
     GENERATED_BODY()
 
 public:
+    UFUNCTION(BlueprintCallable, Category="Visual")
+    void ApplyRealisticVisuals();
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Visual")
     TObjectPtr<USkeletalMesh> RealisticBodyMesh;
 
