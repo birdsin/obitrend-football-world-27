@@ -22,6 +22,16 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
     }
 
     const FVector BallLocation = BallActor->GetActorLocation();
+
+    if (UPrimitiveComponent* BallPrimitive = BallActor->FindComponentByClass<UPrimitiveComponent>())
+    {
+        const FVector Velocity = BallPrimitive->GetPhysicsLinearVelocity();
+        if (Velocity.IsNearlyZero())
+        {
+            LastAction = EObitrendGoalkeeperAction::Ready;
+            return LastAction;
+        }
+    }
     const float Distance = FVector::Dist2D(
         GetOwner()->GetActorLocation(),
         BallLocation);
@@ -33,6 +43,17 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
     }
 
     const FVector Relative = BallLocation - GoalCenter;
+
+    const FVector ToBall = (BallLocation - GetOwner()->GetActorLocation()).GetSafeNormal2D();
+    const float IncomingSpeed = BallActor->FindComponentByClass<UPrimitiveComponent>()
+        ? BallActor->FindComponentByClass<UPrimitiveComponent>()->GetPhysicsLinearVelocity().Size2D()
+        : 0.0f;
+
+    if (IncomingSpeed > CatchSpeedLimit * 1.55f && FVector::DotProduct(ToBall, GetOwner()->GetActorForwardVector()) > 0.35f)
+    {
+        LastAction = EObitrendGoalkeeperAction::Punch;
+        return LastAction;
+    }
 
     if (FMath::Abs(Relative.Y) > GoalWidth * 0.32f)
     {
