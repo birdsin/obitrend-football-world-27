@@ -25,6 +25,7 @@ void AObitrendMatchAIController::InitializeMatchAI(
     PossessionAccumulator = 0.0f;
     ActionCooldown = 1.0f;
     GoalkeeperActionCooldown = 0.0f;
+    DefensiveActionCooldown = 0.0f;
 
     MatchRules = NewObject<UObitrendMatchRulesComponent>(this, TEXT("MatchRules"));
     MatchFlow = NewObject<UObitrendMatchFlowComponent>(this, TEXT("MatchFlow"));
@@ -255,7 +256,8 @@ void AObitrendMatchAIController::ExecutePossessionAction(float DeltaSeconds)
 
 void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
 {
-    if (!Spawner || !PossessingPlayer.IsValid())
+    DefensiveActionCooldown = FMath::Max(0.0f, DefensiveActionCooldown - DeltaSeconds);
+    if (DefensiveActionCooldown > 0.0f || !Spawner || !PossessingPlayer.IsValid())
         return;
 
     AObitrendRealisticPlayer* BallCarrier = PossessingPlayer.Get();
@@ -296,13 +298,15 @@ void AObitrendMatchAIController::UpdateDefensivePressure(float DeltaSeconds)
     {
         const float PressureStrength =
             FMath::Clamp(0.58f + (115.0f - ClosestDistance) * 0.0025f, 0.58f, 0.87f);
-        ClosestDefender->PhysicalInteraction->Tackle(BallCarrier, PressureStrength);
+        if (ClosestDefender->PhysicalInteraction->Tackle(BallCarrier, PressureStrength))
+            DefensiveActionCooldown = 0.32f;
     }
     else if (ClosestDefender && ClosestDistance <= 180.0f)
     {
         const float PressureStrength =
             FMath::Clamp(0.36f + (180.0f - ClosestDistance) * 0.0018f, 0.36f, 0.58f);
-        ClosestDefender->PhysicalInteraction->ShoulderChallenge(BallCarrier, PressureStrength);
+        if (ClosestDefender->PhysicalInteraction->ShoulderChallenge(BallCarrier, PressureStrength))
+            DefensiveActionCooldown = 0.24f;
     }
 
     // A second defender can provide support only when close enough, without
