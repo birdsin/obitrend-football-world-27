@@ -1,6 +1,7 @@
 #include "ObitrendFootballGameMode.h"
 
 #include "ObitrendStadiumPrototype.h"
+#include "ObitrendOpenWorldDistrict.h"
 #include "ObitrendCinematicCamera.h"
 #include "ObitrendMatchPlayerSpawner.h"
 #include "ObitrendRealisticPlayer.h"
@@ -21,6 +22,11 @@ void AObitrendFootballGameMode::BeginPlay()
 
     UWorld* World = GetWorld();
     if (!World) return;
+
+    World->SpawnActor<AObitrendOpenWorldDistrict>(
+        AObitrendOpenWorldDistrict::StaticClass(),
+        FVector::ZeroVector,
+        FRotator::ZeroRotator);
 
     World->SpawnActor<AObitrendStadiumPrototype>(
         AObitrendStadiumPrototype::StaticClass(),
