@@ -264,8 +264,18 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
         const float Speed =
             BallPrimitive->GetPhysicsLinearVelocity().Size();
 
+        // A slow ball is only catchable when it enters a believable chest/
+        // waist-height control window. Otherwise the keeper should parry
+        // rather than unrealistically catching a ball at an awkward height.
+        const float RelativeBallHeight =
+            BallLocation.Z - GetOwner()->GetActorLocation().Z;
+
+        const bool bCatchableHeight =
+            RelativeBallHeight >= -80.0f &&
+            RelativeBallHeight <= 360.0f;
+
         LastAction =
-            Speed <= CatchSpeedLimit
+            Speed <= CatchSpeedLimit && bCatchableHeight
             ? EObitrendGoalkeeperAction::Catch
             : EObitrendGoalkeeperAction::Parry;
     }
