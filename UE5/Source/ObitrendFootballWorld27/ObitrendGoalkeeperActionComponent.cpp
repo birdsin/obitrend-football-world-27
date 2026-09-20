@@ -210,10 +210,23 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
     const float LateralSpeed =
         FMath::Abs(BallVelocity.Y);
 
+    // A keeper's response should depend on how quickly the ball is closing
+    // the remaining goal-line distance. Very close shots need an earlier
+    // commitment even when their lateral error is only moderate.
+    const float ClosingSpeed =
+        FMath::Max(80.0f,
+            FVector::DotProduct(BallVelocity, ToGoal));
+
+    const float SaveWindowTime =
+        FMath::Clamp(
+            FMath::Abs(SignedGoalDistanceX) / ClosingSpeed,
+            0.04f,
+            0.90f);
+
     const float ReactionUrgency =
         1.0f -
         FMath::Clamp(
-            (GoalPlaneTime - 0.10f) / 0.65f,
+            (SaveWindowTime - 0.10f) / 0.65f,
             0.0f,
             1.0f);
 
@@ -229,7 +242,7 @@ EObitrendGoalkeeperAction UObitrendGoalkeeperActionComponent::EvaluateSave(
             ReactionUrgency);
 
     const bool bRequiresImmediateDive =
-        GoalPlaneTime <= 0.58f ||
+        SaveWindowTime <= 0.58f ||
         FMath::Abs(KeeperRelativeNearTermY) >
             DiveThreshold * 0.92f;
 
