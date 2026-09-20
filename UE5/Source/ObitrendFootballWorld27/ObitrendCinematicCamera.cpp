@@ -4,6 +4,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "EngineUtils.h"
 #include "FootballBallActor.h"
+#include "ObitrendMatchAIController.h"
+#include "ObitrendRealisticPlayer.h"
 
 AObitrendCinematicCamera::AObitrendCinematicCamera()
 {
@@ -57,10 +59,24 @@ void AObitrendCinematicCamera::Tick(float DeltaSeconds)
     else if (Ball)
     {
         const FVector BallLocation = Ball->GetActorLocation();
-        const FVector TargetLocation = BallLocation + FVector(0.0f, -4300.0f, 2600.0f);
-        BroadcastLocation = FMath::VInterpTo(BroadcastLocation, TargetLocation, DeltaSeconds, 2.8f);
 
-        const FVector LookTarget = BallLocation + FVector(0.0f, 0.0f, 180.0f);
+        FVector FocusLocation = BallLocation;
+        for (TActorIterator<AObitrendMatchAIController> It(GetWorld()); It; ++It)
+        {
+            if (AObitrendRealisticPlayer* Player = It->GetPossessingPlayer())
+            {
+                FocusLocation = FMath::Lerp(BallLocation, Player->GetActorLocation(), 0.35f);
+                break;
+            }
+        }
+
+        // Elevated broadcast/gameplay camera: wide enough to read the whole
+        // attack while retaining a premium, close-to-the-action perspective.
+        const FVector TargetLocation =
+            FocusLocation + FVector(0.0f, -5600.0f, 3300.0f);
+        BroadcastLocation = FMath::VInterpTo(BroadcastLocation, TargetLocation, DeltaSeconds, 3.4f);
+
+        const FVector LookTarget = FocusLocation + FVector(0.0f, 0.0f, 220.0f);
         BroadcastRotation = FMath::RInterpTo(
             BroadcastRotation,
             UKismetMathLibrary::FindLookAtRotation(BroadcastLocation, LookTarget),
@@ -71,6 +87,6 @@ void AObitrendCinematicCamera::Tick(float DeltaSeconds)
         SetActorRotation(BroadcastRotation);
     }
 
-    const float Fov = Alpha < 1.0f ? FMath::Lerp(48.0f, 55.0f, Smooth) : 52.0f;
+    const float Fov = Alpha < 1.0f ? FMath::Lerp(48.0f, 55.0f, Smooth) : 54.0f;
     GetCameraComponent()->SetFieldOfView(Fov);
 }
